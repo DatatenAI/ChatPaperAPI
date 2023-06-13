@@ -75,7 +75,7 @@ enum TaskType {
   TRANSLATE /// 翻译
 }
 
-model SummaryTask {
+model Task {
   id            String    @id @default(cuid())
   userId        String    @map("user_id") /// 用户ID
   pdfHash       String    @map("pdf_hash") /// PDF hash
@@ -85,18 +85,23 @@ model SummaryTask {
   state         TaskState // 任务状态
   createdAt     DateTime  @map("created_at") /// 创建时间
   finishedAt    DateTime? @map("finished_at") /// 结束时间
+  summary       Summary?  @relation(fields: [pdfHash, language], references: [pdfHash, language])
 
-  @@index([pdfHash, type])
-  @@map("summary_tasks")
+  @@index([pdfHash, language, type])
+  @@map("tasks")
 }
 
-model SummaryResult {
-  id                  String @id @default(cuid())
-  pdfHash             String @map("pdf_hash") /// PDF hash
+model Summary {
+  id                  String   @id @default(cuid())
+  pdfHash             String   @map("pdf_hash") /// PDF hash
   language            String /// 语言
-  title               String @db.Text /// 标题
-  basicInfo           String @map("basic_info") @db.Text ///基础内容
-  firstPageConclution String @map("first_page_conclution") @db.Text ///第一页总结内容
+  title               String   @db.Text /// 标题
+  basicInfo           String   @map("basic_info") @db.Text ///基础内容
+  firstPageConclution String   @map("first_page_conclution") @db.Text ///第一页总结内容
+  content             String   @db.Text ///总结内容
+  createdAt           DateTime // 创建时间
+  tasks               Task[]
 
-  @@map("summary_results")
+  @@unique([pdfHash, language])
+  @@map("summaries")
 }
