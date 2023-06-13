@@ -1,0 +1,99 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["extendedWhereUnique", "orderByNulls"]
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String? /// 用户名称
+  email         String    @unique /// 用户邮箱
+  emailVerified DateTime? @map("email_verified") /// 是否验证功能
+  image         String? /// 用户头像
+  password      String? /// 用户密码
+  accounts      Account[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refreshToken      String? @map("refresh_token")
+  accessToken       String? @map("access_token")
+  expiresAt         Int?    @map("expires_at")
+  tokenType         String? @map("token_type")
+  scope             String?
+  idToken           String? @map("id_token")
+  sessionState      String? @map("session_state")
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index(userId)
+  @@map("accounts")
+}
+
+enum VerificationTokenType {
+  register
+  reset_password
+}
+
+model VerificationToken {
+  identifier String
+  token      String                @unique
+  type       VerificationTokenType
+  createdAt  DateTime              @default(now()) @map("created_at")
+  expires    DateTime
+  usedAt     DateTime?             @map("used_at")
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Point {
+  id     String @id @default(cuid())
+  userId String @unique @map("user_id")
+
+  @@map("points")
+}
+
+enum TaskState {
+  RUNNING
+  SUCCESS
+  FAIL
+}
+
+enum TaskType {
+  SUMMARY
+  TRANSLATE
+}
+
+model SummaryTask {
+  id            String    @id @default(cuid())
+  userId        String    @map("user_id")
+  pdfHash       String    @map("pdf_hash")
+  language      String
+  type          TaskType
+  consumePoints Decimal   @map("consume_points")
+  state         TaskState
+  createdAt     DateTime  @map("created_at")
+  finishedAt    DateTime? @map("finished_at")
+
+  @@index([pdfHash, type])
+  @@map("summary_tasks")
+}
+
+model SummaryResult {
+  id       String @id @default(cuid())
+  pdfHash  String @map("pdf_hash")
+  language String
+
+  @@map("summary_results")
+}
