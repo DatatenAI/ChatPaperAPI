@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["extendedWhereUnique", "orderByNulls"]
+  previewFeatures = ["orderByNulls", "extendedWhereUnique"]
 }
 
 datasource db {
@@ -11,11 +11,16 @@ datasource db {
 
 model User {
   id            String    @id @default(cuid())
-  name          String? /// 用户名称
-  email         String    @unique /// 用户邮箱
-  emailVerified DateTime? @map("email_verified") /// 是否验证功能
-  image         String? /// 用户头像
-  password      String? /// 用户密码
+  /// 用户名称
+  name          String?
+  /// 用户邮箱
+  email         String    @unique
+  /// 是否验证功能
+  emailVerified DateTime? @map("email_verified")
+  /// 用户头像
+  image         String?
+  /// 用户密码
+  password      String?
   accounts      Account[]
 
   @@map("users")
@@ -36,13 +41,8 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
-  @@index(userId)
+  @@index([userId])
   @@map("accounts")
-}
-
-enum VerificationTokenType {
-  register
-  reset_password
 }
 
 model VerificationToken {
@@ -64,27 +64,23 @@ model Point {
   @@map("points")
 }
 
-enum TaskState {
-  RUNNING /// 正在运行
-  SUCCESS ///成功
-  FAIL ///失败
-}
-
-enum TaskType {
-  SUMMARY /// 总结
-  TRANSLATE /// 翻译
-}
-
 model Task {
   id            String    @id @default(cuid())
-  userId        String    @map("user_id") /// 用户ID
-  pdfHash       String    @map("pdf_hash") /// PDF hash
-  language      String /// 语言
-  type          TaskType /// 任务类型
-  consumePoints Decimal   @map("consume_points") ///消耗point
-  state         TaskState // 任务状态
-  createdAt     DateTime  @map("created_at") /// 创建时间
-  finishedAt    DateTime? @map("finished_at") /// 结束时间
+  /// 用户ID
+  userId        String    @map("user_id")
+  /// PDF hash
+  pdfHash       String    @map("pdf_hash")
+  /// 语言
+  language      String
+  /// 任务类型
+  type          TaskType
+  /// 消耗point
+  consumePoints Decimal   @map("consume_points")
+  state         TaskState
+  /// 创建时间
+  createdAt     DateTime  @map("created_at")
+  /// 结束时间
+  finishedAt    DateTime? @map("finished_at")
   summary       Summary?  @relation(fields: [pdfHash, language], references: [pdfHash, language])
 
   @@index([pdfHash, language, type])
@@ -93,15 +89,53 @@ model Task {
 
 model Summary {
   id                  String   @id @default(cuid())
-  pdfHash             String   @map("pdf_hash") /// PDF hash
-  language            String /// 语言
-  title               String   @db.Text /// 标题
-  basicInfo           String   @map("basic_info") @db.Text ///基础内容
-  firstPageConclution String   @map("first_page_conclution") @db.Text ///第一页总结内容
-  content             String   @db.Text ///总结内容
-  createdAt           DateTime // 创建时间
+  /// PDF hash
+  pdfHash             String   @map("pdf_hash")
+  /// 语言
+  language            String
+  /// 标题
+  title               String   @db.Text
+  /// 基础内容
+  basicInfo           String   @map("basic_info") @db.Text
+  /// 第一页总结内容
+  firstPageConclution String   @map("first_page_conclution") @db.Text
+  /// 总结内容
+  content             String   @db.Text
+  createdAt           DateTime
   tasks               Task[]
 
   @@unique([pdfHash, language])
   @@map("summaries")
+}
+
+model WxUser {
+  id        String  @id
+  open_id   String?
+  union_id  String?
+  nick_name String?
+  phone     String  @unique
+  avatar    String?
+
+  @@map("wx_users")
+}
+
+enum VerificationTokenType {
+  register
+  reset_password
+}
+
+enum TaskState {
+  /// 正在运行
+  RUNNING
+  /// 成功
+  SUCCESS
+  /// 失败
+  FAIL
+}
+
+enum TaskType {
+  /// 总结
+  SUMMARY
+  /// 翻译
+  TRANSLATE
 }

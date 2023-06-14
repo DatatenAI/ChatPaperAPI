@@ -34,6 +34,7 @@
     "postcss": "8.4.24",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "request": "^2.88.2",
     "react-hook-form": "^7.44.3",
     "react-icons": "^4.9.0",
     "string-template": "^1.0.0",
