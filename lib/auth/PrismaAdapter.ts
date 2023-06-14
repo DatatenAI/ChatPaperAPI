@@ -88,7 +88,8 @@ const PrismaAdapter = (prisma: PrismaClient) => {
                 expires_at: expiresAt || undefined,
                 id_token: idToken || undefined,
                 session_state: sessionState || undefined,
-                scope: scope || undefined
+                scope: scope || undefined,
+                type:'oauth'
             } satisfies AdapterAccount;
         },
 
