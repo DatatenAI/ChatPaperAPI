@@ -36,6 +36,9 @@ const insertWxUser = publicProcedure
                 interest: interest
             },
         });
+        return {
+            message: "User information is processed successfully. Procedure",
+        };
     });
 
 export default insertWxUser;

@@ -27,18 +27,19 @@ model User {
 }
 
 model Account {
-  id                String  @id @default(cuid())
-  userId            String  @map("user_id")
+  id                String        @id @default(cuid())
+  userId            String        @map("user_id")
   provider          String
-  providerAccountId String  @map("provider_account_id")
-  refreshToken      String? @map("refresh_token")
-  accessToken       String? @map("access_token")
-  expiresAt         Int?    @map("expires_at")
-  tokenType         String? @map("token_type")
+  providerAccountId String        @map("provider_account_id")
+  refreshToken      String?       @map("refresh_token")
+  accessToken       String?       @map("access_token") @db.Text
+  expiresAt         Int?          @map("expires_at")
+  tokenType         String?       @map("token_type")
   scope             String?
-  idToken           String? @map("id_token")
-  sessionState      String? @map("session_state")
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  idToken           String?       @map("id_token") @db.Text
+  sessionState      String?       @map("session_state")
+  type              accounts_type
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@index([userId])
@@ -108,117 +109,134 @@ model Summary {
   @@map("summaries")
 }
 
+/// 关键词库
 model Keywords {
   id             String    @id
   /// 关键词缩写
-  keywordShort   String    @unique @map("keyword_short")
+  keywordShort   String    @map("keyword_short")
   /// 关键词原文
   searchKeywords String?   @map("search_keywords")
   createTime     DateTime? @map("create_time") @db.DateTime(0)
   updateTime     DateTime? @map("update_time") @db.Timestamp(0)
+  subscribeKeywords   SubscribeKeywords[]
 
   @@map("keyword_subscribe_table")
 }
 
 
-model KeywordsPdf {
-  id                 String    @id
+///   用户订阅关键词表
+model SubscribeKeywords {
+  id               String    @id
   /// 关键词
-  searchKeywords     String @unique @map("search_keywords")
+  weChatUserId     String @map("we_chat_user_id")
   /// 对应文献pdfurl
-  pdfUrl             String  @unique @map("pdf_url")
+  keywordId        String @map("keyword_id")
+  //关键词详情
+  keywords         Keywords @relation(fields: [keywordId], references: [id])
 
-  @@map("search_keywords_pdf")
+  @@unique([weChatUserId, keywordId])
+  @@index([weChatUserId, keywordId])
+  @@map("subscribe_keywords")
 }
 
 
-model PaperImage {
-  id                 String    @id
+/// 关键词与pdf 关联中间表
+model KeywordsPdf {
+  id             String @id
   /// 关键词
-  searchKeywords     String    @map("search_keywords")
+  searchKeywords String @map("search_keywords")
+  /// 对应文献pdfurl
+  pdfUrl         String @map("pdf_url")
+
+  @@unique([searchKeywords, pdfUrl])
+  @@map("search_keywords_pdf")
+}
+
+/// paper预览图库
+model PaperImage {
+  id             String @id
+  /// 关键词
+  searchKeywords String @map("search_keywords")
   /// 预览图路径
-  imgUrl             String    @map("img_url")
+  imgUrl         String @map("img_url")
 
   @@map("keywords_img_table")
 }
 
-
+/// 文献总结表
 model PaperSummary {
-  id                 String    @id
+  id            String    @id
   /// 文献pdfurl
-  pdfUrl             String  @unique @map("pdf_url")
+  pdfUrl        String    @unique @map("pdf_url")
   /// pdf hash值
-  pdfHash            String  @unique @map("pdf_hash")
+  pdfHash       String    @unique @map("pdf_hash")
   /// 缩写标题
-  shortTitle         String  @db.Text @map("short_title")
+  shortTitle    String    @map("short_title") @db.Text
   /// 标题
-  title              String  @db.Text
+  title         String    @db.Text
   /// 共计页数
-  pages              Int?
+  pages         Int?
   /// 语言
-  languages          String?
+  languages     String?
   /// 0是最长，1是中等，2是最短
-  articleLength      Int?    @map("article_length")
+  articleLength Int?      @map("article_length")
   /// 发表时间
-  pubTime           DateTime? @map("pub_time") @db.DateTime(0)
-  createTime         DateTime? @map("create_time") @db.DateTime(0)
-  updateTime         DateTime? @map("update_time") @db.Timestamp(0)
-  paperInfo          PaperInfo  @relation(fields: [pdfHash], references: [pdfHash])
-
+  pubTime       DateTime? @map("pub_time") @db.DateTime(0)
+  createTime    DateTime? @map("create_time") @db.DateTime(0)
+  updateTime    DateTime? @map("update_time") @db.Timestamp(0)
+  paperInfo     PaperInfo @relation(fields: [pdfHash], references: [pdfHash])
 
   @@map("subscribe_paper_summary")
 }
 
-
+/// 文献基础信息表
 model PaperInfo {
-  id                 String    @id
+  id            String         @id
   /// 对应文献pdfurl
-  pdfUrl  String  @unique @map("pdf_url")
+  pdfUrl        String         @unique @map("pdf_url")
   /// pdf hash值
-  pdfHash            String  @unique @map("pdf_hash")
+  pdfHash       String         @unique @map("pdf_hash")
   /// 年份可以更具体一点，具体到天
-  year    Int?
+  year          Int?
   /// 标题
-  title   String?
+  title         String?
   /// 代码链接
-  code    String? @db.Text
+  code          String?        @db.Text
   /// 文章引用doi
-  doi    String?
+  doi           String?
   /// 相关联的doi
-  relatedDoi  String @map("related_doi")
+  relatedDoi    String         @map("related_doi")
   /// 被引用链接
-  citedByUrl  String @map("cited_by_url")
+  citedByUrl    String         @map("cited_by_url")
   /// 作者
-  authors  String?
+  authors       String?
   /// 摘要
-  abstract  String @db.Text
+  abstract      String         @db.Text
   /// 发表时间
-  pubTime  DateTime? @map("pub_time") @db.DateTime(0)
+  pubTime       DateTime?      @map("pub_time") @db.DateTime(0)
   /// paper内的keywords
-  paperKeywords  String  @map("paper_keywords")
-  /// 总结
-  paperSummary    PaperSummary[]
-
+  paperKeywords String         @map("paper_keywords")
+  paperSummary  PaperSummary[]
 
   @@map("subscribe_paper_info")
 }
 
-
+/// 微信用户表
 model WxUser {
-  id         String    @id
-  openId     String    @unique @map("open_id")
-  unionId    String    @unique @map("union_id")
-  nickName   String?   @map("nick_name")
-  phone      String    @unique
-  email      String?
-  avatar     String?
-  gender     String?
-  birthday   String?
-  area       String?
-  educational       String?
-  interest   String?
-  createTime DateTime? @map("create_time") @db.DateTime(0)
-  updateTime DateTime? @map("update_time") @db.Timestamp(0)
+  id          String    @id
+  openId      String    @unique @map("open_id")
+  unionId     String    @unique @map("union_id")
+  nickName    String?   @map("nick_name")
+  phone       String    @unique
+  email       String?
+  avatar      String?
+  area        String?
+  birthday    String?
+  educational String?
+  gender      String?
+  interest    String?
+  createTime  DateTime? @map("create_time") @db.DateTime(0)
+  updateTime  DateTime? @map("update_time") @db.Timestamp(0)
 
   @@map("wx_users")
 }
@@ -242,4 +260,10 @@ enum TaskType {
   SUMMARY
   /// 翻译
   TRANSLATE
+}
+
+enum accounts_type {
+  oauth
+  email
+  credentials
 }
