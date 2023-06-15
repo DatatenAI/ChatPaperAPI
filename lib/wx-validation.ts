@@ -2,7 +2,34 @@ import z from "zod";
 
 
 const code = z.string().trim();
+const keywords = z.string().trim();
+const openId = z.string().trim();
+const unionId = z.string().trim();
+const nickName = z.string().trim();
+const avatar = z.string().trim();
+const phone = z.string().trim();
+const email = z.string().email();
+const gender = z.string().trim();
+const birthday = z.string().trim();
+const area = z.string().trim();
+const educational = z.string().trim();
+const interest = z.string().trim();
 
-export const WxUserSchema = z.object({code});
+export const openIdSchema = z.object({code});
+export const searchPaperSchema = z.object({keywords});
+
+export const insertUserSchema = z.object({
+    nickName,
+    openId,
+    unionId,
+    avatar,
+    phone,
+    email,
+    gender,
+    birthday,
+    area,
+    educational,
+    interest
+});
 
 
