@@ -132,7 +132,7 @@ model SubscribeKeywords {
   /// 对应文献pdfurl
   keywordId        String @map("keyword_id")
   //关键词详情
-  keywords         Keywords @relation(fields: [keywordId], references: [id])
+  keywords         Keywords? @relation(fields: [keywordId], references: [id])
 
   @@unique([weChatUserId, keywordId])
   @@index([weChatUserId, keywordId])
@@ -170,6 +170,8 @@ model PaperSummary {
   pdfUrl        String    @unique @map("pdf_url")
   /// pdf hash值
   pdfHash       String    @unique @map("pdf_hash")
+  /// 思维导图图片地址
+  mindMap       String    @map("mind_map")
   /// 缩写标题
   shortTitle    String    @map("short_title") @db.Text
   /// 标题
@@ -184,7 +186,7 @@ model PaperSummary {
   pubTime       DateTime? @map("pub_time") @db.DateTime(0)
   createTime    DateTime? @map("create_time") @db.DateTime(0)
   updateTime    DateTime? @map("update_time") @db.Timestamp(0)
-  paperInfo     PaperInfo @relation(fields: [pdfHash], references: [pdfHash])
+  paperInfo     PaperInfo? @relation(fields: [pdfHash], references: [pdfHash])
 
   @@map("subscribe_paper_summary")
 }
@@ -217,9 +219,54 @@ model PaperInfo {
   /// paper内的keywords
   paperKeywords String         @map("paper_keywords")
   paperSummary  PaperSummary[]
+  favoriteDetails FavoriteDetails[]
 
   @@map("subscribe_paper_info")
 }
+
+
+/// 收藏夹
+model Favorite {
+  id             String @id
+  ///  微信用户编号
+  weChatUserId   String @map("we_chat_user_id")
+  /// 微信用户 openid
+  openId         String @map("open_id")
+  ///  收藏夹名称
+  name           String?
+  ///  创建时间
+  createTime     DateTime? @map("create_time") @db.DateTime(0)
+  updateTime     DateTime? @map("update_time") @db.Timestamp(0)
+  /// 收藏夹内容
+  favoriteDetails FavoriteDetails[]
+
+  @@map("favorite")
+}
+
+
+/// 收藏夹内容
+model FavoriteDetails {
+  id             String @id
+  /// 微信用户编号
+  weChatUserId   String @map("we_chat_user_id")
+  /// 微信用户 openid
+  openId         String @map("open_id")
+  /// 收藏夹主键
+  favoriteId     String? @map("favorite_id")
+  /// 文章主键
+  paperId        String? @map("paper_id")
+  /// 收藏来源
+  source         String?
+  /// 创建时间
+  createTime     DateTime? @map("create_time") @db.DateTime(0)
+  updateTime     DateTime? @map("update_time") @db.Timestamp(0)
+  favorite       Favorite?  @relation(fields: [favoriteId], references: [id])
+  paperInfo      PaperInfo?  @relation(fields: [paperId], references: [id])
+
+  @@map("favorite_detail")
+}
+
+
 
 /// 微信用户表
 model WxUser {
