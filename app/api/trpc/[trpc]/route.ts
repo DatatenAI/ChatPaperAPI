@@ -21,9 +21,7 @@ const handler: Api = (req) => {
             };
         },
         onError: ({error, type, path, input, ctx, req}) => {
-            if (error.code === "INTERNAL_SERVER_ERROR") {
-                logger.error(error.cause);
-            }
+            logger.error(error.cause);
         }
     });
 };
