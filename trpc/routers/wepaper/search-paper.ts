@@ -6,7 +6,7 @@ import {searchPaperSchema} from "@/lib/wx-validation";
 const searchPaper = publicProcedure
     .input(searchPaperSchema)
     .query(async ({input, ctx}) => {
-        const { keywords } = input
+        const { keywords,pageNum,pageSize } = input
         const keywordList = await prisma.keywords.findMany(
             {
                 where: {
@@ -23,6 +23,8 @@ const searchPaper = publicProcedure
         }
         const urls = keywordList.map((keyword) => keyword.pdfUrl);
         const paperInfoList = await prisma.paperInfo.findMany({
+            take: pageSize, // 指定每页要获取的结果数量
+            skip: (pageNum - 1) * pageSize, // 根据当前页码计算要跳过的结果数量
             where: {
                 pdfUrl: {
                     in: urls,

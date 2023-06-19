@@ -1,5 +1,6 @@
 import {publicProcedure} from "@/trpc";
 import {openIdSchema} from "@/lib/wx-validation";
+import prisma from "@/lib/database";
 
 const getOpenId = publicProcedure
     .input(openIdSchema)
@@ -14,7 +15,7 @@ const getOpenId = publicProcedure
             secret,
             js_code: code
         });
-        return await fetch(`https://api.weixin.qq.com/sns/jscode2session?${params}`).then(res => res.json());
+        return  await fetch(`https://api.weixin.qq.com/sns/jscode2session?${params}`).then(res => res.json());
     });
 
 export default getOpenId;

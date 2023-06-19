@@ -7,8 +7,8 @@ import {date} from "zod";
 const insertWxUser = publicProcedure
     .input(insertUserSchema)
     .mutation(async ({input, ctx}) => {
-        const {openId,unionId,nickName,avatar,phone,email,gender,birthday,area,educational,interest} = input;
-        const wechat = await prisma.wxUser.upsert({
+        const {openId,unionId,nickName,avatar,phone,email,gender,birthday,country,province,city,educational,interest} = input;
+        return await prisma.wxUser.upsert({
             where: {
                 openId: openId,
             },
@@ -19,7 +19,9 @@ const insertWxUser = publicProcedure
                 email: email,
                 gender: gender,
                 birthday: birthday,
-                area: area,
+                country: country,
+                province: province,
+                city: city,
                 educational: educational,
                 interest: interest
             },
@@ -32,14 +34,31 @@ const insertWxUser = publicProcedure
                 email: email,
                 gender: gender,
                 birthday: birthday,
-                area: area,
+                country: country,
+                province: province,
+                city: city,
                 educational: educational,
                 interest: interest,
-                createTime: new date()
+                createTime: DateTime.now()
             },
-            selece: {}
+            select: {
+                id: true,
+                openId: true,
+                unionId: true,
+                nickName: true,
+                avatar: true,
+                phone: true,
+                email: true,
+                gender: true,
+                birthday: true,
+                country: true,
+                province: true,
+                city: true,
+                educational: true,
+                interest: true,
+                createTime: true
+            }
         });
-        return wechat;
     });
 
 export default insertWxUser;
