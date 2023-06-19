@@ -1,15 +1,15 @@
 import {publicProcedure} from "@/trpc";
 import prisma from "@/lib/database";
-import {addLikeSchema} from "@/lib/wx-validation";
+import {addReadSchema} from "@/lib/wx-validation";
+import {date} from "zod";
 
 
-
-/// 点赞
-const addLike = publicProcedure
-    .input(addLikeSchema)
+/// 加入待阅
+const addRead = publicProcedure
+    .input(addReadSchema)
     .query(async ({input, ctx}) => {
         const {userId,openId,paperId} = input;
-        await prisma.wxLike.create({
+        await prisma.wxWaitRead.create({
             data: {
                 weChatUserId: userId,
                 openId: openId,
@@ -18,8 +18,8 @@ const addLike = publicProcedure
             }
         })
         return {
-            message: "like added successfully",
+            message: "read added successfully",
         };
     });
 
-export default addLike;
+export default addRead;

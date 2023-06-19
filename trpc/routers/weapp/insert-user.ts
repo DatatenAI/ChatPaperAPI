@@ -7,7 +7,7 @@ import {date} from "zod";
 const insertWxUser = publicProcedure
     .input(insertUserSchema)
     .mutation(async ({input, ctx}) => {
-        const {openId,unionId,nickName,avatar,phone,email,gender,birthday,country,province,city,educational,interest} = input;
+        const {openId,unionId,nickName,avatar,phone,email,gender,birthday,country,province,city,educational,interest,intro} = input;
         return await prisma.wxUser.upsert({
             where: {
                 openId: openId,
@@ -23,7 +23,8 @@ const insertWxUser = publicProcedure
                 province: province,
                 city: city,
                 educational: educational,
-                interest: interest
+                interest: interest,
+                intro: intro
             },
             create: {
                 openId: openId,
@@ -39,7 +40,8 @@ const insertWxUser = publicProcedure
                 city: city,
                 educational: educational,
                 interest: interest,
-                createTime: DateTime.now()
+                intro: intro,
+                createTime: new Date()
             },
             select: {
                 id: true,
@@ -55,7 +57,7 @@ const insertWxUser = publicProcedure
                 province: true,
                 city: true,
                 educational: true,
-                interest: true,
+                intro: true,
                 createTime: true
             }
         });

@@ -5,7 +5,7 @@ import {date} from "zod";
 
 
 /// 添加收藏
-const insertFavorite = publicProcedure
+const addFavorite = publicProcedure
     .input(insertFavoriteSchema)
     .query(async ({input, ctx}) => {
         const {userId,openId,favoriteId,source} = input;
@@ -24,4 +24,4 @@ const insertFavorite = publicProcedure
         };
     });
 
-export default insertFavorite;
+export default addFavorite;

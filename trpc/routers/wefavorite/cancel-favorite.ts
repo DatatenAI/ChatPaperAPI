@@ -5,7 +5,7 @@ import {date} from "zod";
 
 
 /// 取消收藏
-const deleteFavorite = publicProcedure
+const cancelFavorite = publicProcedure
     .input(insertFavoriteSchema)
     .query(async ({input, ctx}) => {
         const {userId,openId,favoriteId} = input;
@@ -21,4 +21,4 @@ const deleteFavorite = publicProcedure
         };
     });
 
-export default deleteFavorite;
+export default cancelFavorite;

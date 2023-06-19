@@ -93,17 +93,30 @@ model Summary {
   /// PDF hash
   pdfHash             String   @map("pdf_hash")
   /// 语言
-  language            String
+  language            String?
   /// 标题
-  title               String   @db.Text
+  title               String?
+  /// 简写标题
+  shortTitle          String   @map("short_title")
+  /// 中文标题
+  titleZh             String   @map("title_zh")
   /// 基础内容
   basicInfo           String   @map("basic_info") @db.Text
+  /// 简短的总结，采用json
+  briefIntroduction   String   @db.Text @map("brief_introduction")
   /// 第一页总结内容
-  firstPageConclution String   @map("first_page_conclution") @db.Text
-  /// 总结内容
+  firstPageConclusion String   @db.Text @map("first_page_conclusion")
+  /// 全部总结内容
   content             String   @db.Text
-  createdAt           DateTime
+  /// 中等总结内容
+  mediumContent       String   @db.Text @map("medium_content")
+  /// 简短总结内容
+  shortContent        String   @db.Text @map("short_content")
+  ///  创建时间
+  createTime          DateTime? @map("create_time")
+  updateTime          DateTime? @map("update_time") @db.Timestamp(0)
   tasks               Task[]
+  paperInfo           PaperInfo? @relation(fields: [pdfHash], references: [pdfHash])
 
   @@unique([pdfHash, language])
   @@map("summaries")
@@ -115,12 +128,31 @@ model Keywords {
   /// 关键词缩写
   keywordShort   String    @map("keyword_short")
   /// 关键词原文
-  searchKeywords String?   @map("search_keywords")
+  searchKeywords String @unique  @map("search_keywords")
+  /// 订阅量
+  subNum         Int       @map("sub_num")
   createTime     DateTime? @map("create_time")
   updateTime     DateTime? @map("update_time") @db.Timestamp(0)
   subscribeKeywords   SubscribeKeywords[]
+  keywordsPdf    KeywordsPdf[]
+
 
   @@map("keyword_subscribe_table")
+}
+
+/// 关键词与pdf 关联中间表
+model KeywordsPdf {
+  id             String @id @default(cuid())
+  /// 关键词
+  searchKeywords String @map("search_keywords")
+  /// 查询来源
+  searchFrom     String @map("search_From")
+  /// 对应文献pdfurl
+  pdfUrl         String @map("pdf_url")
+  keywords       Keywords? @relation(fields: [searchKeywords], references: [searchKeywords])
+
+  @@unique([searchKeywords, pdfUrl])
+  @@map("search_keywords_pdf")
 }
 
 
@@ -131,6 +163,8 @@ model SubscribeKeywords {
   weChatUserId     String @map("we_chat_user_id")
   /// 对应文献pdfurl
   keywordId        String @map("keyword_id")
+  /// 用户openId
+  openId           String @map("open_id")
   //关键词详情
   keywords         Keywords? @relation(fields: [keywordId], references: [id])
 
@@ -140,17 +174,6 @@ model SubscribeKeywords {
 }
 
 
-/// 关键词与pdf 关联中间表
-model KeywordsPdf {
-  id             String @id @default(cuid())
-  /// 关键词
-  searchKeywords String @map("search_keywords")
-  /// 对应文献pdfurl
-  pdfUrl         String @map("pdf_url")
-
-  @@unique([searchKeywords, pdfUrl])
-  @@map("search_keywords_pdf")
-}
 
 /// paper预览图库
 model PaperImage {
@@ -163,37 +186,12 @@ model PaperImage {
   @@map("keywords_img_table")
 }
 
-/// 文献总结表
-model PaperSummary {
-  id            String    @id @default(cuid())
-  /// 文献pdfurl
-  pdfUrl        String    @unique @map("pdf_url")
-  /// pdf hash值
-  pdfHash       String    @unique @map("pdf_hash")
-  /// 思维导图图片地址
-  mindMap       String    @map("mind_map")
-  /// 缩写标题
-  shortTitle    String    @map("short_title") @db.Text
-  /// 标题
-  title         String    @db.Text
-  /// 共计页数
-  pages         Int?
-  /// 语言
-  languages     String?
-  /// 0是最长，1是中等，2是最短
-  articleLength Int?      @map("article_length")
-  /// 发表时间
-  pubTime       DateTime? @map("pub_time")
-  createTime    DateTime? @map("create_time")
-  updateTime    DateTime? @map("update_time") @db.Timestamp(0)
-  paperInfo     PaperInfo? @relation(fields: [pdfHash], references: [pdfHash])
-
-  @@map("subscribe_paper_summary")
-}
 
 /// 文献基础信息表
 model PaperInfo {
   id            String         @id @default(cuid())
+  /// paper的简介链
+  url           String?
   /// 对应文献pdfurl
   pdfUrl        String         @unique @map("pdf_url")
   /// pdf hash值
@@ -214,15 +212,37 @@ model PaperInfo {
   authors       String?
   /// 摘要
   abstract      String         @db.Text
+  /// 预览图
+  imgUrl        String?        @map("img_url")
   /// 发表时间
   pubTime       DateTime?      @map("pub_time")
   /// paper内的keywords
   paperKeywords String         @map("paper_keywords")
-  paperSummary  PaperSummary[]
+  ///  创建时间
+  createTime    DateTime? @map("create_time")
+  summary       Summary[]
   favoriteDetails FavoriteDetails[]
   wxLike        Wxlike[]
+  wxWaitRead    WxWaitRead[]
 
   @@map("subscribe_paper_info")
+}
+
+
+/// 待阅
+model WxWaitRead {
+  id             String @id @default(cuid())
+  ///  微信用户编号
+  weChatUserId   String @map("we_chat_user_id")
+  /// 微信用户 openid
+  openId         String @map("open_id")
+  ///  待阅文章主键
+  paperId        String?
+  ///  创建时间
+  createTime     DateTime? @map("create_time")
+  paperInfo      PaperInfo?  @relation(fields: [paperId], references: [id])
+
+  @@map("wx_wait_read")
 }
 
 
@@ -301,6 +321,7 @@ model WxUser {
   educational String?
   gender      String?
   interest    String?
+  intro       String?
   createTime  DateTime? @map("create_time")
   updateTime  DateTime? @map("update_time") @db.Timestamp(0)
 

@@ -13,7 +13,10 @@ const searchPaper = publicProcedure
                     searchKeywords: {
                         contains: keywords,
                     },
-                }
+                },
+                include: {
+                    keywordsPdf: true,
+                },
             }
         );
         if (keywordList == null || keywordList.length === 0) {
@@ -21,8 +24,19 @@ const searchPaper = publicProcedure
                 message: "No data was queried",
             };
         }
-        const urls = keywordList.map((keyword) => keyword.pdfUrl);
-        const paperInfoList = await prisma.paperInfo.findMany({
+        const urls = [];
+        // 遍历关键词对象数组
+        keywordList.forEach((keyword) => {
+            // 提取每个对象中的keywordpdf集合
+            const keywordsPdf = keyword.keywordsPdf;
+
+            // 遍历keywordpdf集合中的每个对象，提取pdf字段
+            keywordsPdf.forEach((keywordPdf) => {
+                const pdfUrl = keywordPdf.pdfUrl;
+                urls.push(pdfUrl);
+            });
+        });
+        return await prisma.paperInfo.findMany({
             take: pageSize, // 指定每页要获取的结果数量
             skip: (pageNum - 1) * pageSize, // 根据当前页码计算要跳过的结果数量
             where: {
@@ -31,34 +45,12 @@ const searchPaper = publicProcedure
                 },
             },
             include: {
-                paperSummary: true,
+                summary: true,
             },
             orderBy: {
                 createTime: 'desc',
             },
         });
-        // 关联查询照片
-        const imgList = await prisma.paperImage.findMany(
-            {
-                where: {
-                    searchKeywords: {
-                        contains: keywords,
-                    },
-                }
-            }
-        );
-        paperInfoList.forEach((info) => {
-            const matchedImages = imgList.filter((image) =>
-                info.keywords.includes(image.keywords)
-            );
-            if (matchedImages.length > 0) {
-                const randomIndex = Math.floor(Math.random() * matchedImages.length);
-                info.viewImg = matchedImages[randomIndex];
-            }else {
-                info.viewImg = null;
-            }
-        });
-        return paperInfoList;
     });
 
 export default searchPaper;

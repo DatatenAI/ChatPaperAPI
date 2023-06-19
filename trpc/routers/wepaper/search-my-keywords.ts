@@ -6,13 +6,20 @@ import {scarchMyKeywordsSchema} from "@/lib/wx-validation";
 const searchMyKeyWords = publicProcedure
     .input(scarchMyKeywordsSchema)
     .query(async ({input, ctx}) => {
-        const {userId} = input;
-        return await prisma.subscribeKeywords.findMany({
+        const {userId,openId} = input;
+        const mykeywords = await prisma.subscribeKeywords.findMany({
             where: {
-                weChatUserId: userId
+                weChatUserId: userId,
+                openId: openId
             },
             include: {keywords: true}
         })
+        const defKeyWords =  await prisma.keywords.findMany({
+            orderBy: {
+                subNum: 'desc'
+            }
+        })
+        return {"mykeywords":mykeywords,"defKeyWords":defKeyWords}
     });
 
 export default searchMyKeyWords;

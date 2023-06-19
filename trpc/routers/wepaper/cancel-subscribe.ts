@@ -3,7 +3,7 @@ import prisma from "@/lib/database";
 import {subscribeSchema} from "@/lib/wx-validation";
 
 
-const deleteSubscribe = publicProcedure
+const cancelSubscribe = publicProcedure
     .input(subscribeSchema)
     .query(async ({input, ctx}) => {
         const {keywordId,userId} = input;
@@ -13,9 +13,17 @@ const deleteSubscribe = publicProcedure
                 weChatUserId: userId
             },
         });
+        await prisma.keywords.update({
+            where: { id:keywordId },
+            data: {
+                sub_num: {
+                    increment: -1,
+                },
+            },
+        });
         return {
             message: "Subscription delete successfully",
         };
     });
 
-export default deleteSubscribe;
+export default cancelSubscribe;
