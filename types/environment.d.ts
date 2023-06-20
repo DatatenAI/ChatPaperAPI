@@ -16,6 +16,6 @@ declare namespace NodeJS {
     readonly OSS_BUCKET: string;
     readonly OSS_ACCESS_KEY: string;
     readonly OSS_ACCESS_SECRET: string;
-    readonly OSS_VOLUME_PATH: string;
+    readonly OSS_VOLUME_PATH?: string;
   }
 }

@@ -3,17 +3,15 @@ import {CreateTaskSchema} from "@/lib/validation";
 import prisma from "@/lib/database";
 import {CreditType, Prisma, TaskState, TaskType} from "@prisma/client";
 import ApiError from "@/lib/ApiError";
-import {uploadRemoteFile} from "@/lib/oss";
+import {readFile, uploadRemoteFile} from "@/lib/oss";
 import {PDFDocument} from "pdf-lib";
-import path from "path";
 
 /**
  * 计算任务消耗credits
  * @param pdfHash 获取pdf页数
  */
 const getPdfPages = async (pdfHash: string) => {
-    let pages = 0;
-    const doc = await PDFDocument.load(path.resolve(process.env.OSS_VOLUME_PATH, 'uploads', `${pdfHash}.pdf`));
+    const doc = await PDFDocument.load(await readFile("uploads", `${pdfHash}.pdf`));
     return doc.getPages().length;
 };
 
@@ -35,6 +33,10 @@ const create = protectedProcedure
                     })
                 );
                 for (let uploadFile of uploadFiles) {
+                    if (uploadFile.mime !== 'application/pdf') {
+                        const idx = input.pdfUrls.findIndex(it => it === uploadFile.originUrl);
+                        throw new ApiError(`第${idx + 1}行链接不是PDF文件`);
+                    }
                     if (!pdfHashes.includes(uploadFile.hash)) {
                         pdfHashes.push(uploadFile.hash);
                     }
@@ -42,15 +44,8 @@ const create = protectedProcedure
             }
         }
         if (!pdfHashes.length) {
-            throw new ApiError("pdf为空");
+            throw new ApiError("PDF文件不能为空");
         }
-        const credit = await prisma.credit.findUnique({
-            where: {
-                userId: ctx.session.user.id,
-            },
-        });
-        let taskType: TaskType = TaskType.SUMMARY;
-        let hasSame = false;
         const allSameTasks = await prisma.task.findMany({
             where: {
                 pdfHash: {
@@ -68,100 +63,68 @@ const create = protectedProcedure
                 taskType = TaskType.SUMMARY;
             }
             const sameLanguageTask = sameHashTasks.findIndex(task => task.language === input.language) >= 0;
+            const pages = await getPdfPages(it);
             return {
                 type: taskType,
                 userId: ctx.session.user.id,
                 language: input.language,
                 pdfHash: it,
-                pages: await getPdfPages(it),
-                costCredits: new Prisma.Decimal(0),
+                pages,
+                costCredits: pages * (task.type === TaskType.SUMMARY ? 1 : 0.5),
                 state: sameLanguageTask ? TaskState.SUCCESS : TaskState.RUNNING,
             };
         }));
 
 
         const costCredits = tasks.reduce((sum, task) => {
-            return sum.add(task.pages * (task.type === TaskType.SUMMARY ? 1 : 0.5));
+            return sum.add(task.costCredits);
         }, new Prisma.Decimal(0));
 
-
-        if (credit) {
-            if (credit.gift.add(credit.purchase).lessThan(costCredits)) {
-                throw new ApiError("可用点数不够");
-            }
-            const giftCost = credit.gift.gte(costCredits) ? costCredits : credit.gift;
-            let surplusCredits = new Prisma.Decimal(0);
-            if (costCredits.gt(credit.gift)) {
-                surplusCredits = costCredits.sub(credit.gift);
-            }
-            if (credit.purchase.lt(surplusCredits)) {
-                throw new ApiError("可用点数不够");
-            }
-            const purchaseCost = surplusCredits;
-            await prisma.$transaction(async trx => {
-                let newVar = await trx.task.createMany({
-                    data: tasks
-                });
-            });
-        }
-
-
-        if (credit) {
-            let creditType: CreditType | undefined;
-            const giftCost = credit.gift.lte(costCredits) ? costCredits : credit.gift;
-
-            if (credit.gift.lte(costCredits)) {
-                creditType = CreditType.GIFT;
-            } else if (credit.purchase.lte(costCredits)) {
-                creditType = CreditType.PURCHASE;
-            }
-            if (creditType) {
-                await prisma.$transaction(async (trx) => {
-                    await trx.task.create({
-                        data: {
-                            pdfHash: input.pdfHash,
-                            type: taskType,
-                            userId: ctx.session.user.id,
-                            language: input.language,
-                            state: hasSame ? TaskState.SUCCESS : TaskState.RUNNING,
+        await prisma.$transaction(async trx => {
+            try {
+                await trx.user.update({
+                    where: {
+                        id: ctx.session.user.id,
+                        credit: {
+                            gte: costCredits
                         },
-                    });
-                    const where: Prisma.CreditUpdateArgs["where"] = {
-                        userId: ctx.session.user.id,
-                    };
-                    const data: Prisma.CreditUpdateArgs["data"] = {};
-                    if (creditType === CreditType.GIFT) {
-                        where.gift = credit.gift;
-                        data.gift = {
-                            increment: -costCredit,
-                        };
-                        data.frozenGift = {
-                            increment: costCredit,
-                        };
-                    } else {
-                        where.purchase = credit.purchase;
-                        data.purchase = {
-                            increment: -costCredit,
-                        };
-                        data.frozenPurchase = {
-                            increment: costCredit,
-                        };
+                    },
+                    data: {
+                        credit: {
+                            increment: -costCredits,
+                        }
                     }
-                    await trx.credit.update({
-                        where,
-                        data,
-                    });
-                    await trx.creditHistory.create({
-                        data: {
-                            userId: ctx.session.user.id,
-                            creditType: creditType!,
-                            amount: -costCredit,
-                        },
-                    });
                 });
+            } catch (e) {
+                if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                    if (e.code === "P2025") {
+                        throw new ApiError("可用点数不够");
+                    }
+                }
+                throw e;
             }
+            await trx.task.createMany({
+                data: tasks
+            });
+            await trx.creditHistory.create({
+                data: {
+                    userId: ctx.session.user.id,
+                    type: CreditType.TASK,
+                    amount: -costCredits,
+                },
+            });
+        });
+        if (pdfHashes.length > 1) {
+            return null;
         }
-        throw new ApiError("可用点数不够");
+        const task = await prisma.task.findFirst({
+            where: {
+                userId: ctx.session.user.id,
+                pdfHash: pdfHashes[0],
+                language: input.language
+            }
+        })
+        return task?.id
     });
 
 export default create;

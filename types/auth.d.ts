@@ -1,4 +1,5 @@
-import { User } from "next-auth";
+import {User} from "next-auth";
+import {Prisma} from "@prisma/client";
 
 type UserId = string
 

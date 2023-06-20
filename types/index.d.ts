@@ -7,8 +7,8 @@ type AsyncComponent<T = {}> = (props: {
 export type Layout = AsyncComponent;
 
 
-export type Page = (props: {
-    params: { slug: string };
+export type Page<T extends string="slug"> = (props: {
+    params: Record<T, string>;
     searchParams?: { [key: string]: string | string[] | undefined };
 }) => JSX.Element | Promise<JSX.Element>
 

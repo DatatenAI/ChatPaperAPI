@@ -16,11 +16,15 @@ import {BsDiscord} from "react-icons/bs";
 import {RxAvatar} from "react-icons/rx";
 import Link from "next/link";
 import {MdDataUsage} from "react-icons/md";
+import {signOut} from "next-auth/react";
 
 const UserAvatar: FC<{
     user: User
 }> = ({user}) => {
-    console.log(user.image)
+
+    const logout = async () => {
+        await signOut();
+    }
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -66,7 +70,7 @@ const UserAvatar: FC<{
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator/>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>
                     <BiLogOut className="mr-2 h-4 w-4"/>
                     <span>退出登录</span>
                 </DropdownMenuItem>

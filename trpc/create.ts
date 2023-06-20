@@ -1,9 +1,10 @@
 import "server-only";
-import { Session } from "next-auth";
-import { initTRPC, TRPCError } from "@trpc/server";
+import {Session} from "next-auth";
+import {initTRPC, TRPCError} from "@trpc/server";
 import superJson from "superjson";
-import { ZodError } from "zod";
-import type { Logger } from "pino";
+import {ZodError} from "zod";
+import type {Logger} from "pino";
+import ApiError from "@/lib/ApiError";
 
 type TRPCContext = {
     session: Session | null,
@@ -14,14 +15,14 @@ type TRPCContext = {
 const t = initTRPC.context<TRPCContext>().create({
     transformer: superJson,
     isDev: process.env.NODE_ENV === "production",
-    errorFormatter({ shape, error }) {
+    errorFormatter({shape, error}) {
         return {
             ...shape,
             data: {
                 ...shape.data,
                 zod: error.cause instanceof ZodError ? error.cause.flatten() : null
             },
-            message: error.code === "INTERNAL_SERVER_ERROR" ? "An unknown error has occurred." : shape.message
+            message: error.code === "INTERNAL_SERVER_ERROR" ? (error.cause instanceof ApiError ? shape.message : "请求异常") : shape.message
         };
     }
 });
@@ -29,20 +30,20 @@ const t = initTRPC.context<TRPCContext>().create({
 
 export const createTRPCRouter = t.router;
 
-const logMiddleware = t.middleware(({ ctx, path, rawInput, next }) => {
-    ctx.logger.info({ path, input: rawInput });
+const logMiddleware = t.middleware(({ctx, path, rawInput, next}) => {
+    ctx.logger.info({path, input: rawInput});
     return next();
 });
 export const publicProcedure = t.procedure.use(logMiddleware);
 
 
-const authMiddleware = t.middleware(({ ctx, next }) => {
+const authMiddleware = t.middleware(({ctx, next}) => {
     if (!ctx.session || !ctx.session.user) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
+        throw new TRPCError({code: "UNAUTHORIZED"});
     }
     return next({
         ctx: {
-            session: { ...ctx.session, user: ctx.session.user }
+            session: {...ctx.session, user: ctx.session.user}
         }
     });
 });

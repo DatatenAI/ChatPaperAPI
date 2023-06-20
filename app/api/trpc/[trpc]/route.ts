@@ -4,6 +4,7 @@ import {getSession} from "@/lib/auth";
 import {Api} from "@/types";
 import logger from "@/lib/logger";
 import * as crypto from "crypto";
+import ApiError from "@/lib/ApiError";
 
 const handler: Api = (req) => {
     const requestLogger = logger.child({
@@ -21,7 +22,12 @@ const handler: Api = (req) => {
             };
         },
         onError: ({error, type, path, input, ctx, req}) => {
-            logger.error(error.cause);
+            if (error.cause instanceof ApiError) {
+                logger.error(error.message);
+            } else {
+                logger.error(error);
+            }
+
         }
     });
 };

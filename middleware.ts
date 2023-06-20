@@ -34,5 +34,5 @@ export default withAuth(
 );
 // @ts-ignore
 export const config = {
-    matcher: ["/((?!404|error|api|home).*)"]
+    matcher: ["/((?!404|error|api).*)"]
 };

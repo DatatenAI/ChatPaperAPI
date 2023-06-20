@@ -22,7 +22,7 @@ model User {
   /// 用户密码
   password      String?
   accounts      Account[]
-  credit        Credit?
+  credit        Decimal   @default(0)
 
   @@map("users")
 }
@@ -65,34 +65,24 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
-model Credit {
-  userId         String  @unique @map("user_id")
-  gift           Decimal @default(0) @map("gift") /// 免费额度
-  purchase       Decimal @default(0) @map("purchase") /// 购买额度
-  frozenGift     Decimal @default(0) @map("gift_frozen") /// 冻结免费额度
-  frozenPurchase Decimal @default(0) @map("frozen_purchase") /// 冻结购买额度
-  user           User    @relation(fields: [userId], references: [id])
-
-  @@map("credits")
-}
-
 enum CreditType {
-  GIFT
+  SIGN
   PURCHASE
+  TASK
 }
 
 model CreditHistory {
-  id         String     @id @default(cuid())
-  userId     String     @map("user_id") // 用户id
-  amount     Decimal /// 消耗数量
-  creditType CreditType // 消耗类型
-  happendAt  DateTime   @default(now()) ///发生时间
+  id        String     @id @default(cuid())
+  userId    String     @map("user_id") // 用户id
+  amount    Decimal /// 消耗数量
+  type      CreditType // 消耗类型
+  happendAt DateTime   @default(now()) ///发生时间
 
   @@map("credit_history")
 }
 
 model Task {
-  id       String   @id @default(cuid())
+  id       BigInt   @id @default(autoincrement())
   /// 用户ID
   userId   String   @map("user_id")
   /// PDF hash
@@ -119,7 +109,7 @@ model Task {
 }
 
 model Summary {
-  id                  String     @id @default(cuid())
+  id                  BigInt     @id @default(autoincrement())
   pdfHash             String     @map("pdf_hash")
   /// PDF hash
   language            String?

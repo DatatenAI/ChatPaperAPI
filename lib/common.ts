@@ -1,3 +1,6 @@
+import crypto, {BinaryLike} from "crypto";
+import ReadableStream = NodeJS.ReadableStream;
+
 export const toBuffer = (arrayBuffer: ArrayBuffer) => {
     const buffer = Buffer.alloc(arrayBuffer.byteLength);
     const view = new Uint8Array(arrayBuffer);
@@ -6,3 +9,15 @@ export const toBuffer = (arrayBuffer: ArrayBuffer) => {
     }
     return buffer;
 }
+
+export const md5: (data: BinaryLike) => string = (data) => {
+    return crypto.createHash('md5').update(data).digest('hex')
+}
+export const streamToBuffer = (stream: ReadableStream): Promise<Buffer> => {
+    return new Promise((resolve, reject) => {
+        const chunks: any[] = [];
+        stream.on('data', (chunk) => chunks.push(chunk));
+        stream.on('error', reject);
+        stream.on('end', () => resolve(Buffer.concat(chunks)));
+    });
+};

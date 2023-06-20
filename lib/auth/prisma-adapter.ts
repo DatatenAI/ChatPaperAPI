@@ -24,11 +24,6 @@ const PrismaAdapter = (prisma: PrismaClient) => {
             return prisma.user.create({
                 data: {
                     ...data,
-                    credit: {
-                        create: {
-                            gift: process.env.FREE_CREDITS,
-                        },
-                    }
                 },
             });
         },

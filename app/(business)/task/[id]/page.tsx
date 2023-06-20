@@ -1,23 +1,25 @@
 import {Page} from "@/types";
-import {Button} from "@/ui/button";
-import {IoChevronBackOutline} from "react-icons/io5";
-import {AiOutlineShareAlt} from "react-icons/ai";
 import React from "react";
+import TaskHeader from "./header";
+import prisma from "@/lib/database";
+import {notFound} from "next/navigation";
+import TaskContent from "./content";
 
-const TaskDetail: Page = async props => {
-    await new Promise((r) => {
-        setTimeout(() => {
-            r(null)
-        }, 2000);
-    })
-    console.log(props);
-    return <>
-        <header className={'w-full h-14 border-b border-gray-200 flex items-center px-4 justify-between'}>
-            <Button variant={'secondary'} leftIcon={<IoChevronBackOutline className={'w-4 h-4'}/>} size={"sm"}/>
-            <div>
-                <Button size={"sm"} leftIcon={<AiOutlineShareAlt/>}>分享</Button>
-            </div>
-        </header>
-    </>
+
+const TaskDetail: Page<"id"> = async props => {
+    const id = parseInt(props.params.id);
+    if (isNaN(id)) {
+        return notFound();
+    }
+    const task = await prisma.task.findUnique({
+        where: {id}
+    });
+    if (!task) {
+        return notFound();
+    }
+    return <div>
+        <TaskHeader task={task}/>
+        <TaskContent task={task}/>
+    </div>
 }
 export default TaskDetail;
