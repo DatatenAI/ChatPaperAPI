@@ -1,10 +1,12 @@
 import "server-only";
 import {createTRPCRouter} from "@/trpc";
-import list from "@/trpc/routers/task/list";
+import list from "./list";
+import create from "./create";
 
 
 const taskRouter = createTRPCRouter({
-    list
+    list,
+    create
 });
 
 export default taskRouter;

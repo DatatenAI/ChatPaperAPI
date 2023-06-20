@@ -1,21 +1,15 @@
 import "server-only";
 import {getServerSession, NextAuthOptions} from "next-auth";
-import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialProvider from "next-auth/providers/credentials";
-import PrismaAdapter from "./PrismaAdapter";
+import PrismaAdapter from "./prisma-adapter";
 import prisma from "@/lib/database";
 import {createHash} from "crypto";
 
 
-const githubProvider = GithubProvider({
-    clientId: process.env.NEXTAUTH_GITHUB_CLIENT_ID,
-    clientSecret: process.env.NEXTAUTH_GITHUB_CLIENT_SECRET,
-    allowDangerousEmailAccountLinking: true
-});
 const googleProvider = GoogleProvider({
-    clientId: process.env.NEXTAUTH_GITHUB_CLIENT_ID,
-    clientSecret: process.env.NEXTAUTH_GITHUB_CLIENT_SECRET,
+    clientId: process.env.NEXTAUTH_GOOGLE_CLIENT_ID,
+    clientSecret: process.env.NEXTAUTH_GOOGLE_CLIENT_SECRET,
     allowDangerousEmailAccountLinking: true
 });
 
@@ -53,7 +47,6 @@ export const credentialProvider = CredentialProvider({
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
     providers: [
-        githubProvider,
         googleProvider,
         // emailProvider,
         credentialProvider
@@ -65,7 +58,6 @@ export const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt"
     },
-    events: {},
     callbacks: {
         async session({token, session}) {
             if (token) {

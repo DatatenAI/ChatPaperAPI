@@ -23,7 +23,7 @@ const OAuthGroup: FC = () => {
     try {
       setLoadingKey(provider);
       await signIn(provider, {
-        callbackUrl: searchParams?.get("from") || "/dashboard",
+        callbackUrl: searchParams?.get("from") || "/home",
       });
     } catch (e) {
       console.error(111, e);

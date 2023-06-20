@@ -33,8 +33,7 @@ const SignInForm: FC = props => {
         });
         if (!signInResult?.ok || signInResult?.error) {
             toast({
-                title: signInResult?.error || "Your sign in request failed. Please try again.",
-                variant: "destructive"
+                title: signInResult?.error || "登录失败，请重试",
             });
         } else {
             window.location.href = signInResult.url ?? "/";

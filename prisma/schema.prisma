@@ -22,24 +22,31 @@ model User {
   /// 用户密码
   password      String?
   accounts      Account[]
+  credit        Credit?
 
   @@map("users")
 }
 
+enum AccountType {
+  oauth
+  email
+  credentials
+}
+
 model Account {
-  id                String        @id @default(cuid())
-  userId            String        @map("user_id")
+  id                String      @id @default(cuid())
+  userId            String      @map("user_id")
   provider          String
-  providerAccountId String        @map("provider_account_id")
-  refreshToken      String?       @map("refresh_token")
-  accessToken       String?       @map("access_token") @db.Text
-  expiresAt         Int?          @map("expires_at")
-  tokenType         String?       @map("token_type")
+  providerAccountId String      @map("provider_account_id")
+  refreshToken      String?     @map("refresh_token")
+  accessToken       String?     @map("access_token") @db.Text
+  expiresAt         Int?        @map("expires_at")
+  tokenType         String?     @map("token_type")
   scope             String?
-  idToken           String?       @map("id_token") @db.Text
-  sessionState      String?       @map("session_state")
-  type              accounts_type
-  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type              AccountType
+  idToken           String?     @map("id_token") @db.Text
+  sessionState      String?     @map("session_state")
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@index([userId])
@@ -58,63 +65,85 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
-model Point {
-  id     String @id @default(cuid())
-  userId String @unique @map("user_id")
+model Credit {
+  userId         String  @unique @map("user_id")
+  gift           Decimal @default(0) @map("gift") /// 免费额度
+  purchase       Decimal @default(0) @map("purchase") /// 购买额度
+  frozenGift     Decimal @default(0) @map("gift_frozen") /// 冻结免费额度
+  frozenPurchase Decimal @default(0) @map("frozen_purchase") /// 冻结购买额度
+  user           User    @relation(fields: [userId], references: [id])
 
-  @@map("points")
+  @@map("credits")
+}
+
+enum CreditType {
+  GIFT
+  PURCHASE
+}
+
+model CreditHistory {
+  id         String     @id @default(cuid())
+  userId     String     @map("user_id") // 用户id
+  amount     Decimal /// 消耗数量
+  creditType CreditType // 消耗类型
+  happendAt  DateTime   @default(now()) ///发生时间
+
+  @@map("credit_history")
 }
 
 model Task {
-  id            String    @id @default(cuid())
+  id       String   @id @default(cuid())
   /// 用户ID
-  userId        String    @map("user_id")
+  userId   String   @map("user_id")
   /// PDF hash
-  pdfHash       String    @map("pdf_hash")
+  pdfHash  String   @map("pdf_hash")
   /// 语言
-  language      String
+  language String
   /// 任务类型
-  type          TaskType
-  /// 消耗point
-  consumePoints Decimal   @map("consume_points")
-  state         TaskState
+  type     TaskType
+
+  pages       Int
+  /// 页数
+  costCredits Decimal @default(0) @map("cost_credits")
+  /// 消耗credits
+
+  state      TaskState
   /// 创建时间
-  createdAt     DateTime  @map("created_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
   /// 结束时间
-  finishedAt    DateTime? @map("finished_at")
-  summary       Summary?  @relation(fields: [pdfHash, language], references: [pdfHash, language])
+  finishedAt DateTime? @map("finished_at")
+  summary    Summary?  @relation(fields: [pdfHash, language], references: [pdfHash, language])
 
   @@index([pdfHash, language, type])
   @@map("tasks")
 }
 
 model Summary {
-  id                  String   @id @default(cuid())
+  id                  String     @id @default(cuid())
+  pdfHash             String     @map("pdf_hash")
   /// PDF hash
-  pdfHash             String   @map("pdf_hash")
-  /// 语言
   language            String?
-  /// 标题
+  /// 语言
   title               String?
+  /// 标题
+  shortTitle          String     @map("short_title")
   /// 简写标题
-  shortTitle          String   @map("short_title")
+  titleZh             String     @map("title_zh")
   /// 中文标题
-  titleZh             String   @map("title_zh")
+  basicInfo           String     @map("basic_info") @db.Text
   /// 基础内容
-  basicInfo           String   @map("basic_info") @db.Text
+  briefIntroduction   String     @map("brief_introduction") @db.Text
   /// 简短的总结，采用json
-  briefIntroduction   String   @db.Text @map("brief_introduction")
+  firstPageConclusion String     @map("first_page_conclusion") @db.Text
   /// 第一页总结内容
-  firstPageConclusion String   @db.Text @map("first_page_conclusion")
+  content             String     @db.Text
   /// 全部总结内容
-  content             String   @db.Text
+  mediumContent       String     @map("medium_content") @db.Text
   /// 中等总结内容
-  mediumContent       String   @db.Text @map("medium_content")
+  shortContent        String     @map("short_content") @db.Text
   /// 简短总结内容
-  shortContent        String   @db.Text @map("short_content")
+  createdAt           DateTime   @map("create_time")
   ///  创建时间
-  createTime          DateTime? @map("create_time")
-  updateTime          DateTime? @map("update_time") @db.Timestamp(0)
   tasks               Task[]
   paperInfo           PaperInfo? @relation(fields: [pdfHash], references: [pdfHash])
 
@@ -124,56 +153,52 @@ model Summary {
 
 /// 关键词库
 model Keywords {
-  id             String    @id @default(cuid())
+  id                String              @id @default(cuid())
   /// 关键词缩写
-  keywordShort   String    @map("keyword_short")
+  keywordShort      String              @map("keyword_short")
   /// 关键词原文
-  searchKeywords String @unique  @map("search_keywords")
+  searchKeywords    String              @unique @map("search_keywords")
   /// 订阅量
-  subNum         Int       @map("sub_num")
-  createTime     DateTime? @map("create_time")
-  updateTime     DateTime? @map("update_time") @db.Timestamp(0)
-  subscribeKeywords   SubscribeKeywords[]
-  keywordsPdf    KeywordsPdf[]
-
+  subNum            Int                 @map("sub_num")
+  createTime        DateTime?           @map("create_time")
+  updateTime        DateTime?           @map("update_time") @db.Timestamp(0)
+  subscribeKeywords SubscribeKeywords[]
+  keywordsPdf       KeywordsPdf[]
 
   @@map("keyword_subscribe_table")
 }
 
 /// 关键词与pdf 关联中间表
 model KeywordsPdf {
-  id             String @id @default(cuid())
+  id             String    @id @default(cuid())
   /// 关键词
-  searchKeywords String @map("search_keywords")
+  searchKeywords String    @map("search_keywords")
   /// 查询来源
-  searchFrom     String @map("search_From")
+  searchFrom     String    @map("search_From")
   /// 对应文献pdfurl
-  pdfUrl         String @map("pdf_url")
+  pdfUrl         String    @map("pdf_url")
   keywords       Keywords? @relation(fields: [searchKeywords], references: [searchKeywords])
 
   @@unique([searchKeywords, pdfUrl])
   @@map("search_keywords_pdf")
 }
 
-
 ///   用户订阅关键词表
 model SubscribeKeywords {
-  id               String    @id @default(cuid())
+  id           String    @id @default(cuid())
   /// 关键词
-  weChatUserId     String @map("we_chat_user_id")
+  weChatUserId String    @map("we_chat_user_id")
   /// 对应文献pdfurl
-  keywordId        String @map("keyword_id")
-  /// 用户openId
-  openId           String @map("open_id")
-  //关键词详情
-  keywords         Keywords? @relation(fields: [keywordId], references: [id])
+  keywordId    String    @map("keyword_id")
+  // / 用户openId
+  openId       String    @map("open_id")
+  // 关键词详情
+  keywords     Keywords? @relation(fields: [keywordId], references: [id])
 
   @@unique([weChatUserId, keywordId])
   @@index([weChatUserId, keywordId])
   @@map("subscribe_keywords")
 }
-
-
 
 /// paper预览图库
 model PaperImage {
@@ -186,124 +211,118 @@ model PaperImage {
   @@map("keywords_img_table")
 }
 
-
 /// 文献基础信息表
 model PaperInfo {
-  id            String         @id @default(cuid())
+  id              String            @id @default(cuid())
   /// paper的简介链
-  url           String?
+  url             String?
   /// 对应文献pdfurl
-  pdfUrl        String         @unique @map("pdf_url")
+  pdfUrl          String            @unique @map("pdf_url")
   /// pdf hash值
-  pdfHash       String         @unique @map("pdf_hash")
+  pdfHash         String            @unique @map("pdf_hash")
   /// 年份可以更具体一点，具体到天
-  year          Int?
+  year            Int?
   /// 标题
-  title         String?
+  title           String?
   /// 代码链接
-  code          String?        @db.Text
+  code            String?           @db.Text
   /// 文章引用doi
-  doi           String?
+  doi             String?
   /// 相关联的doi
-  relatedDoi    String         @map("related_doi")
+  relatedDoi      String            @map("related_doi")
   /// 被引用链接
-  citedByUrl    String         @map("cited_by_url")
+  citedByUrl      String            @map("cited_by_url")
   /// 作者
-  authors       String?
+  authors         String?
   /// 摘要
-  abstract      String         @db.Text
+  abstract        String            @db.Text
   /// 预览图
-  imgUrl        String?        @map("img_url")
+  imgUrl          String?           @map("img_url")
   /// 发表时间
-  pubTime       DateTime?      @map("pub_time")
+  pubTime         DateTime?         @map("pub_time")
   /// paper内的keywords
-  paperKeywords String         @map("paper_keywords")
+  paperKeywords   String            @map("paper_keywords")
   ///  创建时间
-  createTime    DateTime? @map("create_time")
-  summary       Summary[]
+  createTime      DateTime?         @map("create_time")
+  summary         Summary[]
   favoriteDetails FavoriteDetails[]
-  wxLike        Wxlike[]
-  wxWaitRead    WxWaitRead[]
+  wxLike          Wxlike[]
+  wxWaitRead      WxWaitRead[]
 
   @@map("subscribe_paper_info")
 }
 
-
 /// 待阅
 model WxWaitRead {
-  id             String @id @default(cuid())
+  id           String     @id @default(cuid())
   ///  微信用户编号
-  weChatUserId   String @map("we_chat_user_id")
+  weChatUserId String     @map("we_chat_user_id")
   /// 微信用户 openid
-  openId         String @map("open_id")
+  openId       String     @map("open_id")
   ///  待阅文章主键
-  paperId        String?
+  paperId      String?
   ///  创建时间
-  createTime     DateTime? @map("create_time")
-  paperInfo      PaperInfo?  @relation(fields: [paperId], references: [id])
+  createTime   DateTime?  @map("create_time")
+  paperInfo    PaperInfo? @relation(fields: [paperId], references: [id])
 
   @@map("wx_wait_read")
 }
 
-
 /// 收藏夹
 model Favorite {
-  id             String @id @default(cuid())
+  id              String            @id @default(cuid())
   ///  微信用户编号
-  weChatUserId   String @map("we_chat_user_id")
+  weChatUserId    String            @map("we_chat_user_id")
   /// 微信用户 openid
-  openId         String @map("open_id")
+  openId          String            @map("open_id")
   ///  收藏夹名称
-  name           String?
+  name            String?
   ///  创建时间
-  createTime     DateTime? @map("create_time")
-  updateTime     DateTime? @map("update_time") @db.Timestamp(0)
+  createTime      DateTime?         @map("create_time")
+  updateTime      DateTime?         @map("update_time") @db.Timestamp(0)
   /// 收藏夹内容
   favoriteDetails FavoriteDetails[]
 
   @@map("favorite")
 }
 
-
 /// 收藏夹内容
 model FavoriteDetails {
-  id             String @id @default(cuid())
+  id           String     @id @default(cuid())
   /// 微信用户编号
-  weChatUserId   String @map("we_chat_user_id")
+  weChatUserId String     @map("we_chat_user_id")
   /// 微信用户 openid
-  openId         String @map("open_id")
+  openId       String     @map("open_id")
   /// 收藏夹主键
-  favoriteId     String? @map("favorite_id")
+  favoriteId   String?    @map("favorite_id")
   /// 文章主键
-  paperId        String? @map("paper_id")
+  paperId      String?    @map("paper_id")
   /// 收藏来源
-  source         String?
+  source       String?
   /// 创建时间
-  createTime     DateTime? @map("create_time")
-  updateTime     DateTime? @map("update_time") @db.Timestamp(0)
-  favorite       Favorite?  @relation(fields: [favoriteId], references: [id])
-  paperInfo      PaperInfo?  @relation(fields: [paperId], references: [id])
+  createTime   DateTime?  @map("create_time")
+  updateTime   DateTime?  @map("update_time") @db.Timestamp(0)
+  favorite     Favorite?  @relation(fields: [favoriteId], references: [id])
+  paperInfo    PaperInfo? @relation(fields: [paperId], references: [id])
 
   @@map("favorite_detail")
 }
 
-
 /// 点赞
 model Wxlike {
-  id             String @id @default(cuid())
+  id           String     @id @default(cuid())
   ///  微信用户编号
-  weChatUserId   String @map("we_chat_user_id")
+  weChatUserId String     @map("we_chat_user_id")
   /// 微信用户 openid
-  openId         String @map("open_id")
+  openId       String     @map("open_id")
   ///  点赞文章主键
-  paperId        String?
+  paperId      String?
   ///  创建时间
-  createTime     DateTime? @map("create_time")
-  paperInfo      PaperInfo?  @relation(fields: [paperId], references: [id])
+  createTime   DateTime?  @map("create_time")
+  paperInfo    PaperInfo? @relation(fields: [paperId], references: [id])
 
   @@map("wx_like")
 }
-
 
 /// 微信用户表
 model WxUser {

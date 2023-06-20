@@ -1,3 +1,5 @@
+import {RowData} from "@tanstack/table-core";
+
 type AsyncComponent<T = {}> = (props: {
     children?: ReactNode;
 } & T) => JSX.Element | Promise<JSX.Element>
@@ -17,3 +19,15 @@ export type ErrorPage = (props: {
 }) => JSX.Element
 
 export type Api<T = {}> = (req: NextRequest, context: { params: T }) => Promise<Response>
+
+export type PaginationType = {
+    current: number;
+    size: number;
+    total: number;
+};
+
+declare module '@tanstack/react-table' {
+    interface ColumnMeta<TData extends RowData, TValue> {
+        className?: string
+    }
+}

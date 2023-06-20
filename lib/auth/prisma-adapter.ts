@@ -1,5 +1,6 @@
-import {Adapter, AdapterAccount, AdapterUser, VerificationToken} from "next-auth/adapters";
+import {Adapter, AdapterAccount, AdapterUser, VerificationToken,} from "next-auth/adapters";
 import {Prisma, PrismaClient, VerificationTokenType} from "@prisma/client";
+import {uploadRemoteFile} from "@/lib/oss";
 
 const PrismaAdapter = (prisma: PrismaClient) => {
     const adapter: Adapter = {
@@ -16,8 +17,20 @@ const PrismaAdapter = (prisma: PrismaClient) => {
             return null;
         },
 
-        createUser(data: Omit<AdapterUser, "id">) {
-            return prisma.user.create({data});
+        async createUser(data: Omit<AdapterUser, "id">) {
+            if (data.image) {
+                data.image = (await uploadRemoteFile(data.image, "avatar")).url;
+            }
+            return prisma.user.create({
+                data: {
+                    ...data,
+                    credit: {
+                        create: {
+                            gift: process.env.FREE_CREDITS,
+                        },
+                    }
+                },
+            });
         },
 
         getUser(id: string) {
@@ -25,18 +38,23 @@ const PrismaAdapter = (prisma: PrismaClient) => {
                 select: {
                     id: true,
                     email: true,
-                    emailVerified: true
+                    emailVerified: true,
                 },
-                where: {id}
+                where: {id},
             });
         },
 
-        async getUserByAccount(provider_providerAccountId: Pick<AdapterAccount, "provider" | "providerAccountId">) {
+        async getUserByAccount(
+            provider_providerAccountId: Pick<
+                AdapterAccount,
+                "provider" | "providerAccountId"
+            >
+        ) {
             const account = await prisma.account.findUnique({
                 where: {
-                    provider_providerAccountId
+                    provider_providerAccountId,
                 },
-                select: {user: true}
+                select: {user: true},
             });
             return account?.user ?? null;
         },
@@ -46,9 +64,9 @@ const PrismaAdapter = (prisma: PrismaClient) => {
                 select: {
                     id: true,
                     email: true,
-                    emailVerified: true
+                    emailVerified: true,
                 },
-                where: {email}
+                where: {email},
             });
         },
 
@@ -69,6 +87,7 @@ const PrismaAdapter = (prisma: PrismaClient) => {
                 idToken,
                 sessionState,
                 scope,
+                type,
                 ...account
             } = await prisma.account.create({
                 data: {
@@ -77,8 +96,8 @@ const PrismaAdapter = (prisma: PrismaClient) => {
                     tokenType: token_type,
                     refreshToken: refresh_token,
                     expiresAt: expires_at,
-                    idToken: id_token
-                }
+                    idToken: id_token,
+                },
             });
             return {
                 ...account,
@@ -89,24 +108,28 @@ const PrismaAdapter = (prisma: PrismaClient) => {
                 id_token: idToken || undefined,
                 session_state: sessionState || undefined,
                 scope: scope || undefined,
-                type:'oauth'
+                type,
             } satisfies AdapterAccount;
         },
 
-
-        updateUser({id, ...data}: Partial<AdapterUser> & Pick<AdapterUser, "id">) {
+        updateUser({
+                       id,
+                       ...data
+                   }: Partial<AdapterUser> & Pick<AdapterUser, "id">) {
             return prisma.user.update({
                 where: {id},
-                data
+                data,
             });
         },
 
-        async createVerificationToken(data: VerificationToken): Promise<VerificationToken | null | undefined> {
+        async createVerificationToken(
+            data: VerificationToken
+        ): Promise<VerificationToken | null | undefined> {
             return await prisma.verificationToken.create({
                 data: {
                     ...data,
-                    type: VerificationTokenType.register
-                }
+                    type: VerificationTokenType.register,
+                },
             });
         },
 
@@ -114,17 +137,25 @@ const PrismaAdapter = (prisma: PrismaClient) => {
             return prisma.user.delete({where: {id}});
         },
 
-        async unlinkAccount(provider_providerAccountId: Pick<AdapterAccount, "provider" | "providerAccountId">): Promise<void> {
+        async unlinkAccount(
+            provider_providerAccountId: Pick<
+                AdapterAccount,
+                "provider" | "providerAccountId"
+            >
+        ): Promise<void> {
             await prisma.account.delete({where: {provider_providerAccountId}});
         },
 
-        async useVerificationToken(params: { identifier: string; token: string }): Promise<VerificationToken | null> {
+        async useVerificationToken(params: {
+            identifier: string;
+            token: string;
+        }): Promise<VerificationToken | null> {
             try {
                 return await prisma.verificationToken.update({
                     where: {token: params.token},
                     data: {
-                        usedAt: new Date()
-                    }
+                        usedAt: new Date(),
+                    },
                 });
             } catch (error) {
                 if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -134,8 +165,7 @@ const PrismaAdapter = (prisma: PrismaClient) => {
                 }
                 throw error;
             }
-        }
-
+        },
     };
     return adapter;
 };

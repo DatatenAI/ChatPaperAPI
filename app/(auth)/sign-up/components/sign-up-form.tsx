@@ -21,12 +21,11 @@ const SignUpForm: FC = props => {
         onError: error => {
             toast({
                 title: error.message,
-                variant: "destructive"
             });
         },
         onSuccess: data => {
             toast({
-                title: "Verification email sent successfully. Please check your inbox and follow the instructions to complete your registration"
+                title: "验证邮件已发送，请点击邮件中的链接以完成注册。"
             });
         }
     });

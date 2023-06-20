@@ -5,7 +5,6 @@
     :root {
         --background: 0 0% 100%;
         --foreground: 222.2 47.4% 11.2%;
-
         --muted: 210 40% 96.1%;
         --muted-foreground: 215.4 16.3% 46.9%;
 
@@ -30,6 +29,9 @@
 
         --destructive: 0 100% 50%;
         --destructive-foreground: 210 40% 98%;
+
+        --success: 152 77% 39%;
+        --success-foreground: 210 40% 98%;
 
         --ring: 215 20.2% 65.1%;
 
@@ -74,6 +76,7 @@
     * {
         @apply border-border;
     }
+
     body {
         @apply bg-background text-foreground;
         font-feature-settings: "rlig" 1, "calt" 1;

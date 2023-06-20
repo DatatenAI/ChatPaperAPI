@@ -1,14 +1,32 @@
-import {publicProcedure} from "@/trpc";
+import {protectedProcedure} from "@/trpc";
 import prisma from "@/lib/database";
+import {ListTaskSchema} from "@/lib/validation";
+import {Prisma} from "@prisma/client";
 
-const list = publicProcedure
+const list = protectedProcedure
+    .input(ListTaskSchema)
     .query(async ({input, ctx}) => {
-        const tasks = await prisma.task.findMany({
-            include: {
-                summary: true
-            }
-        });
-        return tasks;
+        const where: Prisma.TaskWhereInput = {
+            userId: ctx.session.user.id,
+        };
+        if (input.state !== 'ALL') {
+            where.state = input.state
+        }
+        const total = await prisma.task.count({
+            where,
+        })
+        let tasks = [];
+        if (total) {
+            tasks.push(...await prisma.task.findMany({
+                where,
+                skip: (input.current - 1) * input.size,
+                take: input.size,
+            }))
+        }
+        return {
+            tasks,
+            total,
+        };
     });
 
 export default list;

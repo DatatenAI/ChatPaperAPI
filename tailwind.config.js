@@ -29,6 +29,10 @@ module.exports = {
                     DEFAULT: "hsl(var(--secondary))",
                     foreground: "hsl(var(--secondary-foreground))",
                 },
+                success: {
+                    DEFAULT: "hsl(var(--success))",
+                    foreground: "hsl(var(--success-foreground))",
+                },
                 destructive: {
                     DEFAULT: "hsl(var(--destructive))",
                     foreground: "hsl(var(--destructive-foreground))",
@@ -62,10 +66,15 @@ module.exports = {
                     from: {height: "var(--radix-accordion-content-height)"},
                     to: {height: 0},
                 },
+                "rotate": {
+                    from: {transform: 'translate(-50%, -50%) rotate(0deg)'},
+                    to: {transform: 'translate(-50%, -50%) rotate(360deg)'}
+                }
             },
             animation: {
                 "accordion-down": "accordion-down 0.2s ease-out",
                 "accordion-up": "accordion-up 0.2s ease-out",
+                "rotate": "rotate 1.5s linear infinite"
             },
         },
     },
