@@ -108,7 +108,7 @@ export const taskColumnDefs: ColumnDef<TaskColumn>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <Link href={`/task/${row.getValue('id')}`} prefetch={false}>
+                        <Link href={`/task/${row.original.id}`} prefetch={false}>
                             <DropdownMenuItem className={'space-x-1'}>
                                 <AiOutlineEye/>
                                 <span>查看详情</span>

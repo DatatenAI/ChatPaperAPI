@@ -17,5 +17,8 @@ declare namespace NodeJS {
     readonly OSS_ACCESS_KEY: string;
     readonly OSS_ACCESS_SECRET: string;
     readonly OSS_VOLUME_PATH?: string;
+    readonly ALLINPAY_PRIVATE_KEY: string;
+    readonly ALLINPAY_APPID: string;
+    readonly ALLINPAY_CUSID: string;
   }
 }

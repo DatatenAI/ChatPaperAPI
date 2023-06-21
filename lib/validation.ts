@@ -1,5 +1,6 @@
 import z from "zod";
 import {TaskState} from "@prisma/client";
+import {PayMethodEnum} from "@/lib/constants";
 
 
 const email = z.string().email({message: '请输入正确的邮箱'});
@@ -59,4 +60,9 @@ export const CreateTaskSchema = z.object({
 
 export const ListTaskSchema = PageSchema.extend({
     state: z.enum(['ALL', ...Object.values(TaskState)]),
+})
+
+export const RechargeSchema = z.object({
+    goodId: z.number(),
+    method: z.nativeEnum(PayMethodEnum),
 })

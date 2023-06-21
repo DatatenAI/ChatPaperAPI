@@ -10,3 +10,22 @@ export const languages = [
     {label: "Português", value: "Português"},
     {label: "한국어", value: "한국어"}
 ]
+
+export enum PayMethodEnum {
+    ALIPAY = "ALIPAY",
+    WEPAY = "WEPAY"
+}
+
+export const PayMethods: Record<PayMethodEnum, {
+    label: string;
+    icon: string;
+}> = {
+    ALIPAY: {
+        label: '支付宝支付',
+        icon: '/alipay.svg',
+    },
+    WEPAY: {
+        label: '微信支付',
+        icon: '/wepay.svg',
+    }
+}

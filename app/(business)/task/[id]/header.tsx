@@ -15,8 +15,8 @@ const TaskHeader: FC<{
                 <Button variant={'secondary'} leftIcon={<IoChevronBackOutline className={'w-4 h-4'}/>} size={"sm"}/>
             </Link>
             <div>
-                <Button size={"sm"} leftIcon={<AiOutlineShareAlt/>}>分享</Button>
                 <TaskStateBadge state={task.state}/>
+
             </div>
         </header>
     );

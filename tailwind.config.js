@@ -14,6 +14,40 @@ module.exports = {
                 "2xl": "1440px"
             }
         },
+        scrollbar: (theme) => ({
+            DEFAULT: {
+                size: theme('spacing.2'),
+                track: {
+                    background: theme('colors.gray.200'),
+                    darkBackground: theme('colors.gray.800'),
+                    borderRadius: '40px',
+                },
+                thumb: {
+                    background: theme('colors.gray.300'),
+                    darkBackground: theme('colors.gray.700'),
+                    borderRadius: '40px',
+                },
+                hover: {
+                    background: theme('colors.gray.400'),
+                    darkBackground: theme('colors.gray.600'),
+                },
+            },
+            thin: {
+                size: '3px',
+                track: {
+                    background: theme('colors.gray.200'),
+                    darkBackground: theme('colors.gray.800'),
+                },
+                thumb: {
+                    background: theme('colors.gray.300'),
+                    darkBackground: theme('colors.gray.700'),
+                },
+                hover: {
+                    background: theme('colors.gray.400'),
+                    darkBackground: theme('colors.gray.600'),
+                },
+            },
+        }),
         extend: {
             colors: {
                 border: "hsl(var(--border))",
@@ -78,5 +112,5 @@ module.exports = {
             },
         },
     },
-    plugins: [require("tailwindcss-animate")],
+    plugins: [require("tailwindcss-animate"), require('@gradin/tailwindcss-scrollbar')],
 }

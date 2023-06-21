@@ -113,6 +113,7 @@ const HomePage: Page = props => {
                     break;
             }
             toast({
+                variant: 'destructive',
                 title: '上传失败',
                 description
             });

@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["orderByNulls", "extendedWhereUnique"]
+  previewFeatures = ["extendedWhereUnique"]
 }
 
 datasource db {
@@ -22,7 +22,7 @@ model User {
   /// 用户密码
   password      String?
   accounts      Account[]
-  credit        Decimal   @default(0)
+  credit        Decimal   @default(0) @db.Decimal(9, 1)
 
   @@map("users")
 }
@@ -72,13 +72,43 @@ enum CreditType {
 }
 
 model CreditHistory {
-  id        String     @id @default(cuid())
-  userId    String     @map("user_id") // 用户id
-  amount    Decimal /// 消耗数量
+  id        BigInt     @id @default(autoincrement())
+  userId    String     @map("user_id") /// 用户id
+  amount    Decimal    @db.Decimal(9, 1) /// 消耗数量
   type      CreditType // 消耗类型
   happendAt DateTime   @default(now()) ///发生时间
 
-  @@map("credit_history")
+  @@map("credit_histories")
+}
+
+model CreditGood {
+  id          BigInt  @id @default(autoincrement())
+  name        String ///名称
+  description String? @db.Text
+  credits     Decimal @db.Decimal(9, 1) ///点数
+  price       Decimal @db.Decimal(9, 0) ///价钱(分)
+  actived     Boolean ///是否可用
+
+  @@map("credit_goods")
+}
+
+enum CreditPayStatus {
+  PAYING
+  SUCCESS
+  FAILED
+}
+
+model CreditPayHistory {
+  id         BigInt          @id @default(autoincrement())
+  userId     String          @map("user_id")
+  payNo      String          @unique @map("pay_no")
+  fee        Decimal         @db.Decimal(9, 0)
+  goodId     BigInt          @map("good_id")
+  createdAt  DateTime        @default(now()) @map("created_at")
+  finishedAt DateTime?
+  status     CreditPayStatus
+
+  @@map("credit_pay_histories")
 }
 
 model Task {
@@ -94,7 +124,7 @@ model Task {
 
   pages       Int
   /// 页数
-  costCredits Decimal @default(0) @map("cost_credits")
+  costCredits Decimal @default(0) @map("cost_credits") @db.Decimal(9, 1)
   /// 消耗credits
 
   state      TaskState
