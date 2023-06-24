@@ -25,7 +25,8 @@ const SignUpForm: FC = props => {
         },
         onSuccess: data => {
             toast({
-                title: "验证邮件已发送，请点击邮件中的链接以完成注册。"
+                title: "发送邮件成功",
+                description: '验证邮件已发送，请点击邮件中的链接以完成注册。',
             });
         }
     });

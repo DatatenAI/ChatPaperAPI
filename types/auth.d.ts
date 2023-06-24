@@ -1,18 +1,18 @@
 import {User} from "next-auth";
-import {Prisma} from "@prisma/client";
 
-type UserId = string
 
 declare module "next-auth/jwt" {
     interface JWT {
-        id: UserId
+        id: string;
+        language: string
     }
 }
 
 declare module "next-auth" {
     interface Session {
         user: User & {
-            id: UserId
+            id: string;
+            language: string
         }
     }
 }

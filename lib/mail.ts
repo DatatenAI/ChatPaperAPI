@@ -9,6 +9,9 @@ type  MailParameterTypes = {
     },
     reset_password: {
         link: string;
+    },
+    change_email: {
+        link: string;
     }
 }
 export type MailType = keyof MailParameterTypes;
@@ -22,8 +25,10 @@ type SendFunction = (type: MailType, options: {
 
 
 const templates: Record<MailType, string> = {
-    register: "",
-    reset_password: ""
+    register: "{link}",
+    change_email: "{link}",
+    reset_password: "{link}",
+
 }
 
 const transporter = mailer.createTransport({

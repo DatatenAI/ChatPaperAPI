@@ -9,8 +9,7 @@ export default withAuth(
         const isAuthPage =
             req.nextUrl.pathname.startsWith("/sign-in") ||
             req.nextUrl.pathname.startsWith("/sign-up") ||
-            req.nextUrl.pathname.startsWith("/reset-password") ||
-            req.nextUrl.pathname.startsWith("/verify-email");
+            req.nextUrl.pathname.startsWith("/reset-password")
         if (isAuthPage) {
             return isAuth ? NextResponse.redirect(new URL("/home", req.url)) : null;
         }

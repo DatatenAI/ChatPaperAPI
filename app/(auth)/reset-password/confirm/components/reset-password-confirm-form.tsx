@@ -1,6 +1,5 @@
 "use client";
 import React, {FC, useState} from "react";
-import {useRouter} from "next/navigation";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {ResetPasswordConfirmSchema} from "@/lib/validation";
@@ -10,14 +9,18 @@ import {Input} from "@/ui/input";
 import {Button} from "@/ui/button";
 import z from "zod";
 import {useToast} from "@/ui/use-toast";
+import {useRouter} from "next/navigation";
 
 type FormData = z.infer<typeof ResetPasswordConfirmSchema>
 const ResetPasswordConfirmForm: FC<{
-    email: string
+    email: string;
+    token: string;
 }> = props => {
 
 
     const {toast} = useToast();
+
+    const router = useRouter();
 
 
     const [sendSuccess, toggleSendSuccess] = useState(false);
@@ -48,18 +51,16 @@ const ResetPasswordConfirmForm: FC<{
     return <>
         {
             sendSuccess ?
-                <div className={"text-center font-medium text-gray-600 dark:text-gray-300"}>
-                    <p>Password Reset Successful</p>
-                    <p>Your password has been successfully reset. Please login again with your new password to access
-                        your
-                        account.</p>
+                <div className={"text-center font-medium text-gray-600 dark:text-gray-300 space-y-4"}>
+                    <p>您的密码已重置，请使用新密码登录您的账号</p>
+                    <Button onClick={()=>router.replace('/sign-in')}>去登录</Button>
                 </div> :
                 <form onSubmit={handleSubmit(resetPassword)} className="flex flex-col gap-5">
+                    <input hidden {...register('token')} value={props.token}/>
                     <div className="space-y-1.5">
-                        <Label htmlFor={"email"}>Email
-                            address</Label>
+                        <Label htmlFor={"email"}>邮箱</Label>
                         <Input
-                            placeholder="Email address"
+                            placeholder="请输入邮箱"
                             type={"email"}
                             autoCapitalize="none"
                             autoComplete="email"
@@ -69,33 +70,26 @@ const ResetPasswordConfirmForm: FC<{
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label htmlFor={"password"}>New password</Label>
+                        <Label htmlFor={"password"}>新密码</Label>
                         <Input
-                            placeholder="•••••••••••••"
+                            placeholder="请输入密码"
                             type={"password"}
                             autoComplete="new-password"
-                            {...register("password")}
-                            error={errors.password?.message}
+                            {...register("newPassword")}
+                            error={errors.newPassword?.message}
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label htmlFor={"confirmPassword"}>Confirm password</Label>
+                        <Label htmlFor={"confirmPassword"}>确认密码</Label>
                         <Input
-                            placeholder="•••••••••••••"
+                            placeholder="请再次输入密码"
                             type={"password"}
                             autoComplete="off"
-                            {...register("confirmPassword", {
-                                validate: (value, formValues) => {
-                                    if (formValues.password !== value) {
-                                        return "Passwords do not match"
-                                    }
-                                    return undefined;
-                                }
-                            })}
+                            {...register("confirmPassword")}
                             error={errors.confirmPassword?.message}
                         />
                     </div>
-                    <Button type={"submit"} size={"lg"}>Reset password</Button>
+                    <Button type={"submit"} size={"lg"} loading={resetPasswordMutation.isLoading}>确认重置</Button>
                 </form>
         }
     </>;

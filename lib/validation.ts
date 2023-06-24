@@ -3,9 +3,17 @@ import {TaskState} from "@prisma/client";
 import {PayMethodEnum} from "@/lib/constants";
 
 
-const email = z.string().email({message: '请输入正确的邮箱'});
-const name = z.string().trim().nonempty({message: "请输入名称"});
-const password = z.string().trim().nonempty({message: "请输入密码"}).min(8, "密码最少包含8位字符");
+const email = z.string({
+    required_error: '请输入邮箱'
+}).email({message: '请输入正确的邮箱'});
+
+const name = z.string({
+    required_error: '请输入名称'
+}).trim().nonempty({message: "请输入名称"});
+
+const password = z.string({
+    required_error: "请输入",
+}).trim().nonempty({message: "请输入"}).min(8, "密码最少包含8位字符");
 
 const PaginationSchema = z.object({
     current: z.number().min(1),
@@ -22,26 +30,37 @@ export const SignUpSchema = z.object({
     password,
 });
 
+
 export const SendMailSchema = z.object({email})
 
 
-export const ResetPasswordConfirmSchema = z.object({
-    password,
-    confirmPassword: password.nonempty("请再次输入密码"),
-    token: z.string()
-}).refine(arg => arg.confirmPassword !== arg.password, {
-    message: "两次输入密码不一致",
-    path: ["confirmPassword"]
-});
+export const UpdateInfoSchema = z.object({
+    name,
+})
 
+export const SetEmailSchema = z.object({
+    email
+})
 
-export const UpdatePasswordSchema = z.object({
-    current: password.nonempty("请输入当前密码"),
+export const SetPasswordSchema = z.object({
     newPassword: password.nonempty("请输入新密码"),
     confirmPassword: password.nonempty("请再次输入密码")
 }).refine(arg => arg.confirmPassword === arg.newPassword, {
     message: "两次输入密码不一致",
     path: ["confirmPassword"]
+});
+
+export const ResetPasswordConfirmSchema = z.object({
+    token: z.string()
+}).and(SetPasswordSchema);
+
+export const UpdatePasswordSchema = z.object({
+    current: password.nonempty("请输入当前密码"),
+}).and(SetPasswordSchema);
+
+
+export const UpdateLanguageSchema = z.object({
+    language: z.string().nonempty("请选择语言"),
 });
 
 

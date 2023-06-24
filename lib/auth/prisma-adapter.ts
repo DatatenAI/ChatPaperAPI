@@ -5,16 +5,33 @@ import {uploadRemoteFile} from "@/lib/oss";
 const PrismaAdapter = (prisma: PrismaClient) => {
     const adapter: Adapter = {
         createSession(session) {
-            return session;
+            return prisma.session.create({
+                data: session
+            });
         },
         deleteSession(sessionToken: string) {
-            return null;
+            return prisma.session.delete({
+                where: {
+                    sessionToken
+                }
+            });
         },
-        getSessionAndUser(sessionToken: string) {
-            return null;
+        async getSessionAndUser(sessionToken: string) {
+            const userAndSession = await prisma.session.findUnique({
+                where: {sessionToken},
+                include: {user: true},
+            })
+            if (!userAndSession) return null
+            const {user, ...session} = userAndSession
+            return {user, session}
         },
         updateSession(session) {
-            return null;
+            return prisma.session.update({
+                where: {
+                    sessionToken:session.sessionToken
+                },
+                data: session,
+            });
         },
 
         async createUser(data: Omit<AdapterUser, "id">) {
@@ -24,6 +41,7 @@ const PrismaAdapter = (prisma: PrismaClient) => {
             return prisma.user.create({
                 data: {
                     ...data,
+                    language: '中文',
                 },
             });
         },

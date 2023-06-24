@@ -6,26 +6,20 @@ import {CgSpinner} from "react-icons/cg";
 import Link from "next/link";
 import {hashToken} from "@/lib/auth";
 import prisma from "@/lib/database";
+import {HiOutlineMail} from "react-icons/hi";
 
-const getToken = async (token?: string) => {
-    let verificationToken;
-    if (!token) {
-        return null;
-    }
+const getToken = async (token: string) => {
     const hashedToken = hashToken(token);
-    if (token) {
-        verificationToken = await prisma.verificationToken.findUnique({
-            where: {
-                token: hashedToken,
-                expires: {
-                    gt: new Date()
-                },
-                type: VerificationTokenType.reset_password
-            }
-        });
-    }
+    const verificationToken = await prisma.verificationToken.findUnique({
+        where: {
+            token: hashedToken,
+            expires: {
+                gt: new Date()
+            },
+        }
+    });
     if (verificationToken) {
-        const user = await prisma.user.findUnique({where: {email: verificationToken.identifier}});
+        const user = await prisma.user.findUnique({where: {email: verificationToken.type === 'register' ? verificationToken.identifier : verificationToken.extra!}});
         if (user) {
             await prisma.$transaction(async trx => {
                 await trx.verificationToken.update({
@@ -40,11 +34,12 @@ const getToken = async (token?: string) => {
                     where: {
                         id: user.id
                     },
-                    data: {
+                    data: verificationToken.type === VerificationTokenType.register ? {
                         emailVerified: new Date()
+                    } : {
+                        email: verificationToken.identifier
                     }
                 });
-
             });
         }
     }
@@ -53,7 +48,7 @@ const getToken = async (token?: string) => {
 };
 
 const VerifyResult: AsyncComponent<{
-    token?: string
+    token: string
 }> = async props => {
     const verificationToken = await getToken(props.token);
     let verificationSuccess = false;
@@ -64,13 +59,14 @@ const VerifyResult: AsyncComponent<{
 
     return <>
         <AuthHeader
-            title={verificationSuccess ? "Your email address has been successfully verified" : "The verification link has expired  or is invalid"}
+            title={verificationSuccess ? "邮箱验证成功" : "验证链接已过期，请重试"}
+            logo={<div className={'w-14 h-14 border rounded-2xl flex justify-center items-center'}>
+                <HiOutlineMail className={'w-6 h-6 text-primary'}/></div>}
         />
         {
             verificationSuccess ? <div className={"flex justify-center"}>
                 <Link href={"/sign-in"}
-                      className={"rounded-lg text-sm font-semibold shadow-xs bg-primary hover:opacity-90  text-white dark:text-gray-200 h-10 px-4 py-2.5"}>Sign
-                    in</Link>
+                      className={"rounded-lg text-sm font-semibold shadow-xs bg-primary hover:opacity-90  text-white dark:text-gray-200 h-10 px-4 py-2.5"}>去登录</Link>
             </div> : null
         }
     </>;
@@ -78,19 +74,24 @@ const VerifyResult: AsyncComponent<{
 
 const VerifyEmailPage: Page = props => {
     const searchParams = props.searchParams;
+    const token = searchParams?.token as string | undefined;
+    if (!token) {
+        throw new Error('token invalid');
+    }
 
     return (
         <Suspense fallback={<>
-            <AuthHeader title={"Verifying your email address, please wait"}/>
+            <AuthHeader title={"正在验证邮箱，请稍后"}
+                        logo={<div className={'w-14 h-14 border rounded-2xl flex justify-center items-center'}>
+                            <HiOutlineMail className={'w-6 h-6 text-primary'}/></div>}/>
             <div>
                 <CgSpinner className={"animate-spin text-primary w-7 h-7 mx-auto"}/>
             </div>
         </>}>
-            <VerifyResult token={searchParams?.token as string}/>
+            <VerifyResult token={token}/>
         </Suspense>
     );
 };
-
 
 
 export default VerifyEmailPage;

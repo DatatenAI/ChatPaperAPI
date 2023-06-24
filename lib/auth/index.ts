@@ -32,14 +32,10 @@ export const credentialProvider = CredentialProvider({
             select: {
                 id: true,
                 email: true,
-                emailVerified: true
             },
             where: {
                 email: credentials.email,
-                password: hashedPassword,
-                NOT: {
-                    emailVerified: null
-                }
+                password: hashedPassword
             }
         });
         if (!user) {
@@ -70,13 +66,14 @@ export const authOptions: NextAuthOptions = {
                 session.user.name = token.name;
                 session.user.email = token.email;
                 session.user.image = token.picture;
+                session.user.language = token.language;
             }
             return session;
         },
         async jwt({token, user}) {
-            const dbUser = token.email ? await prisma.user.findFirst({
+            const dbUser = token.id ? await prisma.user.findFirst({
                 where: {
-                    email: token.email
+                    id: token.id
                 }
             }) : null;
 
@@ -86,12 +83,12 @@ export const authOptions: NextAuthOptions = {
                 }
                 return token;
             }
-
             return {
                 id: dbUser.id,
                 name: dbUser.name,
                 email: dbUser.email,
-                picture: dbUser.image
+                picture: dbUser.image,
+                language: dbUser.language
             };
         }
     }
@@ -110,7 +107,11 @@ export const getSession = async () => {
 };
 export const getCurrentUser = async () => {
     const serverSession = await getSession();
-    return serverSession!.user;
+    const user = {...serverSession!.user};
+    if (user.email?.endsWith("@wechat.com")) {
+        user.email = "未设置邮箱";
+    }
+    return user;
 };
 export const getCurrentUserId: () => Promise<string> = async () => {
     const user = await getCurrentUser();

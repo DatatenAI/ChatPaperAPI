@@ -1,49 +1,48 @@
-import {publicProcedure} from "@/trpc";
-import {SendMailSchema} from "@/lib/validation";
+import {protectedProcedure} from "@/trpc";
+import {SetEmailSchema} from "@/lib/validation";
+import {randomBytes} from "crypto";
 import prisma from "@/lib/database";
 import {hashToken} from "@/lib/auth";
-import {randomBytes} from "crypto";
 import {VerificationTokenType} from "@prisma/client";
 import {sendMail} from "@/lib/mail";
 import ApiError from "@/lib/ApiError";
 
-const resetPassword = publicProcedure
-    .input(SendMailSchema)
+const updateEmail = protectedProcedure
+    .input(SetEmailSchema)
     .mutation(async ({input, ctx}) => {
-        const {email} = input;
-        const user = await prisma.user.findUnique({
-            where: {
-                email
+        if (input.email !== ctx.session.user.email) {
+            const exists =( await prisma.user.count({where: {email: input.email}})) > 0;
+            if (exists) {
+                throw new ApiError("邮箱已注册");
             }
-        });
-        if (user) {
             const token = randomBytes(32).toString("hex");
             const expires = new Date(Date.now() + (86400) * 1000);
             await prisma.verificationToken.create({
                 data: {
                     identifier: input.email,
                     token: hashToken(token),
-                    type: VerificationTokenType.reset_password,
-                    expires
+                    type: VerificationTokenType.change_email,
+                    expires,
+                    extra: ctx.session.user.email
                 }
             });
             const params = new URLSearchParams({token});
-            const link = `${process.env.NEXTAUTH_URL}/reset-password/confirm?${params}`;
+            const link = `${process.env.NEXTAUTH_URL}/verify-email?${params}`;
             try {
-                await sendMail("reset_password", {
-                    to: email,
-                    subject: "重置密码",
+                await sendMail("change_email", {
+                    to: input.email,
+                    subject: "绑定邮箱",
                     params: {
                         link
                     }
                 });
+                return true;
             } catch (e) {
                 throw new ApiError('发送邮件失败');
             }
+        } else {
+            return false;
         }
-        return {
-            message: "邮件已发送"
-        };
     });
 
-export default resetPassword;
+export default updateEmail;
