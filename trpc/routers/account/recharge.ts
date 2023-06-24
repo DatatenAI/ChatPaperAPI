@@ -1,5 +1,4 @@
 import {protectedProcedure} from "@/trpc";
-import crypto from "crypto";
 import {customAlphabet} from "nanoid";
 import ApiError from "@/lib/ApiError";
 import {RechargeSchema} from "@/lib/validation";
@@ -7,12 +6,9 @@ import {PayMethodEnum} from "@/lib/constants";
 import prisma from "@/lib/database";
 import {CreditPayStatus} from "@prisma/client";
 import {TRPCError} from "@trpc/server";
+import dayjs from "dayjs";
+import {sign} from "@/lib/allinpay";
 
-const rsaSign = (str: string) => {
-    const sign = crypto.createSign('SHA1');
-    sign.update(str, 'utf-8');
-    return sign.sign(process.env.ALLINPAY_PRIVATE_KEY.replace(/\\n/g, '\n'), 'base64')
-}
 
 const payMethodCodes: Record<PayMethodEnum, string> = {
     ALIPAY: 'A01',
@@ -21,7 +17,7 @@ const payMethodCodes: Record<PayMethodEnum, string> = {
 
 const nanoid = customAlphabet('1234567890', 10)
 const genPayNo = () => {
-    const timestamp = Date.now(); // 获取当前时间戳
+    const timestamp = dayjs().format("YYYYMMDDHHmmSSS"); // 获取当前时间戳
     const formattedSequence = String(nanoid(10)).padStart(4, '0');
     return `${timestamp}${formattedSequence}`;
 }
@@ -50,12 +46,7 @@ const recharge = protectedProcedure
             notify_url: process.env.NEXTAUTH_URL + '/api/callback/allinpay',
             signtype: 'RSA',
         };
-        const sortedParamStr = Object.keys(params).sort().map(
-            (key) => {
-                return `${key}=${params[key]}`
-            }
-        ).join("&");
-        params.sign = rsaSign(sortedParamStr);
+        params.sign = sign(params);
         const res = await fetch('https://vsp.allinpay.com/apiweb/unitorder/pay', {
             method: 'POST',
             body: new URLSearchParams(params),
@@ -65,12 +56,16 @@ const recharge = protectedProcedure
                 data: {
                     goodId: input.goodId,
                     userId: ctx.session.user.id,
+                    credits:good.credits,
                     payNo,
                     fee: good.price,
                     status: CreditPayStatus.PAYING,
                 }
             });
-            return res.payinfo as string;
+            return {
+                url: res.payinfo as string,
+                payNo
+            };
         }
         throw new ApiError("发起支付失败");
     });

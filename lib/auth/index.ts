@@ -5,6 +5,7 @@ import CredentialProvider from "next-auth/providers/credentials";
 import PrismaAdapter from "./prisma-adapter";
 import prisma from "@/lib/database";
 import {createHash} from "crypto";
+import WechatProvider from "@/lib/auth/wechat-provider";
 
 
 const googleProvider = GoogleProvider({
@@ -12,6 +13,10 @@ const googleProvider = GoogleProvider({
     clientSecret: process.env.NEXTAUTH_GOOGLE_CLIENT_SECRET,
     allowDangerousEmailAccountLinking: true
 });
+const wechatProvider = WechatProvider({
+    clientId: process.env.NEXTAUTH_WECHAT_CLIENT_ID,
+    clientSecret: process.env.NEXTAUTH_WECHAT_CLIENT_SECRET,
+})
 
 export const credentialProvider = CredentialProvider({
     credentials: {
@@ -48,8 +53,8 @@ export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
     providers: [
         googleProvider,
-        // emailProvider,
-        credentialProvider
+        credentialProvider,
+        wechatProvider
     ],
     pages: {
         signIn: "/sign-in",

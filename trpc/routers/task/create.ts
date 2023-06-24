@@ -5,7 +5,7 @@ import {CreditType, Prisma, TaskState, TaskType} from "@prisma/client";
 import ApiError from "@/lib/ApiError";
 import {readFile, uploadRemoteFile} from "@/lib/oss";
 import {PDFDocument} from "pdf-lib";
-
+import {summary} from "@/lib/fc";
 /**
  * 计算任务消耗credits
  * @param pdfHash 获取pdf页数
@@ -54,7 +54,7 @@ const create = protectedProcedure
                 state: TaskState.SUCCESS,
             },
         });
-        const tasks: Prisma.TaskCreateManyInput[] = await Promise.all(pdfHashes.map(async (it) => {
+        const tasks = await Promise.all(pdfHashes.map(async (it) => {
             let taskType: TaskType;
             const sameHashTasks = allSameTasks.filter((task) => task.pdfHash === it)
             if (sameHashTasks.length) {
@@ -70,11 +70,10 @@ const create = protectedProcedure
                 language: input.language,
                 pdfHash: it,
                 pages,
-                costCredits: pages * (task.type === TaskType.SUMMARY ? 1 : 0.5),
+                costCredits: pages * (taskType === TaskType.SUMMARY ? 1 : 0.5),
                 state: sameLanguageTask ? TaskState.SUCCESS : TaskState.RUNNING,
             };
         }));
-
 
         const costCredits = tasks.reduce((sum, task) => {
             return sum.add(task.costCredits);
@@ -85,12 +84,12 @@ const create = protectedProcedure
                 await trx.user.update({
                     where: {
                         id: ctx.session.user.id,
-                        credit: {
+                        credits: {
                             gte: costCredits
                         },
                     },
                     data: {
-                        credit: {
+                        credits: {
                             increment: -costCredits,
                         }
                     }
@@ -113,6 +112,7 @@ const create = protectedProcedure
                     amount: -costCredits,
                 },
             });
+            await Promise.all(tasks.map(task => summary(task.pdfHash, task.language)));
         });
         if (pdfHashes.length > 1) {
             return null;

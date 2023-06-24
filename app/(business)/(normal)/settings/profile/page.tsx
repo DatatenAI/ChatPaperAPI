@@ -8,7 +8,10 @@ export const metadata = {
 const ProfilePage: Page = props => {
     return (
         <PageLayout title={metadata.title} className={'pt-0'}>
-            <div></div>
+            <div>
+                <h2 className={'font-semibold'}>基础信息</h2>
+                
+            </div>
         </PageLayout>
     );
 };

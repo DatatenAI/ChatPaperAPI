@@ -22,7 +22,7 @@ const NavLinks: FC = props => {
     return (
         <div className={"text-gray-700 font-semibold space-x-4 text-sm"}>
             {navs.map(nav => {
-                return <Link prefetch={false} key={nav.link} href={nav.link}
+                return <Link prefetch={false} key={nav.link} href={'/'+nav.link}
                              className={cn("px-3 py-2 rounded-lg hover:bg-accent", {
                                  "bg-accent": currentSegment === nav.link
                              })}>{nav.label}</Link>;

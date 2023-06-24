@@ -12,7 +12,7 @@ export const metadata = {
 
 const SignUpPage: Page = async (props) => {
     return <>
-        <AuthHeader title={"创建一个账号"} subtitle={"从免费计划开始"}/>
+        <AuthHeader title={"创建一个账号"}/>
         <div className={"flex flex-col gap-6"}>
             <SignUpForm/>
             <Separator/>

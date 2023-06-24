@@ -15,7 +15,7 @@ const BillingPage: Page = async props => {
 
     return (
         <PageLayout title={'账户余额'} className={'pt-0'}>
-            <Pay goods={goods}/>
+            <Pay goods={goods} data-superjson/>
         </PageLayout>
     );
 };

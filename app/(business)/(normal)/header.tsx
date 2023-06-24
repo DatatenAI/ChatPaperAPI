@@ -6,10 +6,25 @@ import NavLinks from "./nav-links";
 import UserAvatar from "@/app/(business)/(normal)/user-avatar";
 import {getCurrentUser} from "@/lib/auth";
 import {AsyncComponent} from "@/types";
+import DailyCheckInButton from "@/app/(business)/(normal)/daily-check-in-button";
+import prisma from "@/lib/database";
+import {CreditType} from "@prisma/client";
+import dayjs from "dayjs";
 
 
 const ApplicationHeader: AsyncComponent = async props => {
     const user = await getCurrentUser();
+    const checked = (await prisma.creditHistory.count({
+            where: {
+                userId: user.id,
+                type: CreditType.CHECK_IN,
+                happenedAt: {
+                    gte: dayjs().startOf('day').toDate(),
+                }
+            }
+        })
+    ) > 0;
+
     return (
         <header className={'sticky top-0 z-40 border-b bg-background'}>
             <nav className={'container h-16 flex  items-center'}>
@@ -20,7 +35,8 @@ const ApplicationHeader: AsyncComponent = async props => {
                 <div className={'ml-8'}>
                     <NavLinks/>
                 </div>
-                <div className={'ml-auto'}>
+                <div className={'ml-auto flex gap-4'}>
+                    <DailyCheckInButton checked={checked}/>
                     <UserAvatar user={user}/>
                 </div>
             </nav>

@@ -21,3 +21,12 @@ export const streamToBuffer = (stream: ReadableStream): Promise<Buffer> => {
         stream.on('end', () => resolve(Buffer.concat(chunks)));
     });
 };
+
+
+export const streamToUint8Array =async (stream: ReadableStream) => {
+    const chunks: any[] = [];
+    for await (const chunk of stream) {
+        chunks.push(chunk);
+    }
+    return new Uint8Array(Buffer.concat(chunks));
+}

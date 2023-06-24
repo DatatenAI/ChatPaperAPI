@@ -22,7 +22,7 @@ model User {
   /// 用户密码
   password      String?
   accounts      Account[]
-  credit        Decimal   @default(0) @db.Decimal(9, 1)
+  credits       Decimal   @default(0) @db.Decimal(9, 1)
 
   @@map("users")
 }
@@ -66,28 +66,30 @@ model VerificationToken {
 }
 
 enum CreditType {
-  SIGN
+  CHECK_IN
   PURCHASE
   TASK
+  CHAT
 }
 
 model CreditHistory {
-  id        BigInt     @id @default(autoincrement())
-  userId    String     @map("user_id") /// 用户id
-  amount    Decimal    @db.Decimal(9, 1) /// 消耗数量
-  type      CreditType // 消耗类型
-  happendAt DateTime   @default(now()) ///发生时间
+  id         BigInt     @id @default(autoincrement())
+  userId     String     @map("user_id") /// 用户id
+  amount     Decimal    @db.Decimal(9, 1) /// 消耗数量
+  type       CreditType // 消耗类型
+  happenedAt DateTime   @default(now()) ///发生时间
 
   @@map("credit_histories")
 }
 
 model CreditGood {
-  id          BigInt  @id @default(autoincrement())
-  name        String ///名称
-  description String? @db.Text
-  credits     Decimal @db.Decimal(9, 1) ///点数
-  price       Decimal @db.Decimal(9, 0) ///价钱(分)
-  actived     Boolean ///是否可用
+  id               BigInt             @id @default(autoincrement())
+  name             String ///名称
+  description      String?            @db.Text
+  credits          Decimal            @db.Decimal(9, 1) ///点数
+  price            Decimal            @db.Decimal(9, 0) ///价钱(分)
+  actived          Boolean ///是否可用
+  CreditPayHistory CreditPayHistory[]
 
   @@map("credit_goods")
 }
@@ -104,10 +106,13 @@ model CreditPayHistory {
   payNo      String          @unique @map("pay_no")
   fee        Decimal         @db.Decimal(9, 0)
   goodId     BigInt          @map("good_id")
+  credits    Decimal
   createdAt  DateTime        @default(now()) @map("created_at")
   finishedAt DateTime?
   status     CreditPayStatus
+  good       CreditGood      @relation(fields: [goodId], references: [id])
 
+  @@index([goodId])
   @@map("credit_pay_histories")
 }
 
@@ -169,6 +174,38 @@ model Summary {
 
   @@unique([pdfHash, language])
   @@map("summaries")
+}
+
+enum ChatStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+model Chat {
+  id             BigInt     @id @default(autoincrement())
+  userId         String     @map("user_id")
+  summaryId      BigInt?    @map("summary_id")
+  language       String
+  pages          Json?
+  queryRelevance Json?      @map("query_relevance")
+  question       String     @db.Text
+  reply          String?    @db.Text
+  status         ChatStatus
+  questionedAt   DateTime
+  repliedAt      DateTime?
+
+  @@map("chats")
+}
+
+model ApiKey {
+  id     BigInt  @id @default(autoincrement())
+  key    String
+  alive  Boolean @default(true)
+  amount Decimal
+  used   Decimal @default(0)
+
+  @@map("api_keys")
 }
 
 /// 关键词库

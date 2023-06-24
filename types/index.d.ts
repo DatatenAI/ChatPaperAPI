@@ -31,3 +31,6 @@ declare module '@tanstack/react-table' {
         className?: string
     }
 }
+
+declare module 'pdfjs-dist/build/pdf.worker.entry'{
+}

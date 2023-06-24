@@ -12,8 +12,9 @@ const SideMenuItem: FC<{
     active?: boolean;
 }> = (props) => {
     return <Link href={"/settings/" + (props.segment || "")} prefetch={false}
-                 className={cn("py-2 px-3 text-sm font-semibold cursor-pointer text-accent-foreground rounded-md inline-flex items-center gap-1", {
-                     "bg-accent": props.active
+                 className={cn("py-2 px-3 text-sm font-semibold cursor-pointer rounded-md inline-flex items-center gap-1", {
+                     "bg-primary-50": props.active,
+                     "text-primary-500": props.active,
                  })}>{props.children}</Link>;
 };
 

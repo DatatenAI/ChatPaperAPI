@@ -1,6 +1,6 @@
 import {Client} from "minio";
 import {fileTypeFromBuffer} from "file-type";
-import {md5, streamToBuffer, toBuffer} from "@/lib/common";
+import {md5, streamToBuffer, streamToUint8Array, toBuffer} from "@/lib/common";
 import fs from "fs/promises";
 import path from "path";
 
@@ -8,20 +8,22 @@ const ossClient = new Client({
     endPoint: process.env.OSS_ENDPOINT,
     accessKey: process.env.OSS_ACCESS_KEY,
     secretKey: process.env.OSS_ACCESS_SECRET,
-    pathStyle: false
+    pathStyle: false,
 });
-
+export const getFileUrl = (folder: string, object: string) => {
+    return `https://${process.env.OSS_BUCKET}.${process.env.OSS_ENDPOINT}/${folder}/${object}`
+}
 
 export const checkFileExist = async (folder: string, object: string) => {
     if (process.env.OSS_VOLUME_PATH) {
         return await fs.access(path.resolve(process.env.OSS_VOLUME_PATH, folder, object)).then(() => true).catch(() => false);
     } else {
         try {
-            await ossClient.getObject(process.env.OSS_BUCKET, folder + "/" + object);
-            return true;
+            console.log(process.env.OSS_BUCKET, folder + "/" + object);
+            await ossClient.statObject(process.env.OSS_BUCKET, folder + "/" + object);
         } catch (e) {
             // @ts-ignore
-            if (e?.code === 'NoSuchKey') {
+            if (e?.code === 'NotFound') {
                 return false;
             }
             throw e;
@@ -31,10 +33,9 @@ export const checkFileExist = async (folder: string, object: string) => {
 export const uploadRemoteFile = async (url: string, folder: string = "") => {
     const arrayBuffer = await fetch(url).then(res => res.arrayBuffer());
     const fileType = await fileTypeFromBuffer(arrayBuffer);
-    const prefix = folder ? `${folder}/` : "";
     const buffer = toBuffer(arrayBuffer);
     const hash = md5(buffer);
-    const objectName = `${prefix}${hash}.${fileType?.ext}`;
+    const objectName = `${hash}.${fileType?.ext}`;
     let existed = await checkFileExist(folder, objectName);
     if (!existed) {
         if (process.env.OSS_VOLUME_PATH) {
@@ -50,7 +51,7 @@ export const uploadRemoteFile = async (url: string, folder: string = "") => {
     }
     return {
         originUrl: url,
-        url: "https://" + process.env.OSS_ENDPOINT + "/" + objectName,
+        url: getFileUrl(folder, objectName),
         hash,
         mime: fileType?.mime
     };
@@ -60,7 +61,9 @@ export const readFile = async (folder: string, object: string) => {
     if (process.env.OSS_VOLUME_PATH) {
         return fs.readFile(path.resolve(process.env.OSS_VOLUME_PATH, folder, object))
     } else {
-        return streamToBuffer(await ossClient.getObject(process.env.OSS_BUCKET, folder + "/" + object));
+        return (await streamToUint8Array(await ossClient.getObject(process.env.OSS_BUCKET, folder + "/" + object))).buffer;
     }
 }
+
+
 export default ossClient;

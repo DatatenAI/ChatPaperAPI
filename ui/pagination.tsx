@@ -1,5 +1,4 @@
 import {Button} from "./button"
-import {BiChevronRight} from "react-icons/bi";
 import {useMemo} from "react";
 import {cn} from "@/lib/cn";
 import {AiOutlineArrowLeft, AiOutlineArrowRight} from "react-icons/ai";
@@ -95,21 +94,21 @@ export const Pagination = ({
             onClick={previousPage}
             disabled={current < 2}
             leftIcon={<AiOutlineArrowLeft/>}
+            size={"sm"}
         >
             上一页
         </Button>
-        <ul className={'inline-flex  -space-x-px'}>
+        <ul className={'inline-flex gap-1'}>
             {paginationRange.map((pageNumber, idx) => {
                 if (pageNumber === DOTS) {
-                    return <li className={'w-10 h-10  inline-flex items-center justify-center border font-medium text-sm'} key={pageNumber}>&#8230;</li>;
+                    return <li className={'w-9 h-9  inline-flex items-center justify-center border font-medium text-sm'}
+                               key={pageNumber}>&#8230;</li>;
                 } else {
                     return (
                         <li key={pageNumber}
-                            className={cn(`w-10 h-10 inline-flex items-center justify-center cursor-pointer border hover:bg-accent font-medium text-sm`, {
-                                'rounded-l': idx === 0,
-                                'rounded-r': idx === paginationRange.length - 1,
-                                'bg-accent': current === pageNumber
-                            })}
+                            className={cn(`w-9 h-9 inline-flex items-center justify-center cursor-pointer hover:bg-primary hover:text-primary-foreground rounded-lg font-medium text-sm`,
+                                current === pageNumber ? 'bg-primary text-primary-foreground' : ''
+                            )}
                             data-active={pageNumber === current}
                             onClick={() => onPageChange(pageNumber as number)}
                         >
@@ -121,6 +120,7 @@ export const Pagination = ({
         </ul>
         <Button
             variant="outline"
+            size={"sm"}
             onClick={nextPage}
             disabled={current >= totalPage}
             rightIcon={<AiOutlineArrowRight/>}

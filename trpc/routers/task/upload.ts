@@ -10,14 +10,14 @@ const upload = protectedProcedure
     .input(z.set(z.string()).max(10, "一次最多上传10个PDF"))
     .mutation(async ({input, ctx}) => {
         const hashUrls: (HashUrl | null)[] = await Promise.all(Array.from(input).map(async hash => {
-            const objectName = `uploads/${hash}.pdf`;
-            const exist = await checkFileExist(objectName);
+            const objectName = `${hash}.pdf`;
+            const exist = await checkFileExist("uploads", objectName);
             if (exist) {
                 return null;
             }
             return {
                 hash,
-                url: await ossClient.presignedPutObject(process.env.OSS_BUCKET, objectName,86400)
+                url: await ossClient.presignedPutObject(process.env.OSS_BUCKET, `uploads/${objectName}`, 86400)
             };
         }));
         return hashUrls.filter(it => it !== null) as HashUrl[];

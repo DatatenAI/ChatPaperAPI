@@ -44,11 +44,7 @@ const getToken = async (token?: string) => {
                         emailVerified: new Date()
                     }
                 });
-                await trx.point.create({
-                    data: {
-                        userId: user.id,
-                    }
-                });
+
             });
         }
     }

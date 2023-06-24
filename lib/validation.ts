@@ -7,7 +7,7 @@ const email = z.string().email({message: '请输入正确的邮箱'});
 const name = z.string().trim().nonempty({message: "请输入名称"});
 const password = z.string().trim().nonempty({message: "请输入密码"}).min(8, "密码最少包含8位字符");
 
-const PageSchema = z.object({
+const PaginationSchema = z.object({
     current: z.number().min(1),
     size: z.number().min(0).max(50),
 })
@@ -58,11 +58,19 @@ export const CreateTaskSchema = z.object({
     path: ['pdfUrls', 'pdfHashes']
 })
 
-export const ListTaskSchema = PageSchema.extend({
+export const ListTaskSchema = PaginationSchema.extend({
     state: z.enum(['ALL', ...Object.values(TaskState)]),
+})
+export const ListPayHistorySchema = PaginationSchema.extend({})
+export const ListUsageHistorySchema = PaginationSchema.extend({});
+
+export const ChatSchema = z.object({
+    summaryId: z.bigint().optional(),
+    question: z.string(),
+    language: z.string(),
 })
 
 export const RechargeSchema = z.object({
-    goodId: z.number(),
+    goodId: z.bigint(),
     method: z.nativeEnum(PayMethodEnum),
 })

@@ -1,5 +1,5 @@
 'use client';
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Page} from "@/types";
 import PageLayout from "@/app/(business)/(normal)/page-layout";
 import {AiOutlineCloudUpload} from "react-icons/ai";
@@ -12,7 +12,6 @@ import {filesize} from "filesize";
 import {Button} from "@/ui/button";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/ui/tabs";
 import {useToast} from "@/ui/use-toast";
-import SparkMD5 from "spark-md5";
 import {Textarea} from "@/ui/textarea";
 import {trpc} from "@/lib/trpc";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/ui/select";
@@ -22,7 +21,12 @@ import {BsFillCheckCircleFill} from "react-icons/bs";
 import {CreateTaskSchema} from "@/lib/validation";
 import z from "zod";
 import {useRouter} from "next/navigation";
-
+import * as Comlink from "comlink";
+import * as PdfDist from "pdfjs-dist";
+// @ts-ignore
+import PdfWorker from "pdfjs-dist/build/pdf.worker.entry";
+import SparkMD5 from "spark-md5";
+import {TextItem} from "pdfjs-dist/types/src/display/api";
 
 type FileWithHash = {
     file: File,
@@ -32,36 +36,31 @@ type FileWithHash = {
     state: 'wait' | 'uploading' | 'success' | 'error';
 }
 
+
 const uploadTypes = [
     {value: 'FILE', label: '文件上传'},
     {value: 'URL', label: 'URL上传'},
 ];
-
 const calcFileHash = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
-        const spark = new SparkMD5.ArrayBuffer();
         const fileReader = new FileReader();
-        const chunkSize = 2097152;
-        const chunks = Math.ceil(file.size / chunkSize);
-        let currentChunk = 0;
-        const loadNext = () => {
-            const start = currentChunk * chunkSize,
-                end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize;
-            fileReader.readAsArrayBuffer(file.slice(start, end));
+        const spark = new SparkMD5();
+        fileReader.onload = function () {
+            PdfDist.getDocument({
+                data: this.result as ArrayBuffer,
+                worker: PdfWorker,
+            }).promise.then(async pdf => {
+                let textContent = '';
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const tokenizedText = await page.getTextContent();
+                    textContent+=  tokenizedText.items.map(item => (item as TextItem).str).join("");
+                }
+                spark.append(textContent);
+                resolve(spark.end())
+            });
         }
-        fileReader.onload = e => {
-            spark.append(e.target?.result as ArrayBuffer);
-            currentChunk++;
-            if (currentChunk < chunks) {
-                loadNext();
-            } else {
-                resolve(spark.end());
-            }
-        }
-        fileReader.onerror = () => {
-            reject("read file error");
-        };
-        loadNext();
+        fileReader.readAsArrayBuffer(file);
     })
 }
 
@@ -72,7 +71,15 @@ const HomePage: Page = props => {
     const [files, setFiles] = useState<FileWithHash[]>([]);
     const [language, setLanguage] = useState<string>("中文");
 
+    const [calculating, setCalculating] = useState(false);
+
     const [uploadLoading, setUploadLoading] = useState(false);
+
+    const workerRef = useRef<typeof import('./calc-file-md5-worker').default>();
+
+    useEffect(() => {
+        workerRef.current = Comlink.wrap(new Worker(new URL('./calc-file-md5-worker.ts', import.meta.url)));
+    }, [])
 
     const router = useRouter();
 
@@ -80,20 +87,25 @@ const HomePage: Page = props => {
         accept: {
             'application/pdf': ['.pdf']
         },
-        maxSize: 1024 * 1024 * 20,
+        maxSize: 1024 * 1024 * 50,
         onDropAccepted: async acceptFiles => {
-            const fileWithMd5Array: FileWithHash[] = await Promise.all(acceptFiles.map(async file => {
-                return {
-                    file,
-                    hash: await calcFileHash(file),
-                    progress: 0,
-                    state: 'wait'
-                };
-            }));
-            const filterRepeatFiles = fileWithMd5Array.filter(file => {
-                return files.findIndex(it => it.hash === file.hash) < 0;
-            });
-            setFiles([...files, ...filterRepeatFiles]);
+            setCalculating(true);
+            try {
+                const fileWithMd5Array: FileWithHash[] = await Promise.all(acceptFiles.map(async file => {
+                    return {
+                        file,
+                        hash: await calcFileHash(file),
+                        progress: 0,
+                        state: 'wait'
+                    };
+                }));
+                const filterRepeatFiles = fileWithMd5Array.filter(file => {
+                    return files.findIndex(it => it.hash === file.hash) < 0;
+                });
+                setFiles([...files, ...filterRepeatFiles]);
+            } finally {
+                setCalculating(false);
+            }
         },
         onDropRejected: (fileRejections) => {
             const error = fileRejections[0].errors[0];
@@ -106,7 +118,7 @@ const HomePage: Page = props => {
                     description = '选择文件太小';
                     break;
                 case 'file-too-large':
-                    description = `请选择20M以下的文件`;
+                    description = `请选择50M以下的文件`;
                     break;
                 case 'too-many-files':
                     description = `文件数量超限`;
@@ -272,7 +284,13 @@ const HomePage: Page = props => {
                     <TabsContent value={'FILE'} asChild>
                         <div className={`space-y-4`}>
                             <div  {...getRootProps()}
-                                  className={`h-36  p-4 bg-white border  rounded-2xl flex flex-col justify-center items-center cursor-pointer space-y-2`}>
+                                  className={`h-36  p-4 bg-white border  rounded-2xl flex flex-col justify-center items-center cursor-pointer space-y-2 relative`}>
+                                {
+                                    calculating ? <div className={'w-full h-full absolute bg-opacity-50 bg-white'}>
+                                        <BiLoaderAlt
+                                            className={'animate-spin absolute top-1/2 left-1/2 -ml-4 -mt-4 w-8 h-8 text-primary'}/>
+                                    </div> : null
+                                }
                                 <input {...getInputProps()} />
                                 <div className={'w-10 h-10 border rounded-lg flex justify-center items-center'}>
                                     <AiOutlineCloudUpload className={'w-6 h-6 text-primary'}/>

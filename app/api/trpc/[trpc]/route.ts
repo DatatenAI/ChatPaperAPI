@@ -25,7 +25,11 @@ const handler: Api = (req) => {
             if (error.cause instanceof ApiError) {
                 logger.error(error.message);
             } else {
-                logger.error(error);
+                if (process.env.NODE_ENV === 'development') {
+                    console.error(error);
+                }else{
+                    logger.error(error);
+                }
             }
 
         }

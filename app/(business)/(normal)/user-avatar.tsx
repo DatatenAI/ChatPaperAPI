@@ -59,7 +59,7 @@ const UserAvatar: FC<{
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                        <Link href={'/settings/billing'} prefetch={false}>
+                        <Link href={'/settings/usage'} prefetch={false}>
                             <MdDataUsage className="mr-2 h-4 w-4"/>
                             <span>用量明细</span>
                         </Link>
