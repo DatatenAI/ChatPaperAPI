@@ -1,15 +1,16 @@
 'use client';
 import React, {FC} from 'react';
-import {CreditHistory, CreditType} from "@prisma/client";
+import type {CreditHistory} from "@prisma/client";
 import {ColumnDef} from "@tanstack/react-table";
 import dayjs from "dayjs";
 import usePagination from "@/hooks/use-pagination";
 import {trpc} from "@/lib/trpc";
 import DataTable from "@/ui/data-table";
 import {Badge} from "@/ui/badge";
-import {BiLoaderAlt} from "@react-icons/all-files/bi/BiLoaderAlt";
-import {AiOutlineCheck} from "@react-icons/all-files/ai/AiOutlineCheck";
-import {MdError} from "@react-icons/all-files/md/MdError";
+import {CgFileDocument} from "@react-icons/all-files/cg/CgFileDocument";
+import {BsCalendar} from "@react-icons/all-files/bs/BsCalendar";
+import {AiOutlineCreditCard} from "@react-icons/all-files/ai/AiOutlineCreditCard";
+import {BsChatSquareDots} from "@react-icons/all-files/bs/BsChatSquareDots";
 
 type UsageColumn = Pick<
     CreditHistory,
@@ -33,20 +34,25 @@ export const creditColumnDef: ColumnDef<UsageColumn>[] = [
         },
         cell: cell => {
             switch (cell.row.original.type) {
-                case CreditType.TASK:
+                case 'TASK':
                     return <Badge variant={'info'} plain>
-                        <BiLoaderAlt className={'animate-spin mr-1'}/>
-                        支付中
+                        <CgFileDocument className={'mr-1'}/>
+                        总结
                     </Badge>
-                case CreditType.PURCHASE:
+                case 'CHAT':
+                    return <Badge variant={'info'} plain>
+                        <BsChatSquareDots className={'animate-spin mr-1'}/>
+                        对话
+                    </Badge>
+                case 'PURCHASE':
                     return <Badge variant={"success"} plain>
-                        <AiOutlineCheck className={'mr-1'}/>
-                        已支付
+                        <AiOutlineCreditCard className={'mr-1'}/>
+                        充值
                     </Badge>
-                case CreditType.CHECK_IN:
+                case 'CHECK_IN':
                     return <Badge variant={"destructive"} plain>
-                        <MdError className={'mr-1'}/>
-                        支付失败
+                        <BsCalendar className={'mr-1'}/>
+                        签到
                     </Badge>
             }
 
@@ -58,7 +64,10 @@ export const creditColumnDef: ColumnDef<UsageColumn>[] = [
         meta: {
             className: 'w-40',
         },
-        accessorFn: row => `¥${(Number(row.amount) / 100).toFixed(2)}`,
+        cell: cell => {
+            const amount = Number(cell.row.original.amount);
+            return <span className={amount<0?'text-emerald-500':'text-red-500 font-semibold'}>{amount<0?amount:`+${amount}`}</span>
+        }
     },
 ];
 const UsageTable: FC = props => {

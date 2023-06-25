@@ -20,7 +20,7 @@ const filterStates = [
 ]
 const TaskPage: Page = props => {
     const [state, setState] = useState<QuerySchema['state']>('ALL');
-    const pagination = usePagination();
+    const pagination = usePagination(1,8);
 
     const {data, isLoading} = trpc.task.list.useQuery({
         current: pagination.current,

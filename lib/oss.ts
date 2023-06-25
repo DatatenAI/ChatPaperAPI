@@ -35,15 +35,15 @@ export const uploadRemoteFile = async (url: string, folder: string = "") => {
     const buffer = toBuffer(arrayBuffer);
     const hash = md5(buffer);
     const objectName = `${hash}.${fileType?.ext}`;
+    if (!await checkFileExist(folder, "")) {
+        await fs.mkdir(folder, {recursive: true})
+    }
     let existed = await checkFileExist(folder, objectName);
     if (!existed) {
         if (process.env.OSS_VOLUME_PATH) {
-            if (!await checkFileExist(folder, "")) {
-                await fs.mkdir(folder, {recursive: true})
-            }
-            await fs.writeFile(path.resolve(process.env.OSS_VOLUME_PATH, objectName), buffer);
+            await fs.writeFile(path.resolve(process.env.OSS_VOLUME_PATH,folder, objectName), buffer);
         } else {
-            await ossClient.putObject(process.env.OSS_BUCKET, objectName, buffer, {
+            await ossClient.putObject(process.env.OSS_BUCKET,`${folder}/${objectName}`, buffer, {
                 'Content-Type': fileType?.mime
             });
         }

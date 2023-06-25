@@ -4,15 +4,17 @@ import prisma from "@/lib/database";
 import {CreditType, Prisma, TaskState, TaskType} from "@prisma/client";
 import ApiError from "@/lib/ApiError";
 import {readFile, uploadRemoteFile} from "@/lib/oss";
-import {PDFDocument} from "pdf-lib";
+import * as PDF from "pdfjs-dist";
 import {summary} from "@/lib/fc";
+import {nanoid} from "nanoid";
+
 /**
  * 计算任务消耗credits
  * @param pdfHash 获取pdf页数
  */
 const getPdfPages = async (pdfHash: string) => {
-    const doc = await PDFDocument.load(await readFile("uploads", `${pdfHash}.pdf`));
-    return doc.getPages().length;
+    const doc = await PDF.getDocument(await readFile("uploads", `${pdfHash}.pdf`)).promise;
+    return doc.numPages
 };
 
 const create = protectedProcedure
@@ -65,6 +67,7 @@ const create = protectedProcedure
             const sameLanguageTask = sameHashTasks.findIndex(task => task.language === input.language) >= 0;
             const pages = await getPdfPages(it);
             return {
+                id: nanoid(),
                 type: taskType,
                 userId: ctx.session.user.id,
                 language: input.language,
@@ -78,6 +81,7 @@ const create = protectedProcedure
         const costCredits = tasks.reduce((sum, task) => {
             return sum.add(task.costCredits);
         }, new Prisma.Decimal(0));
+
 
         await prisma.$transaction(async trx => {
             try {
@@ -112,19 +116,55 @@ const create = protectedProcedure
                     amount: -costCredits,
                 },
             });
-            await Promise.all(tasks.map(task => summary(task.pdfHash, task.language)));
         });
+        const summaryRes = await Promise.all(tasks.map(task => summary(task.id)))
+        const failedTaskIds = summaryRes.filter(it => !it.success).map(it => it.taskId);
+        const failedTasks = tasks.filter(it => failedTaskIds.includes(it.id));
+        if (failedTasks.length) {
+            await prisma.$transaction(async trx => {
+                await trx.user.update({
+                    where: {
+                        id: ctx.session.user.id,
+                    },
+                    data: {
+                        credits: {
+                            increment: failedTasks.reduce((sum, task) => {
+                                return sum.add(task.costCredits);
+                            }, new Prisma.Decimal(0)),
+                        }
+                    }
+                });
+                await trx.task.updateMany({
+                    where: {
+                        id: {
+                            in: failedTaskIds
+                        }
+                    },
+                    data: {
+                        state: TaskState.FAIL,
+                        finishedAt: new Date(),
+                    }
+                });
+                await trx.creditHistory.createMany({
+                    data: failedTasks.map(task => {
+                        return {
+                            userId: ctx.session.user.id,
+                            amount: task.costCredits,
+                            type: CreditType.TASK
+                        }
+                    })
+                });
+            });
+        }
         if (pdfHashes.length > 1) {
             return null;
-        }
-        const task = await prisma.task.findFirst({
-            where: {
-                userId: ctx.session.user.id,
-                pdfHash: pdfHashes[0],
-                language: input.language
+        } else {
+            if (failedTasks.length) {
+                return null;
             }
-        })
-        return task?.id
+            return summaryRes[0].taskId;
+        }
+
     });
 
 export default create;

@@ -22,7 +22,7 @@ const list = protectedProcedure
                 skip: (input.current - 1) * input.size,
                 take: input.size,
                 orderBy: {
-                    id: 'desc',
+                    createdAt: 'desc',
                 }
             }))
         }

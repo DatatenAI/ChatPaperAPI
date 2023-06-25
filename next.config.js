@@ -9,6 +9,7 @@ const nextConfig = {
     },
     output: 'standalone',
     experimental: {
+        serverComponentsExternalPackages: ["pdfjs-dist"],
         swcPlugins: [
             [
                 'next-superjson-plugin',

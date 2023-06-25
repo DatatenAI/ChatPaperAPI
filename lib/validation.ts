@@ -78,7 +78,7 @@ export const CreateTaskSchema = z.object({
 })
 
 export const ListTaskSchema = PaginationSchema.extend({
-    state: z.enum(['ALL', 'RUNNING', 'SUCCESS', 'FAILED']),
+    state: z.enum(['ALL', 'RUNNING', 'SUCCESS', 'FAIL']),
 })
 export const ListPayHistorySchema = PaginationSchema.extend({})
 export const ListUsageHistorySchema = PaginationSchema.extend({});

@@ -1,45 +1,29 @@
 'use client';
-import React, {FC, useEffect, useState} from 'react';
-import {useRouter} from "next/navigation";
-import type {Task, TaskState} from "@prisma/client";
+import React, {FC} from 'react';
 import Split from 'react-split'
 import PdfViewer from "./pdf-viewer";
-import Chat from "./chat";
+import ChatContainer from "./chat-container";
+import type {Chat, Summary, TaskState} from "@prisma/client";
 
 
-const TaskContent: FC<{
-    task: Pick<Task, 'pdfHash' | 'language' | 'state'>;
-    pdfUrl: string
+const SummaryContent: FC<{
+    summary: Summary | null;
+    chats: Pick<Chat, 'question' | 'reply' | 'status'>[];
+    pdfUrl: string;
+    avatar?: string | null;
+    taskState: TaskState;
+    language: string;
 }> = props => {
-    const router = useRouter();
-    const [refreshInterval, setRefreshInterval] = useState<ReturnType<typeof setInterval>>();
-
-    useEffect(() => {
-        if (props.task.state === 'RUNNING') {
-            setRefreshInterval(setInterval(() => {
-                router.refresh();
-            }, 5000));
-        }
-        return () => {
-            clearInterval(refreshInterval);
-        };
-    }, []);
-
-    useEffect(() => {
-        if (props.task.state !== 'RUNNING') {
-            clearInterval(refreshInterval);
-        }
-    }, [props.task, refreshInterval]);
-
 
     return <Split
         className={'w-full h-screen pt-16 flex'}
         minSize={400}>
         <PdfViewer pdfUrl={props.pdfUrl}/>
-        <Chat disabled={props.task.state !== 'SUCCESS'} defaultMessages={[]}/>
+        <ChatContainer summary={props.summary} chats={props.chats} taskState={props.taskState} avatar={props.avatar}
+                       language={props.language}/>
 
     </Split>;
 };
 
 
-export default TaskContent;
+export default SummaryContent;
