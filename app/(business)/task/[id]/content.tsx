@@ -1,7 +1,7 @@
 'use client';
 import React, {FC, useEffect, useState} from 'react';
 import {useRouter} from "next/navigation";
-import {Task, TaskState} from "@prisma/client";
+import type {Task, TaskState} from "@prisma/client";
 import Split from 'react-split'
 import PdfViewer from "./pdf-viewer";
 import Chat from "./chat";
@@ -15,7 +15,7 @@ const TaskContent: FC<{
     const [refreshInterval, setRefreshInterval] = useState<ReturnType<typeof setInterval>>();
 
     useEffect(() => {
-        if (props.task.state === TaskState.RUNNING) {
+        if (props.task.state === 'RUNNING') {
             setRefreshInterval(setInterval(() => {
                 router.refresh();
             }, 5000));
@@ -26,7 +26,7 @@ const TaskContent: FC<{
     }, []);
 
     useEffect(() => {
-        if (props.task.state !== TaskState.RUNNING) {
+        if (props.task.state !== 'RUNNING') {
             clearInterval(refreshInterval);
         }
     }, [props.task, refreshInterval]);
@@ -36,7 +36,7 @@ const TaskContent: FC<{
         className={'w-full h-screen pt-16 flex'}
         minSize={400}>
         <PdfViewer pdfUrl={props.pdfUrl}/>
-        <Chat disabled={props.task.state !== TaskState.SUCCESS} defaultMessages={[]}/>
+        <Chat disabled={props.task.state !== 'SUCCESS'} defaultMessages={[]}/>
 
     </Split>;
 };

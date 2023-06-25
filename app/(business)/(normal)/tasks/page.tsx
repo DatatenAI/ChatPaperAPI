@@ -5,7 +5,6 @@ import DataTable from "@/ui/data-table";
 import {taskColumnDefs} from "./columns";
 import PageLayout from "@/app/(business)/(normal)/page-layout";
 import {Tabs, TabsList, TabsTrigger} from "@/ui/tabs";
-import {TaskState} from "@prisma/client";
 import {trpc} from "@/lib/trpc";
 import {ListTaskSchema} from "@/lib/validation";
 import z from "zod";
@@ -15,9 +14,9 @@ type QuerySchema = z.infer<typeof ListTaskSchema>;
 
 const filterStates = [
     {value: 'ALL', label: '全部'},
-    {value: TaskState.RUNNING, label: '运行中'},
-    {value: TaskState.SUCCESS, label: '成功'},
-    {value: TaskState.FAIL, label: '失败'}
+    {value: 'RUNNING', label: '运行中'},
+    {value: 'SUCCESS', label: '成功'},
+    {value: 'FAIL', label: '失败'}
 ]
 const TaskPage: Page = props => {
     const [state, setState] = useState<QuerySchema['state']>('ALL');

@@ -7,9 +7,9 @@ import usePagination from "@/hooks/use-pagination";
 import {trpc} from "@/lib/trpc";
 import DataTable from "@/ui/data-table";
 import {Badge} from "@/ui/badge";
-import {BiLoaderAlt} from "react-icons/bi";
-import {AiOutlineCheck} from "react-icons/ai";
-import {TbPointFilled} from "react-icons/tb";
+import {BiLoaderAlt} from "@react-icons/all-files/bi/BiLoaderAlt";
+import {AiOutlineCheck} from "@react-icons/all-files/ai/AiOutlineCheck";
+import {MdError} from "@react-icons/all-files/md/MdError";
 
 type UsageColumn = Pick<
     CreditHistory,
@@ -45,7 +45,7 @@ export const creditColumnDef: ColumnDef<UsageColumn>[] = [
                     </Badge>
                 case CreditType.CHECK_IN:
                     return <Badge variant={"destructive"} plain>
-                        <TbPointFilled className={'mr-1'}/>
+                        <MdError className={'mr-1'}/>
                         支付失败
                     </Badge>
             }

@@ -4,7 +4,8 @@ import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
 
 import {cn} from "@/lib/cn"
-import {BsCheck, BsChevronDown} from "react-icons/bs";
+import {BsCheck} from "@react-icons/all-files/bs/BsCheck";
+import {BsChevronDown} from "@react-icons/all-files/bs/BsChevronDown";
 
 const Select = SelectPrimitive.Root
 

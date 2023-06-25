@@ -4,9 +4,9 @@ import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 
 import {cn} from "@/lib/cn"
-import {BsCheck2} from "react-icons/bs";
-import {BiChevronRight} from "react-icons/bi";
-import {AiTwotoneCheckCircle} from "react-icons/ai";
+import {AiOutlineCheck} from "@react-icons/all-files/ai/AiOutlineCheck";
+import {BiChevronRight} from "@react-icons/all-files/bi/BiChevronRight";
+import {AiTwotoneCheckCircle} from "@react-icons/all-files/ai/AiTwotoneCheckCircle";
 
 const DropdownMenu = DropdownMenuPrimitive.Root
 
@@ -109,7 +109,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
     >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
-        <BsCheck2 className="h-4 w-4"/>
+        <AiOutlineCheck className="h-4 w-4"/>
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
         {children}

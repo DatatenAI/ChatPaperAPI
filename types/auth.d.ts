@@ -1,10 +1,12 @@
 import {User} from "next-auth";
+import {Prisma} from "@prisma/client";
 
 
 declare module "next-auth/jwt" {
     interface JWT {
         id: string;
-        language: string
+        language: string;
+        credits: Prisma.Decimal;
     }
 }
 
@@ -12,7 +14,8 @@ declare module "next-auth" {
     interface Session {
         user: User & {
             id: string;
-            language: string
+            language: string;
+            credits: Prisma.Decimal;
         }
     }
 }

@@ -2,11 +2,11 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Page} from "@/types";
 import PageLayout from "@/app/(business)/(normal)/page-layout";
-import {AiOutlineCloudUpload} from "react-icons/ai";
+import {AiOutlineCloudUpload} from "@react-icons/all-files/ai/AiOutlineCloudUpload";
 import {useDropzone} from 'react-dropzone'
 import pdfIcon from "@/public/pdf.png";
 import Image from "next/image";
-import {FiTrash2} from "react-icons/fi";
+import {FiTrash2} from "@react-icons/all-files/fi/FiTrash2";
 import {Progress} from "@/ui/progress";
 import {filesize} from "filesize";
 import {Button} from "@/ui/button";
@@ -16,8 +16,8 @@ import {Textarea} from "@/ui/textarea";
 import {trpc} from "@/lib/trpc";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/ui/select";
 import {languages} from "@/lib/constants";
-import {BiLoaderAlt} from "react-icons/bi";
-import {BsFillCheckCircleFill} from "react-icons/bs";
+import {BiLoaderAlt} from "@react-icons/all-files/bi/BiLoaderAlt";
+import {AiFillCheckCircle} from "@react-icons/all-files/ai/AiFillCheckCircle";
 import {CreateTaskSchema} from "@/lib/validation";
 import z from "zod";
 import {useRouter} from "next/navigation";
@@ -135,9 +135,10 @@ const HomePage: Page = props => {
 
     const summaryMutation = trpc.task.create.useMutation({
         onSuccess: data => {
-            console.log(data)
             if (data) {
                 router.push(`/task/${data}`);
+            }else{
+                router.push('/tasks');
             }
         },
         onError: error => {
@@ -318,7 +319,7 @@ const HomePage: Page = props => {
                                                             onClick={() => removeFile(hash)}/> : null
                                                     }
                                                     {
-                                                        state === 'success' ? <BsFillCheckCircleFill
+                                                        state === 'success' ? <AiFillCheckCircle
                                                             className={'w-4 h-4 fill-primary   flex-shrink-0'}
                                                             onClick={() => removeFile(hash)}/> : null
                                                     }

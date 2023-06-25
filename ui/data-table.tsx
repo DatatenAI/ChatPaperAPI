@@ -3,7 +3,7 @@ import React, {ReactElement} from 'react';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/ui/table";
 import {ColumnDef, flexRender, getCoreRowModel, useReactTable,} from "@tanstack/react-table"
 import {Pagination, PaginationProps} from "@/ui/pagination";
-import {BiLoaderAlt} from "react-icons/bi";
+import {BiLoaderAlt} from "@react-icons/all-files/bi/BiLoaderAlt";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]

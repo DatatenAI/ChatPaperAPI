@@ -9,6 +9,8 @@ import {UpdateInfoSchema,} from "@/lib/validation";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useToast} from "@/ui/use-toast";
 import {trpc} from "@/lib/trpc";
+import {Avatar, AvatarFallback, AvatarImage} from "@/ui/avatar";
+import {BiUserCircle} from "@react-icons/all-files/bi/BiUserCircle";
 
 type FormData = z.infer<typeof UpdateInfoSchema>
 const UserInfoForm: FC<{
@@ -36,6 +38,22 @@ const UserInfoForm: FC<{
     }
     return <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+                control={form.control}
+                name="avatar"
+                render={({field}) => (
+                    <FormItem>
+                        <FormLabel>头像</FormLabel>
+                        <FormControl>
+                            <Avatar className={'w-20 h-20'}>
+                                <AvatarImage src={field.value}/>
+                                <AvatarFallback><BiUserCircle/></AvatarFallback>
+                            </Avatar>
+                        </FormControl>
+                        <FormMessage/>
+                    </FormItem>
+                )}
+            />
             <FormField
                 control={form.control}
                 name="name"

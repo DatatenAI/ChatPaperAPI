@@ -7,12 +7,13 @@ import {QRCode} from "react-qrcode-logo";
 import {useToast} from "@/ui/use-toast";
 import {trpc} from "@/lib/trpc";
 import type {CreditGood} from '@prisma/client'
-import {CreditPayStatus} from "@prisma/client";
-import {FaAlipay} from "react-icons/fa";
-import {RiCheckboxBlankCircleLine, RiCheckboxCircleFill, RiWechatPayFill} from "react-icons/ri";
+import {FaAlipay} from "@react-icons/all-files/fa/FaAlipay";
+import {RiCheckboxBlankCircleLine} from "@react-icons/all-files/ri/RiCheckboxBlankCircleLine";
+import {RiCheckboxCircleFill,} from "@react-icons/all-files/ri/RiCheckboxCircleFill";
+import {RiWechatPayFill} from "@react-icons/all-files/ri/RiWechatPayFill";
 import {cn} from "@/lib/cn";
 import PayHistoryTable from "./pay-history-table";
-import {RxStack} from "react-icons/rx";
+import {ImStack} from "@react-icons/all-files/im/ImStack";
 
 const PayMethods: Record<PayMethodEnum, {
     label: string;
@@ -44,7 +45,7 @@ const CreditGoodItem: FC<{
             <div className="flex flex-row gap-4 items-start justify-start flex-1 ">
                 <div
                     className="bg-primary-100 rounded-full border-solid border-primary-50 border-4 shrink-0 w-8 h-8 p-1">
-                    <RxStack className={'w-4 h-4 text-primary'}/>
+                    <ImStack className={'w-4 h-4 text-primary'}/>
                 </div>
                 <div className="flex flex-col text-sm flex-1 ">
                     <div className="flex flex-row gap-1 items-start justify-start shrink-0 ">
@@ -128,19 +129,19 @@ const Pay: FC<{
             return;
         }
         switch (data) {
-            case CreditPayStatus.SUCCESS:
+            case 'SUCCESS':
                 toast({
                     title: '支付成功',
                 });
                 setPayData(undefined);
                 setShowDialog(false);
                 return;
-            case CreditPayStatus.PAYING:
+            case 'PAYING':
                 toast({
                     title: '正在支付中，请稍后查询',
                 })
                 break;
-            case CreditPayStatus.FAILED:
+            case 'FAILED':
                 toast({
                     title: '支付失败',
                 })

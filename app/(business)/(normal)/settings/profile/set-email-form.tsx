@@ -11,7 +11,7 @@ import {SetEmailSchema} from "@/lib/validation";
 import {Input} from "@/ui/input";
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/ui/dialog";
 import {useRouter} from "next/navigation";
-import {AiOutlineMail} from "react-icons/ai";
+import {AiOutlineMail} from "@react-icons/all-files/ai/AiOutlineMail";
 
 type FormData = z.infer<typeof SetEmailSchema>
 const SetEmailForm: FC<{}> = props => {

@@ -1,6 +1,6 @@
 import React, {FC} from 'react';
 import {Button} from "@/ui/button";
-import {IoChevronBackOutline} from "react-icons/io5";
+import {IoChevronBackOutline} from "@react-icons/all-files/io5/IoChevronBackOutline";
 import Link from "next/link";
 import {Task} from "@prisma/client";
 import TaskStateBadge from "@/components/task-state-badge";

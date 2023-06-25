@@ -24,7 +24,6 @@ const ApplicationHeader: AsyncComponent = async props => {
             }
         })
     ) > 0;
-
     return (
         <header className={'sticky top-0 z-40 border-b bg-background'}>
             <nav className={'container h-16 flex  items-center'}>

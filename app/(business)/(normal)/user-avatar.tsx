@@ -10,16 +10,18 @@ import {
     DropdownMenuTrigger
 } from "@/ui/dropdown-menu";
 import {Avatar, AvatarFallback, AvatarImage} from "@/ui/avatar";
-import {User} from "next-auth";
-import {BiCreditCard, BiLogOut, BiUser} from "react-icons/bi";
-import {BsDiscord} from "react-icons/bs";
-import {RxAvatar} from "react-icons/rx";
+import {Session} from "next-auth";
+import {BiCreditCard} from "@react-icons/all-files/bi/BiCreditCard";
+import {BiLogOut} from "@react-icons/all-files/bi/BiLogOut";
+import {BiUser} from "@react-icons/all-files/bi/BiUser";
+import {FaDiscord} from "@react-icons/all-files/fa/FaDiscord";
+import {BiUserCircle} from "@react-icons/all-files/bi/BiUserCircle";
 import Link from "next/link";
-import {MdDataUsage} from "react-icons/md";
+import {MdDataUsage} from "@react-icons/all-files/md/MdDataUsage";
 import {signOut} from "next-auth/react";
 
 const UserAvatar: FC<{
-    user: User
+    user: Session['user']
 }> = ({user}) => {
 
     const logout = async () => {
@@ -30,7 +32,7 @@ const UserAvatar: FC<{
             <DropdownMenuTrigger asChild>
                 <Avatar className={'w-8 h-8 cursor-pointer'}>
                     <AvatarImage src={user.image!}/>
-                    <AvatarFallback><RxAvatar/></AvatarFallback>
+                    <AvatarFallback><BiUserCircle/></AvatarFallback>
                 </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-60 font-medium text-gray-700">
@@ -42,6 +44,12 @@ const UserAvatar: FC<{
                     <div>
                         <div>{user.name}</div>
                         <div className={'font-normal text-gray-700'}>{user.email}</div>
+                    </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator/>
+                <DropdownMenuLabel>
+                    <div>
+                        剩余点数:{Number(user.credits).toFixed(1)}
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator/>
@@ -65,7 +73,7 @@ const UserAvatar: FC<{
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                        <BsDiscord className="mr-2 h-4 w-4"/>
+                        <FaDiscord className="mr-2 h-4 w-4"/>
                         <span>加入群组</span>
                     </DropdownMenuItem>
                 </DropdownMenuGroup>

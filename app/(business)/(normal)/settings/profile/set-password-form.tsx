@@ -10,7 +10,7 @@ import {useToast} from "@/ui/use-toast";
 import {SetPasswordSchema} from "@/lib/validation";
 import {Input} from "@/ui/input";
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/ui/dialog";
-import {TbLockOpen} from "react-icons/tb";
+import {HiLockOpen} from "@react-icons/all-files/hi/HiLockOpen";
 import {useRouter} from "next/navigation";
 
 type FormData = z.infer<typeof SetPasswordSchema>
@@ -38,7 +38,7 @@ const SetPasswordForm: FC<{}> = props => {
     }
     return <Dialog>
         <DialogTrigger asChild>
-            <Button variant="secondary" leftIcon={<TbLockOpen/>}>设置密码</Button>
+            <Button variant="secondary" leftIcon={<HiLockOpen/>}>设置密码</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>

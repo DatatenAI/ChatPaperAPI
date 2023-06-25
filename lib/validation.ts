@@ -1,5 +1,4 @@
 import z from "zod";
-import {TaskState} from "@prisma/client";
 import {PayMethodEnum} from "@/lib/constants";
 
 
@@ -36,6 +35,7 @@ export const SendMailSchema = z.object({email})
 
 export const UpdateInfoSchema = z.object({
     name,
+    avatar: z.string().url().optional(),
 })
 
 export const SetEmailSchema = z.object({
@@ -78,7 +78,7 @@ export const CreateTaskSchema = z.object({
 })
 
 export const ListTaskSchema = PaginationSchema.extend({
-    state: z.enum(['ALL', ...Object.values(TaskState)]),
+    state: z.enum(['ALL', 'RUNNING', 'SUCCESS', 'FAILED']),
 })
 export const ListPayHistorySchema = PaginationSchema.extend({})
 export const ListUsageHistorySchema = PaginationSchema.extend({});

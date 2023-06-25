@@ -1,7 +1,8 @@
 import {Button} from "./button"
 import {useMemo} from "react";
 import {cn} from "@/lib/cn";
-import {AiOutlineArrowLeft, AiOutlineArrowRight} from "react-icons/ai";
+import { AiOutlineArrowRight} from "@react-icons/all-files/ai/AiOutlineArrowRight";
+import {AiOutlineArrowLeft} from "@react-icons/all-files/ai/AiOutlineArrowLeft";
 
 export type PaginationProps = {
     current: number;

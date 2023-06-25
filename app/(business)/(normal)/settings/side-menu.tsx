@@ -1,10 +1,11 @@
 "use client";
 import React, {FC, ReactNode} from "react";
 import Link from "next/link";
-import {useRouter, useSelectedLayoutSegment} from "next/navigation";
+import {useSelectedLayoutSegment} from "next/navigation";
 import {cn} from "@/lib/cn";
-import {BiCreditCard, BiUser} from "react-icons/bi";
-import {MdDataUsage} from "react-icons/md";
+import {BiUser} from "@react-icons/all-files/bi/BiUser";
+import {BiCreditCard} from "@react-icons/all-files/bi/BiCreditCard";
+import {MdDataUsage} from "@react-icons/all-files/md/MdDataUsage";
 
 const SideMenuItem: FC<{
     children: ReactNode;
@@ -26,7 +27,7 @@ const segments = [{
     label: "账户余额",
     segment: "billing",
     icon: <BiCreditCard className={'w-4 h-4'}/>
-},{
+}, {
     label: "用量明细",
     segment: "usage",
     icon: <MdDataUsage className={'w-4 h-4'}/>

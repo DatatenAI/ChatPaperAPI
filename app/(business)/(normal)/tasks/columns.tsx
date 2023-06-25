@@ -1,7 +1,7 @@
 "use client";
 
 import {ColumnDef} from "@tanstack/react-table";
-import {Task, TaskState, TaskType} from "@prisma/client";
+import type {Task, TaskState, TaskType} from "@prisma/client";
 import dayjs from "dayjs";
 import {Badge} from "@/ui/badge";
 import {ReactElement} from "react";
@@ -13,10 +13,11 @@ import {
     DropdownMenuTrigger
 } from "@/ui/dropdown-menu";
 import {Button} from "@/ui/button";
-import {FiMoreHorizontal} from "react-icons/fi";
-import {AiOutlineEye, AiOutlineShareAlt} from "react-icons/ai";
-import {BsTranslate} from "react-icons/bs";
-import {CgFileDocument} from "react-icons/cg";
+import {FiMoreHorizontal} from "@react-icons/all-files/fi/FiMoreHorizontal";
+import {AiOutlineEye} from "@react-icons/all-files/ai/AiOutlineEye";
+import {AiOutlineShareAlt} from "@react-icons/all-files/ai/AiOutlineShareAlt";
+import {HiTranslate} from "@react-icons/all-files/hi/HiTranslate";
+import {CgFileDocument} from "@react-icons/all-files/cg/CgFileDocument";
 import Link from "next/link";
 import TaskStateBadge from "@/components/task-state-badge";
 
@@ -32,7 +33,7 @@ export const TaskTypeBadges: Record<TaskType, ReactElement> = {
         总结
     </Badge>,
     TRANSLATE: <Badge className={'bg-violet-500'}>
-        <BsTranslate className={'mr-1'}/>
+        <HiTranslate className={'mr-1'}/>
         翻译
     </Badge>,
 };

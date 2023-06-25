@@ -2,11 +2,11 @@ import React, {Suspense} from "react";
 import {AsyncComponent, Page} from "@/types";
 import AuthHeader from "../components/AuthHeader";
 import {VerificationTokenType} from "@prisma/client";
-import {CgSpinner} from "react-icons/cg";
+import {CgSpinner} from "@react-icons/all-files/cg/CgSpinner";
 import Link from "next/link";
 import {hashToken} from "@/lib/auth";
 import prisma from "@/lib/database";
-import {HiOutlineMail} from "react-icons/hi";
+import {HiOutlineMail} from "@react-icons/all-files/hi/HiOutlineMail";
 
 const getToken = async (token: string) => {
     const hashedToken = hashToken(token);

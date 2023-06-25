@@ -1,15 +1,15 @@
 'use client';
 import React, {FC} from 'react';
-import {CreditPayHistory, CreditPayStatus} from "@prisma/client";
+import type {CreditPayHistory} from "@prisma/client";
 import {ColumnDef} from "@tanstack/react-table";
 import dayjs from "dayjs";
 import DataTable from "@/ui/data-table";
 import usePagination from "@/hooks/use-pagination";
 import {trpc} from "@/lib/trpc";
 import {Badge} from "@/ui/badge";
-import {BiLoaderAlt} from "react-icons/bi";
-import {TbPointFilled} from "react-icons/tb";
-import {AiOutlineCheck} from "react-icons/ai";
+import {BiLoaderAlt} from "@react-icons/all-files/bi/BiLoaderAlt";
+import {MdError} from "@react-icons/all-files/md/MdError";
+import {AiOutlineCheck} from "@react-icons/all-files/ai/AiOutlineCheck";
 
 type PayHistoryColumn = Pick<
     CreditPayHistory,
@@ -54,19 +54,19 @@ export const payHistoryColumnDef: ColumnDef<PayHistoryColumn>[] = [
         },
         cell: cell => {
             switch (cell.row.original.status) {
-                case CreditPayStatus.PAYING:
+                case 'PAYING':
                     return <Badge variant={'info'} plain>
                         <BiLoaderAlt className={'animate-spin mr-1'}/>
                         支付中
                     </Badge>
-                case CreditPayStatus.SUCCESS:
+                case 'SUCCESS':
                     return <Badge variant={"success"} plain>
                         <AiOutlineCheck className={'mr-1'}/>
                         已支付
                     </Badge>
-                case CreditPayStatus.FAILED:
+                case 'FAILED':
                     return <Badge variant={"destructive"} plain>
-                        <TbPointFilled className={'mr-1'}/>
+                        <MdError className={'mr-1'}/>
                         支付失败
                     </Badge>
             }

@@ -2,8 +2,9 @@
 import React, {FC} from 'react';
 import {CreditGood} from "@prisma/client";
 import {cn} from "@/lib/cn";
-import {RxStack} from "react-icons/rx";
-import {RiCheckboxBlankCircleLine, RiCheckboxCircleFill} from "react-icons/ri";
+import {ImStack} from "@react-icons/all-files/im/ImStack";
+import {RiCheckboxBlankCircleLine} from "@react-icons/all-files/ri/RiCheckboxBlankCircleLine";
+import {RiCheckboxCircleFill} from "@react-icons/all-files/ri/RiCheckboxCircleFill";
 
 const CreditGoodItem: FC<{
     good: CreditGood;
@@ -18,7 +19,7 @@ const CreditGoodItem: FC<{
             <div className="flex flex-row gap-4 items-start justify-start flex-1 ">
                 <div
                     className="bg-primary-100 rounded-full border-solid border-primary-50 border-4 shrink-0 w-8 h-8 p-1">
-                    <RxStack className={'w-4 h-4 text-primary'}/>
+                    <ImStack className={'w-4 h-4 text-primary'}/>
                 </div>
                 <div className="flex flex-col text-sm flex-1 ">
                     <div className="flex flex-row gap-1 items-start justify-start shrink-0 ">

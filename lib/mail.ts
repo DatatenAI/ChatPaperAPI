@@ -28,9 +28,9 @@ type SendFunction = (type: MailType, options: {
 
 
 const templates: Record<MailType, string> = {
-    register: "{link}",
-    change_email: "{link}",
-    reset_password: "{link}",
+    register: "点击链接完成注册：{link}",
+    change_email: "点击链接完成邮箱绑定：{link}",
+    reset_password: "点击链接完成重置密码：{link}",
     bind_email: "您的绑定邮箱验证码是：{link}"
 }
 

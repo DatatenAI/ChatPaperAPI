@@ -1,7 +1,8 @@
 import React, {FC, useRef, useState} from 'react';
 import {Button} from "@/ui/button";
-import {AiOutlineLoading, AiOutlineShareAlt} from "react-icons/ai";
-import {HiPaperAirplane} from "react-icons/hi2";
+import {AiOutlineLoading} from "@react-icons/all-files/ai/AiOutlineLoading";
+import {AiOutlineShareAlt} from "@react-icons/all-files/ai/AiOutlineShareAlt";
+import {MdSend} from "@react-icons/all-files/md/MdSend";
 import Image from "next/image";
 import Logo from '@/public/logo.jpeg'
 import {trpc} from "@/lib/trpc";
@@ -79,7 +80,7 @@ const Chat: FC<{
                         disabled={props.disabled}>
                         {
                             props.disabled ? <AiOutlineLoading className={'animate-spin w-4 h-4'}/>
-                                : <HiPaperAirplane className={'w-4 h-4'}/>
+                                : <MdSend className={'w-4 h-4'}/>
                         }
                     </button>
                 </div>

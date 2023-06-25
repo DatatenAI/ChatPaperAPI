@@ -16,5 +16,4 @@ const toBuffer = (arrayBuffer) => {
 
    const res = await fetch("http://www.biorxiv.org/content/10.1101/2022.07.22.501196v2.full.pdf")
     await res.arrayBuffer()
-    console.log(Date.now() - start);
 }())

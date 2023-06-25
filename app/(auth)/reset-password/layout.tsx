@@ -1,7 +1,7 @@
 import React from "react";
 import {Layout} from "@/types";
 import AuthHeader from "@/app/(auth)/components/AuthHeader";
-import {HiOutlineKey} from "react-icons/hi";
+import {HiOutlineKey} from "@react-icons/all-files/hi/HiOutlineKey";
 
 const ResetPasswordLayout: Layout = props => {
     return (

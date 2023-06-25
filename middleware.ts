@@ -8,8 +8,7 @@ export default withAuth(
         const isAuth = !!token;
         const isAuthPage =
             req.nextUrl.pathname.startsWith("/sign-in") ||
-            req.nextUrl.pathname.startsWith("/sign-up") ||
-            req.nextUrl.pathname.startsWith("/reset-password")
+            req.nextUrl.pathname.startsWith("/sign-up")
         if (isAuthPage) {
             return isAuth ? NextResponse.redirect(new URL("/home", req.url)) : null;
         }
@@ -33,5 +32,5 @@ export default withAuth(
 );
 // @ts-ignore
 export const config = {
-    matcher: ["/((?!404|error|api).*)"]
+    matcher: ["/((?!404|error|api|reset-password|verify-email).*)"]
 };

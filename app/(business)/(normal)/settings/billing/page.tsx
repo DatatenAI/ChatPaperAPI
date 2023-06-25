@@ -20,5 +20,6 @@ const BillingPage: Page = async props => {
     );
 };
 
+export const dynamic = 'force-dynamic';
 
 export default BillingPage;

@@ -16,14 +16,13 @@ export const metadata = {
 }
 
 const ProfilePage: Page = async props => {
-    const userId = await getCurrentUserId();
-    const user = await prisma.user.findUniqueOrThrow({where: {id: userId}})!
+    const user = await prisma.user.findUniqueOrThrow({where: {id: await getCurrentUserId()}})!
     return (
         <PageLayout title={metadata.title} className={'pt-0'}>
             <div className={'space-y-6'}>
                 <div className={'space-y-4 max-w-md'}>
                     <h2 className={'font-semibold'}>基础信息</h2>
-                    <UserInfoForm defaultValues={{name: user.name!}}/>
+                    <UserInfoForm defaultValues={{name: user.name!, avatar: user.image||undefined}}/>
                 </div>
                 <Separator/>
                 <div className={'space-y-4 max-w-md'}>

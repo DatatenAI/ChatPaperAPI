@@ -1,7 +1,7 @@
 import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import {cva, type VariantProps} from "class-variance-authority"
-import {IoClose} from "react-icons/io5";
+import {IoClose} from "@react-icons/all-files/io5/IoClose";
 
 import {cn} from "@/lib/cn"
 

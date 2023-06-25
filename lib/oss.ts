@@ -19,7 +19,6 @@ export const checkFileExist = async (folder: string, object: string) => {
         return await fs.access(path.resolve(process.env.OSS_VOLUME_PATH, folder, object)).then(() => true).catch(() => false);
     } else {
         try {
-            console.log(process.env.OSS_BUCKET, folder + "/" + object);
             await ossClient.statObject(process.env.OSS_BUCKET, folder + "/" + object);
         } catch (e) {
             // @ts-ignore
