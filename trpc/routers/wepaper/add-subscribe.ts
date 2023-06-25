@@ -17,7 +17,7 @@ const addSubscribe = publicProcedure
         await prisma.keywords.update({
             where: { id:keywordId },
             data: {
-                sub_num: {
+                subNum: {
                     increment: 1,
                 },
             },

@@ -34,37 +34,17 @@ const scarchFavorite = publicProcedure
                     weChatUserId: userId,
                     openId: openId,
                     name: "默认收藏夹",
-                    createTime: new date()
+                    createTime: new Date()
                 },
-                select: {},
+                select: {
+                    id: true,
+                    weChatUserId:true,
+                    openId:true,
+                    name:true,
+                    createTime:true
+                },
             })
             favorites.push(newfav)
-        }else {
-            // 关联查询照片
-            const imgList = await prisma.paperImage.findMany(
-                {
-                    where: {
-                        searchKeywords: {
-                            contains: keywords,
-                        },
-                    }
-                }
-            );
-            favorites.forEach((favorite) => {
-                if (favorite.length !== 0) {
-                    favorites.forEach((item) => {
-                        const matchedImages = imgList.filter((image) =>
-                            item.paperInfo.keywords.includes(image.keywords)
-                        );
-                        if (matchedImages.length > 0) {
-                            const randomIndex = Math.floor(Math.random() * matchedImages.length);
-                            item.paperInfo.viewImg = matchedImages[randomIndex];
-                        }else {
-                            item.paperInfo.viewImg = null;
-                        }
-                    });
-                }
-            });
         }
         return favorites;
     });

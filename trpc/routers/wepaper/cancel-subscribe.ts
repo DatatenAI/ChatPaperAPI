@@ -6,17 +6,18 @@ import {subscribeSchema} from "@/lib/wx-validation";
 const cancelSubscribe = publicProcedure
     .input(subscribeSchema)
     .query(async ({input, ctx}) => {
-        const {keywordId,userId} = input;
-        await prisma.subscribeKeywords.delete({
+        const {keywordId,openId,userId} = input;
+        await prisma.subscribeKeywords.deleteMany({
             where: {
                 keywordId: keywordId,
+                openId: openId,
                 weChatUserId: userId
             },
         });
         await prisma.keywords.update({
             where: { id:keywordId },
             data: {
-                sub_num: {
+                subNum: {
                     increment: -1,
                 },
             },

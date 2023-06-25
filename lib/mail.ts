@@ -10,6 +10,9 @@ type  MailParameterTypes = {
     reset_password: {
         link: string;
     },
+    bind_email:{
+        link: string;
+    },
     change_email: {
         link: string;
     }
@@ -28,7 +31,7 @@ const templates: Record<MailType, string> = {
     register: "{link}",
     change_email: "{link}",
     reset_password: "{link}",
-
+    bind_email: "您的绑定邮箱验证码是：{link}"
 }
 
 const transporter = mailer.createTransport({

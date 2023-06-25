@@ -4,20 +4,18 @@ import {insertFavoriteSchema} from "@/lib/wx-validation";
 import {date} from "zod";
 
 
-/// 添加收藏
+/// 添加收藏夹
 const addFavorite = publicProcedure
     .input(insertFavoriteSchema)
     .query(async ({input, ctx}) => {
-        const {userId,openId,favoriteId,source} = input;
-        await prisma.favoriteDetails.create({
+        const {userId,openId,favoriteName} = input;
+        await prisma.favorite.create({
             data: {
                 weChatUserId: userId,
                 openId: openId,
-                favoriteId: favoriteId,
-                source: source,
-                createTime: new date()
-            },
-            select: {},
+                name: favoriteName,
+                createTime: new Date()
+            }
         })
         return {
             message: "Favorite added successfully",

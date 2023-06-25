@@ -1,19 +1,20 @@
 import {publicProcedure} from "@/trpc";
 import prisma from "@/lib/database";
 import {insertFavoriteSchema} from "@/lib/wx-validation";
-import {date} from "zod";
 
 
 /// 取消收藏
 const cancelFavorite = publicProcedure
     .input(insertFavoriteSchema)
     .query(async ({input, ctx}) => {
-        const {userId,openId,favoriteId} = input;
+        const {userId,openId,paperId} = input;
         await prisma.favoriteDetails.delete({
             where: {
-                openId: openId,
-                favoriteId: favoriteId,
-                weChatUserId: userId
+                weChatUserId_openId_paperId: {
+                    weChatUserId: userId,
+                    openId: openId,
+                    paperId: paperId
+                }
             },
         })
         return {

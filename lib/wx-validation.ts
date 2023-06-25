@@ -1,13 +1,14 @@
 import z from "zod";
 
 
-const code = z.string().trim();
-const userId = z.string().trim();
+const code = z.string().trim().optional();
+const userId = z.number().optional();
 const keywords = z.string().optional();
-const keywordId = z.string().trim();
-const openId = z.string().trim();
+const keywordId = z.number();
+const openId = z.string().trim().optional();
 const unionId = z.string().trim().optional();
-const paperId = z.string().trim();
+const paperId = z.number().optional();
+const id = z.number().optional();
 const nickName = z.string().trim().optional();
 const avatar = z.string().trim().optional();
 const phone = z.string().trim().optional();
@@ -20,19 +21,27 @@ const city = z.string().trim().optional();
 const educational = z.string().trim().optional();
 const interest = z.string().trim().optional();
 const intro = z.string().trim().optional();
-const favoriteId = z.string().trim();
-const source = z.string().trim();
-const pageNum = z.number();
-const pageSize = z.number();
+const favoriteName = z.string().trim().optional();
+const favoriteId = z.number().optional();
+const source = z.string().trim().optional();
+const type = z.string().trim().optional();
+const content = z.string().trim().optional();
+const pageNum = z.number().optional();
+const pageSize = z.number().optional();
 
 export const openIdSchema = z.object({code});
-export const searchPaperSchema = z.object({keywords,pageNum,pageSize});
+export const bindEmailSchema = z.object({userId,openId,email,code});
+export const searchPaperSchema = z.object({userId,openId,keywords,pageNum,pageSize});
+export const searchPaperDetail = z.object({paperId,userId,openId});
 export const scarchMyKeywordsSchema = z.object({userId,openId});
 export const subscribeSchema = z.object({keywordId,openId,userId});
 export const scarchFavoriteSchema = z.object({userId,openId});
-export const insertFavoriteSchema = z.object({userId,openId,favoriteId,source});
+export const insertFavoriteSchema = z.object({userId,openId,favoriteName,favoriteId,paperId,source});
 export const addLikeSchema = z.object({userId,openId,paperId});
 export const addReadSchema = z.object({userId,openId,paperId});
+export const searchSchema = z.object({id,userId,openId,favoriteId,pageNum,pageSize});
+export const searchSummarySchema = z.object({pageNum,pageSize,email});
+export const addFeedBackSchema = z.object({userId,openId,type,content});
 
 export const insertUserSchema = z.object({
     nickName,

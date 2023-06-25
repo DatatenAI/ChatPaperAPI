@@ -1,13 +1,13 @@
 import {publicProcedure} from "@/trpc";
 import {insertUserSchema} from "@/lib/wx-validation";
 import prisma from "@/lib/database";
-import {date} from "zod";
+
 
 
 const insertWxUser = publicProcedure
     .input(insertUserSchema)
     .mutation(async ({input, ctx}) => {
-        const {openId,unionId,nickName,avatar,phone,email,gender,birthday,country,province,city,educational,interest,intro} = input;
+        const {openId,unionId,nickName,avatar,phone,gender,birthday,country,province,city,educational,interest,intro} = input;
         return await prisma.wxUser.upsert({
             where: {
                 openId: openId,
@@ -16,7 +16,6 @@ const insertWxUser = publicProcedure
                 nickName: nickName,
                 avatar: avatar,
                 phone: phone,
-                email: email,
                 gender: gender,
                 birthday: birthday,
                 country: country,
@@ -32,7 +31,6 @@ const insertWxUser = publicProcedure
                 nickName: nickName,
                 avatar: avatar,
                 phone: phone,
-                email: email,
                 gender: gender,
                 birthday: birthday,
                 country: country,
@@ -58,6 +56,7 @@ const insertWxUser = publicProcedure
                 city: true,
                 educational: true,
                 intro: true,
+                interest: true,
                 createTime: true
             }
         });

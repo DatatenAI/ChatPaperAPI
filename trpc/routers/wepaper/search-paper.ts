@@ -6,7 +6,7 @@ import {searchPaperSchema} from "@/lib/wx-validation";
 const searchPaper = publicProcedure
     .input(searchPaperSchema)
     .query(async ({input, ctx}) => {
-        const { keywords,pageNum,pageSize } = input
+        const { userId,openId,keywords,pageNum,pageSize } = input
         const keywordList = await prisma.keywords.findMany(
             {
                 where: {
@@ -36,7 +36,7 @@ const searchPaper = publicProcedure
                 urls.push(pdfUrl);
             });
         });
-        return await prisma.paperInfo.findMany({
+        const paperList = await prisma.paperInfo.findMany({
             take: pageSize, // 指定每页要获取的结果数量
             skip: (pageNum - 1) * pageSize, // 根据当前页码计算要跳过的结果数量
             where: {
@@ -51,6 +51,29 @@ const searchPaper = publicProcedure
                 createTime: 'desc',
             },
         });
+        paperList.forEach(item => {
+            item.waitFlag = false
+        })
+        //查询是否被加入待阅
+        if (userId != null && openId != null) {
+            const ids = paperList.map(obj => obj.id);
+            const waitList = await prisma.wxWaitRead.findMany({
+                where: {
+                    weChatUserId: userId,
+                    openId: openId,
+                    paperId: {
+                        in: ids
+                    }
+                }
+            })
+            paperList.forEach(item => {
+                const waitItem = waitList.find(waitItem => waitItem.paperId === item.id);
+                if (waitItem) {
+                    item.waitFlag = true
+                }
+            })
+        }
+        return paperList;
     });
 
 export default searchPaper;
