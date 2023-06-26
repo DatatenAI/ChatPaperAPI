@@ -3,7 +3,7 @@ FROM node:18-alpine AS base
 FROM base AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY package.json pnpm-lock.yaml* ./
+COPY . .
 RUN npm i pnpm -g && pnpm i --frozen-lockfile
 RUN pnpx prisma generate && pnpm build
 
