@@ -5,7 +5,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json pnpm-lock.yaml* ./
 RUN npm i pnpm -g && pnpm i --frozen-lockfile
-RUN prisma generate && pnpm build
+RUN pnpx prisma generate && pnpm build
 
 # Production image, copy all the files and run next
 FROM base AS runner
