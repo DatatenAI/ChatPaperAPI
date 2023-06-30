@@ -5,7 +5,7 @@ import {ChatSchema} from "@/lib/validation";
 import ApiError from "@/lib/ApiError";
 import {queryEmbedding, queryForSearchChat, queryForSummaryChat} from "@/lib/openai";
 import {TRPCError} from "@trpc/server";
-import milvusClient from "@/lib/milvus";
+import {getMilvusClient} from "@/lib/milvus";
 import {DataType} from "@zilliz/milvus2-sdk-node";
 
 const Chat = protectedProcedure
@@ -82,7 +82,7 @@ const Chat = protectedProcedure
         }
         if (embedding) {
             if (summary) {
-                const searchRes = await milvusClient.search({
+                const searchRes = await getMilvusClient().search({
                     collection_name: 'SinglePaperDocVector',
                     search_params: {
                         anns_field: 'chunk_vector',
@@ -118,7 +118,7 @@ const Chat = protectedProcedure
                     chat.reply = '很抱歉，我无法回答这个问题';
                 }
             } else {
-                const searchRes = await milvusClient.search({
+                const searchRes = await getMilvusClient().search({
                     collection_name: 'PaperSummaryDocVector',
                     search_params: {
                         anns_field: 'summary_vector',

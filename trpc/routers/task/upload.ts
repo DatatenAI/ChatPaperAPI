@@ -1,6 +1,6 @@
 import {protectedProcedure} from "@/trpc";
 import z from "zod";
-import ossClient, {checkFileExist} from "@/lib/oss";
+import {checkFileExist, getOssClient} from "@/lib/oss";
 
 export type  HashUrl = {
     hash: string;
@@ -17,7 +17,7 @@ const upload = protectedProcedure
             }
             return {
                 hash,
-                url: await ossClient.presignedPutObject(process.env.OSS_BUCKET, `uploads/${objectName}`, 86400)
+                url: await getOssClient().presignedPutObject(process.env.OSS_BUCKET, `uploads/${objectName}`, 86400)
             };
         }));
         return hashUrls.filter(it => it !== null) as HashUrl[];

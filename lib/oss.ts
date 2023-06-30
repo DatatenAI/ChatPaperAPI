@@ -5,12 +5,21 @@ import fs from "fs/promises";
 import path from "path";
 import contentDisposition from "content-disposition";
 
-const ossClient = new Client({
-    endPoint: process.env.OSS_ENDPOINT,
-    accessKey: process.env.OSS_ACCESS_KEY,
-    secretKey: process.env.OSS_ACCESS_SECRET,
-    pathStyle: false,
-});
+let ossClient: Client;
+export const getOssClient = () => {
+    if (ossClient) {
+        return ossClient;
+    } else {
+        ossClient = new Client({
+            endPoint: process.env.OSS_ENDPOINT,
+            accessKey: process.env.OSS_ACCESS_KEY,
+            secretKey: process.env.OSS_ACCESS_SECRET,
+            pathStyle: false,
+        });
+        return ossClient;
+    }
+}
+
 export const getFileUrl = (folder: string, object: string) => {
     return `https://${process.env.OSS_BUCKET}.${process.env.OSS_ENDPOINT}/${folder}/${object}`
 }
@@ -33,7 +42,7 @@ export const checkFileExist = async (folder: string, object: string) => {
 export const uploadRemoteFile = async (url: string, folder: string = "") => {
     const fetchRes = await fetch(url);
     const dispositionHeader = fetchRes.headers.get("Content-Disposition");
-    let fileName: string | null=null;
+    let fileName: string | null = null;
     if (dispositionHeader) {
         const parseInfo = contentDisposition.parse(dispositionHeader);
         fileName = parseInfo.parameters.filename;
@@ -76,5 +85,3 @@ export const readFile = async (folder: string, object: string) => {
     }
 }
 
-
-export default ossClient;
