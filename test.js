@@ -1,19 +1,25 @@
-const pdfjsLib = require('pdfjs-dist');
-const crypto = require("crypto");
+const {MilvusClient, DataType} = require('@zilliz/milvus2-sdk-node');
 
-const toBuffer = (arrayBuffer) => {
-    const buffer = Buffer.alloc(arrayBuffer.byteLength);
-    const view = new Uint8Array(arrayBuffer);
-    for (let i = 0; i < buffer.length; ++i) {
-        buffer[i] = view[i];
-    }
-    return buffer;
-}
+const milvusClient = new MilvusClient('http://121.37.21.153:19530');
+
 
 
 (async function () {
-    const start = Date.now()
-
-   const res = await fetch("http://www.biorxiv.org/content/10.1101/2022.07.22.501196v2.full.pdf")
-    await res.arrayBuffer()
+    const searchRes = await milvusClient.search({
+        collection_name: 'PaperDocVector',
+        partition_names: ['ArxivPapers'],
+        search_params: {
+            anns_field: 'summary_vector',
+            topk: '3',
+            metric_type: 'IP',
+            output_fields: ['pdf_hash'],
+            params:JSON.stringify({
+                nprobe: 10,
+            })
+        },
+        output_fields: ['pdf_hash'],
+        vector_type: DataType.FloatVector,
+        vectors: [],
+    });
+    console.log(searchRes)
 }())

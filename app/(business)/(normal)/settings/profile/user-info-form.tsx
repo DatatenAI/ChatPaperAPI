@@ -11,6 +11,7 @@ import {useToast} from "@/ui/use-toast";
 import {trpc} from "@/lib/trpc";
 import {Avatar, AvatarFallback, AvatarImage} from "@/ui/avatar";
 import {BiUserCircle} from "@react-icons/all-files/bi/BiUserCircle";
+import {useSession} from "next-auth/react";
 
 type FormData = z.infer<typeof UpdateInfoSchema>
 const UserInfoForm: FC<{
@@ -19,12 +20,15 @@ const UserInfoForm: FC<{
 
     const {toast} = useToast();
 
+    const session = useSession();
+
     const updateMutation = trpc.account.updateInfo.useMutation({
         onSuccess: () => {
             toast({
                 title: '操作成功',
                 description: `信息已修改`,
             });
+            session.update();
         }
     });
 
@@ -67,7 +71,7 @@ const UserInfoForm: FC<{
                     </FormItem>
                 )}
             />
-            <Button type="submit">更新</Button>
+            <Button type="submit" loading={updateMutation.isLoading}>更新</Button>
         </form>
     </Form>
 };

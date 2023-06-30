@@ -4,19 +4,20 @@ import Image from "next/image";
 import Link from "next/link";
 import NavLinks from "./nav-links";
 import UserAvatar from "@/app/(business)/(normal)/user-avatar";
-import {getCurrentUser} from "@/lib/auth";
 import {AsyncComponent} from "@/types";
 import DailyCheckInButton from "@/app/(business)/(normal)/daily-check-in-button";
 import prisma from "@/lib/database";
 import {CreditType} from "@prisma/client";
 import dayjs from "dayjs";
+import {getToken} from "next-auth/jwt";
+import {getCurrentUserId} from "@/lib/auth";
 
 
 const ApplicationHeader: AsyncComponent = async props => {
-    const user = await getCurrentUser();
-    const checked = user ? (await prisma.creditHistory.count({
+    const userId = await getCurrentUserId();
+    const checked = userId ? (await prisma.creditHistory.count({
             where: {
-                userId: user.id,
+                userId: userId,
                 type: CreditType.CHECK_IN,
                 happenedAt: {
                     gte: dayjs().startOf('day').toDate(),
@@ -36,7 +37,7 @@ const ApplicationHeader: AsyncComponent = async props => {
                 </div>
                 <div className={'ml-auto flex gap-4'}>
                     <DailyCheckInButton checked={checked}/>
-                    <UserAvatar user={user}/>
+                    <UserAvatar/>
                 </div>
             </nav>
         </header>

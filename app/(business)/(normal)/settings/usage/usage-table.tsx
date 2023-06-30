@@ -11,6 +11,7 @@ import {CgFileDocument} from "@react-icons/all-files/cg/CgFileDocument";
 import {BsCalendar} from "@react-icons/all-files/bs/BsCalendar";
 import {AiOutlineCreditCard} from "@react-icons/all-files/ai/AiOutlineCreditCard";
 import {BsChatSquareDots} from "@react-icons/all-files/bs/BsChatSquareDots";
+import { AiOutlineShareAlt } from '@react-icons/all-files/ai/AiOutlineShareAlt';
 
 type UsageColumn = Pick<
     CreditHistory,
@@ -54,6 +55,11 @@ export const creditColumnDef: ColumnDef<UsageColumn>[] = [
                         <BsCalendar className={'mr-1'}/>
                         签到
                     </Badge>
+                case 'INVITE':
+                    return <Badge variant={"success"} plain>
+                        <AiOutlineShareAlt className={'mr-1'}/>
+                        邀请好友
+                    </Badge>
             }
 
         }
@@ -66,13 +72,17 @@ export const creditColumnDef: ColumnDef<UsageColumn>[] = [
         },
         cell: cell => {
             const amount = Number(cell.row.original.amount);
-            return <span className={amount<0?'text-emerald-500':'text-red-500 font-semibold'}>{amount<0?amount:`+${amount}`}</span>
+            return <span
+                className={'font-semibold'}>{amount < 0 ? amount : `+${amount}`}</span>
         }
     },
 ];
 const UsageTable: FC = props => {
     const pagination = usePagination();
-    const {data, isLoading} = trpc.account.listUsageHistory.useQuery({
+    const {
+        data,
+        isLoading
+    } = trpc.account.listUsageHistory.useQuery({
         current: pagination.current,
         size: pagination.size,
     });

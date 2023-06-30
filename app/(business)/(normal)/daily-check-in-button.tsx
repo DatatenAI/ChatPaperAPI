@@ -4,6 +4,7 @@ import {BsCalendar} from "@react-icons/all-files/bs/BsCalendar";
 import {Button} from "@/ui/button";
 import {trpc} from "@/lib/trpc";
 import {useToast} from "@/ui/use-toast";
+import {useSession} from "next-auth/react";
 
 const DailyCheckInButton: FC<{
     checked: boolean
@@ -12,7 +13,7 @@ const DailyCheckInButton: FC<{
     const {toast} = useToast();
     const [checked, setChecked] = useState(props.checked)
     const [dialogVisible, setDialogVisible] = useState(false);
-
+    const session = useSession();
     const checkInMutation = trpc.account.checkIn.useMutation({
         onSuccess: (data) => {
             toast({
@@ -20,6 +21,7 @@ const DailyCheckInButton: FC<{
                 description: `恭喜获得${Number(data).toFixed(0)}点数`,
             })
             setChecked(true);
+            session.update();
             // setDialogVisible(true);
         },
         onError: err => {
@@ -33,7 +35,7 @@ const DailyCheckInButton: FC<{
         if (checked) {
             return;
         }
-        await checkInMutation.mutate();
+        checkInMutation.mutate();
     }
     return (
         <>

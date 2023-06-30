@@ -3,6 +3,8 @@ import {Inter} from 'next/font/google'
 import {TrpcProvider} from "@/providers/TrpcProvider";
 import {cn} from "@/lib/cn";
 import Toaster from "@/ui/toaster";
+import AuthProvider from "@/providers/AuthProvider";
+import {getSession} from "@/lib/auth";
 
 const fontSans = Inter({
     subsets: ["latin"],
@@ -26,7 +28,9 @@ export default function RootLayout({
                 "min-h-screen bg-background font-sans antialiased",
                 fontSans.variable
             )}>
-            {children}
+            <AuthProvider>
+                {children}
+            </AuthProvider>
             <Toaster/>
             </body>
 

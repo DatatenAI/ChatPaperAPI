@@ -9,6 +9,7 @@ import {trpc} from "@/lib/trpc";
 import {useToast} from "@/ui/use-toast";
 import {SetEmailSchema} from "@/lib/validation";
 import {Input} from "@/ui/input";
+import {useSession} from "next-auth/react";
 
 type FormData = z.infer<typeof SetEmailSchema>
 const UpdateEmailForm: FC<{
@@ -16,6 +17,7 @@ const UpdateEmailForm: FC<{
 }> = props => {
 
     const {toast} = useToast();
+
 
     const form = useForm<FormData>({
         resolver: zodResolver(SetEmailSchema),

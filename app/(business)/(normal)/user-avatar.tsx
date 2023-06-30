@@ -10,51 +10,47 @@ import {
     DropdownMenuTrigger
 } from "@/ui/dropdown-menu";
 import {Avatar, AvatarFallback, AvatarImage} from "@/ui/avatar";
-import {Session} from "next-auth";
 import {BiCreditCard} from "@react-icons/all-files/bi/BiCreditCard";
 import {BiLogOut} from "@react-icons/all-files/bi/BiLogOut";
 import {BiUser} from "@react-icons/all-files/bi/BiUser";
 import {FaDiscord} from "@react-icons/all-files/fa/FaDiscord";
-import {BiUserCircle} from "@react-icons/all-files/bi/BiUserCircle";
 import Link from "next/link";
 import {MdDataUsage} from "@react-icons/all-files/md/MdDataUsage";
-import {signOut} from "next-auth/react";
+import {signOut, useSession} from "next-auth/react";
 import {BiShareAlt} from "@react-icons/all-files/bi/BiShareAlt";
 import InviteDialog from "@/components/invite-dialog";
 
-const UserAvatar: FC<{
-    user: Session['user']|null
-}> = ({user}) => {
+const UserAvatar: FC = () => {
 
     const logout = async () => {
         await signOut();
     }
-
+    const {data} = useSession();
 
     return (
         <>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Avatar className={'w-8 h-8 cursor-pointer'}>
-                        <AvatarImage src={user?.image || undefined}/>
-                        <AvatarFallback><BiUserCircle/></AvatarFallback>
+                        <AvatarImage src={data?.user?.image||undefined}/>
+                        <AvatarFallback><BiUser/></AvatarFallback>
                     </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-60 font-medium text-gray-700">
                     <DropdownMenuLabel className={'flex gap-3 text-sm'}>
                         <Avatar>
-                            <AvatarImage src={user?.image || undefined}/>
+                            <AvatarImage src={data?.user?.image||undefined}/>
                             <AvatarFallback><BiUser/></AvatarFallback>
                         </Avatar>
                         <div>
-                            <div>{user?.name || '未登录'}</div>
-                            <div className={'font-normal text-gray-700'}>{user?.email || ''}</div>
+                            <div>{data?.user?.name || '未登录'}</div>
+                            <div className={'font-normal text-gray-700'}>{data?.user?.email || ''}</div>
                         </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator/>
                     <DropdownMenuLabel>
                         <div>
-                            剩余点数:{Number(user?.credits || 0).toFixed(1)}
+                            剩余点数:{Number(data?.user?.credits || 0).toFixed(1)}
                         </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator/>
@@ -78,8 +74,8 @@ const UserAvatar: FC<{
                             </Link>
                         </DropdownMenuItem>
                         {
-                            user ? <DropdownMenuItem asChild>
-                                <InviteDialog code={user.inviteCode}>
+                            data?.user ? <DropdownMenuItem asChild>
+                                <InviteDialog code={data.user.inviteCode}>
                                     <a>
                                         <BiShareAlt className="mr-2 h-4 w-4"/>
                                         <span>邀请好友</span>

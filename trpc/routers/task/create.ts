@@ -169,7 +169,6 @@ const create = protectedProcedure
             }
             return summaryRes[0].taskId;
         }
-
     });
 
 export default create;

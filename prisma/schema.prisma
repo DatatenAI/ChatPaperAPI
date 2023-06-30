@@ -105,6 +105,7 @@ enum CreditType {
   PURCHASE
   TASK
   CHAT
+  INVITE
 }
 
 model CreditHistory {

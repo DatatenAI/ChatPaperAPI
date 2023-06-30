@@ -1,5 +1,5 @@
 import {Adapter, AdapterAccount, AdapterUser, VerificationToken,} from "next-auth/adapters";
-import {Prisma, PrismaClient, VerificationTokenType} from "@prisma/client";
+import {CreditType, Prisma, PrismaClient, VerificationTokenType} from "@prisma/client";
 import {nanoid} from "nanoid";
 import {cookies} from "next/headers";
 import {User} from "next-auth";
@@ -59,7 +59,7 @@ const PrismaAdapter = (prisma: PrismaClient) => {
                 const newUser = await trx.user.create({
                     data: {
                         ...data,
-                        emailVerified:new Date(),
+                        emailVerified: new Date(),
                         language: '中文',
                         credits: inviteUser ? 120 : 0,
                         inviteCode: nanoid(10),
@@ -70,14 +70,21 @@ const PrismaAdapter = (prisma: PrismaClient) => {
                         where: {
                             id: inviteUser.id
                         },
-                        data:{
+                        data: {
                             credits: {
                                 increment: 120,
                             }
                         }
                     });
+                    await trx.creditHistory.createMany({
+                        data: {
+                            userId: inviteUser.id,
+                            type: CreditType.INVITE,
+                            amount: 120,
+                        }
+                    });
                     await trx.inviteHistory.create({
-                        data:{
+                        data: {
                             userId: inviteUser.id,
                             inviteUserId: newUser.id
                         }
