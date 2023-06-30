@@ -2,19 +2,22 @@
 import React, {FC, useState} from "react";
 import {ClientSafeProvider, signIn} from "next-auth/react";
 import {Button} from "@/ui/button";
-import {AiFillWechat} from "@react-icons/all-files/ai/AiFillWechat";
 import {FcGoogle} from "@react-icons/all-files/fc/FcGoogle";
 import {useSearchParams} from "next/navigation";
 
-const providers: (Pick<ClientSafeProvider, "id" | "name"> & { icon: React.ReactElement })[] = [{
+const providers: (Pick<ClientSafeProvider, "id" | "name"> & {
+    icon: React.ReactElement
+})[] = [{
     id: "google",
     name: "谷歌",
     icon: <FcGoogle/>
-}, {
-    id: "wechat",
-    name: "微信",
-    icon: <AiFillWechat className={'text-[#1AAD19]'}/>
-}];
+},
+//     {
+//     id: "wechat",
+//     name: "微信",
+//     icon: <AiFillWechat className={'text-[#1AAD19]'}/>
+// }
+];
 const OAuthGroup: FC = () => {
     const searchParams = useSearchParams()
     const [loadingKey, setLoadingKey] = useState<string | null>();
@@ -23,10 +26,10 @@ const OAuthGroup: FC = () => {
         try {
             setLoadingKey(provider);
             await signIn(provider, {
-                callbackUrl: searchParams?.get("from") || "/home",
+                callbackUrl: searchParams.get("from") || "/home",
             });
         } catch (e) {
-            console.error(111, e);
+            console.error(e);
             setLoadingKey(null);
         }
     };

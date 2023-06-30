@@ -9,11 +9,17 @@ import ApiError from "@/lib/ApiError";
 
 const resetPassword = publicProcedure
     .input(SendMailSchema)
-    .mutation(async ({input, ctx}) => {
+    .mutation(async ({
+                         input,
+                         ctx
+                     }) => {
         const {email} = input;
         const user = await prisma.user.findUnique({
             where: {
-                email
+                email,
+                emailVerified: {
+                    not: null,
+                },
             }
         });
         if (user) {

@@ -1,6 +1,8 @@
 import {Adapter, AdapterAccount, AdapterUser, VerificationToken,} from "next-auth/adapters";
 import {Prisma, PrismaClient, VerificationTokenType} from "@prisma/client";
-import {uploadRemoteFile} from "@/lib/oss";
+import {nanoid} from "nanoid";
+import {cookies} from "next/headers";
+import {User} from "next-auth";
 
 const PrismaAdapter = (prisma: PrismaClient) => {
     const adapter: Adapter = {
@@ -22,28 +24,68 @@ const PrismaAdapter = (prisma: PrismaClient) => {
                 include: {user: true},
             })
             if (!userAndSession) return null
-            const {user, ...session} = userAndSession
-            return {user, session}
+            const {
+                user,
+                ...session
+            } = userAndSession
+            return {
+                user,
+                session
+            }
         },
         updateSession(session) {
             return prisma.session.update({
                 where: {
-                    sessionToken:session.sessionToken
+                    sessionToken: session.sessionToken
                 },
                 data: session,
             });
         },
 
         async createUser(data: Omit<AdapterUser, "id">) {
-            if (data.image) {
-                data.image = (await uploadRemoteFile(data.image, "avatar")).url;
+            // if (data.image) {
+            //     data.image = (await uploadRemoteFile(data.image, "avatar")).url;
+            // }
+            const inviteCode = cookies().get("inviteCode")?.value;
+            let inviteUser: User | null = null;
+            if (inviteCode) {
+                inviteUser = await prisma.user.findUnique({
+                    where: {
+                        inviteCode
+                    }
+                });
             }
-            return prisma.user.create({
-                data: {
-                    ...data,
-                    language: '中文',
-                },
-            });
+            return prisma.$transaction(async trx => {
+                const newUser = await trx.user.create({
+                    data: {
+                        ...data,
+                        emailVerified:new Date(),
+                        language: '中文',
+                        credits: inviteUser ? 120 : 0,
+                        inviteCode: nanoid(10),
+                    },
+                });
+                if (inviteUser) {
+                    await trx.user.update({
+                        where: {
+                            id: inviteUser.id
+                        },
+                        data:{
+                            credits: {
+                                increment: 120,
+                            }
+                        }
+                    });
+                    await trx.inviteHistory.create({
+                        data:{
+                            userId: inviteUser.id,
+                            inviteUserId: newUser.id
+                        }
+                    })
+
+                }
+                return newUser;
+            })
         },
 
         getUser(id: string) {

@@ -1,7 +1,5 @@
 import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
-import {Button} from "@/ui/button";
 import {AiOutlineLoading} from "@react-icons/all-files/ai/AiOutlineLoading";
-import {AiOutlineShareAlt} from "@react-icons/all-files/ai/AiOutlineShareAlt";
 import {MdSend} from "@react-icons/all-files/md/MdSend";
 import Image from "next/image";
 import Logo from '@/public/logo.jpeg'
@@ -15,6 +13,10 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/u
 import {languages} from "@/lib/constants";
 import {useToast} from "@/ui/use-toast";
 import {TRPCClientError} from "@trpc/client";
+import ShareDialog from "./share-dialog";
+import {Button} from "@/ui/button";
+import Link from "next/link";
+import {AiOutlineLogin} from "@react-icons/all-files/ai/AiOutlineLogin";
 
 type Message = {
     from: 'system' | 'user';
@@ -28,14 +30,15 @@ const ChatContainer: FC<{
     summary: Summary | null;
     chats: Pick<Chat, 'question' | 'reply' | 'status'>[];
     language: string;
-    taskState: TaskState;
+    taskState?: TaskState;
+    logined: boolean;
 }> = props => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const chatContainer = useRef<HTMLDivElement>(null);
     const [inputValue, setInputValue] = useState('');
     const [language, setLanguage] = useState(props.language);
+    const {toast} = useToast();
 
-    const {toast} = useToast()
 
     const onTextareaInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
         setInputValue(e.currentTarget.value);
@@ -56,12 +59,14 @@ const ChatContainer: FC<{
         return props.taskState !== 'SUCCESS' || loading;
     }, [loading, props.taskState]);
 
+
     useEffect(() => {
         chatContainer.current?.scrollTo({
             top: chatContainer.current?.scrollHeight,
             behavior: "smooth",
         })
-    }, [messages])
+    }, [messages]);
+
 
     useEffect(() => {
         const stateMessage: Message = {
@@ -97,7 +102,7 @@ const ChatContainer: FC<{
                         loading: false,
                     });
                 }
-            })
+            });
         } else if (props.taskState === 'FAIL') {
             stateMessage.type = 'text';
             stateMessage.loading = false;
@@ -136,10 +141,12 @@ const ChatContainer: FC<{
                     language
                 });
                 newMessages[newMessages.length - 1].loading = false;
+                const error = res.status === 'SUCCESS'
+                newMessages[newMessages.length - 1].error = error;
                 newMessages.push({
-                    type: 'markdown',
+                    type: error ? 'text' : 'markdown',
                     from: 'system',
-                    content: res || '无回复',
+                    content: res.reply!,
                     loading: false,
                 });
             } catch (e) {
@@ -164,19 +171,23 @@ const ChatContainer: FC<{
             <div className={'w-full py-2  flex items-center  justify-between px-4 border-b shrink-0'}>
                 <div className={'flex items-center gap-4'}>
                     <h3 className={'font-medium text-lg flex-shrink-0'}>对话</h3>
-                    <Select onValueChange={setLanguage} value={language}>
-                        <SelectTrigger className={'h-8 gap-1 focus:ring-0'}>
-                            <SelectValue placeholder="请选择语言"/>
-                        </SelectTrigger>
-                        <SelectContent>
-                            {languages.map(language => {
-                                return <SelectItem value={language.value}
-                                                   key={language.value}>{language.label}</SelectItem>
-                            })}
-                        </SelectContent>
-                    </Select>
+                    {
+                        props.logined ? <Select onValueChange={setLanguage} value={language}>
+                            <SelectTrigger className={'h-8 gap-1 focus:ring-0'}>
+                                <SelectValue placeholder="请选择语言"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                {languages.map(language => {
+                                    return <SelectItem value={language.value}
+                                                       key={language.value}>{language.label}</SelectItem>
+                                })}
+                            </SelectContent>
+                        </Select> : null
+                    }
                 </div>
-                <Button size={"sm"} variant={'ghost'} leftIcon={<AiOutlineShareAlt/>}/>
+                {
+                    (props.summary && props.logined) ? <ShareDialog summaryId={props.summary.id}/> : null
+                }
             </div>
             <div className={'pb-32 overflow-auto'} ref={chatContainer}>
                 {
@@ -202,28 +213,37 @@ const ChatContainer: FC<{
                         </div>
                     })
                 }
-
+                {
+                    props.logined ? null : <div className={'text-center mt-8'}>
+                        <Link href={`/sign-in?callbackUrl=${location.pathname}`}>
+                            <Button className={'rounded-full'} leftIcon={<AiOutlineLogin/>}>登录开启对话</Button>
+                        </Link>
+                    </div>
+                }
             </div>
-            <div className={'w-full bg-white absolute bottom-0 left-0 py-4 space-y-1'}>
-                <p className={'text-sm text-gray-500 text-center'}>每次对话消耗0.5个点数</p>
-                <div
-                    className={'w-4/5 rounded-lg py-4 pl-4 pr-0 mx-auto border shadow lg:max-w-2xl xl:max-w-3xl flex relative'}>
+            {
+                props.logined ? <div className={'w-full bg-white absolute bottom-0 left-0 py-4 space-y-1'}>
+                        <p className={'text-sm text-gray-500 text-center'}>每次对话消耗0.5个点数</p>
+                        <div
+                            className={'w-4/5 rounded-lg py-4 pl-4 pr-0 mx-auto border shadow lg:max-w-2xl xl:max-w-3xl flex relative'}>
                     <textarea ref={textareaRef}
                               onKeyDown={onTextareaKeyDown}
                               value={inputValue}
                               className='w-full pr-10 resize-none flex-grow max-h-48 break-all  focus-visible:outline-none'
                               onInput={onTextareaInput} rows={1}/>
-                    <button
-                        onClick={sendMessage}
-                        className={'absolute bottom-3 right-4 w-8 h-8 p-2 rounded-md disabled:bg-white  disabled:text-gray-400 bg-primary text-white transition-colors disabled:opacity-40'}
-                        disabled={disabled}>
-                        {
-                            loading ? <AiOutlineLoading className={'animate-spin w-4 h-4'}/>
-                                : <MdSend className={'w-4 h-4'}/>
-                        }
-                    </button>
-                </div>
-            </div>
+                            <button
+                                onClick={sendMessage}
+                                className={'absolute bottom-3 right-4 w-8 h-8 p-2 rounded-md disabled:bg-white  disabled:text-gray-400 bg-primary text-white transition-colors disabled:opacity-40'}
+                                disabled={disabled}>
+                                {
+                                    loading ? <AiOutlineLoading className={'animate-spin w-4 h-4'}/>
+                                        : <MdSend className={'w-4 h-4'}/>
+                                }
+                            </button>
+                        </div>
+                    </div>
+                    : null
+            }
         </div>
     );
 };

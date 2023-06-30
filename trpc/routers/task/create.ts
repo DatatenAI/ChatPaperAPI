@@ -19,14 +19,13 @@ const getPdfPages = async (pdfHash: string) => {
 
 const create = protectedProcedure
     .input(CreateTaskSchema)
-    .mutation(async ({input, ctx}) => {
-        const pdfHashes: string[] = [];
-        if (input.pdfHashes?.length) {
-            for (let pdfHash of input.pdfHashes) {
-                if (!pdfHashes.includes(pdfHash)) {
-                    pdfHashes.push(pdfHash);
-                }
-            }
+    .mutation(async ({
+                         input,
+                         ctx
+                     }) => {
+        const pdfs: typeof input.pdfFiles = [];
+        if (input.pdfFiles?.length) {
+            pdfs.push(...input.pdfFiles);
         } else {
             if (input.pdfUrls?.length) {
                 const uploadFiles = await Promise.all(
@@ -39,42 +38,47 @@ const create = protectedProcedure
                         const idx = input.pdfUrls.findIndex(it => it === uploadFile.originUrl);
                         throw new ApiError(`第${idx + 1}行链接不是PDF文件`);
                     }
-                    if (!pdfHashes.includes(uploadFile.hash)) {
-                        pdfHashes.push(uploadFile.hash);
+                    if (pdfs.findIndex(pdf => pdf.hash === uploadFile.hash) < 0) {
+                        pdfs.push({
+                            fileName: uploadFile.fileName,
+                            hash: uploadFile.hash
+                        });
                     }
                 }
             }
         }
-        if (!pdfHashes.length) {
+        if (!pdfs.length) {
             throw new ApiError("PDF文件不能为空");
         }
         const allSameTasks = await prisma.task.findMany({
             where: {
                 pdfHash: {
-                    in: pdfHashes,
+                    in: pdfs.map(pdf=>pdf.hash),
                 },
                 state: TaskState.SUCCESS,
             },
         });
-        const tasks = await Promise.all(pdfHashes.map(async (it) => {
+        const tasks = await Promise.all(pdfs.map(async (pdf) => {
             let taskType: TaskType;
-            const sameHashTasks = allSameTasks.filter((task) => task.pdfHash === it)
+            const sameHashTasks = allSameTasks.filter((task) => task.pdfHash === pdf.hash)
+            const hasSameLanguageTask = sameHashTasks.findIndex(task => task.language === input.language) >= 0;
             if (sameHashTasks.length) {
                 taskType = TaskType.TRANSLATE;
             } else {
                 taskType = TaskType.SUMMARY;
             }
-            const sameLanguageTask = sameHashTasks.findIndex(task => task.language === input.language) >= 0;
-            const pages = await getPdfPages(it);
+
+            const pages = await getPdfPages(pdf.hash);
             return {
                 id: nanoid(),
                 type: taskType,
                 userId: ctx.session.user.id,
                 language: input.language,
-                pdfHash: it,
+                pdfHash: pdf.hash,
+                fileName: pdf.fileName,
                 pages,
                 costCredits: pages * (taskType === TaskType.SUMMARY ? 1 : 0.5),
-                state: sameLanguageTask ? TaskState.SUCCESS : TaskState.RUNNING,
+                state: hasSameLanguageTask ? TaskState.SUCCESS : TaskState.RUNNING,
             };
         }));
 
@@ -154,9 +158,10 @@ const create = protectedProcedure
                         }
                     })
                 });
+
             });
         }
-        if (pdfHashes.length > 1) {
+        if (pdfs.length > 1) {
             return null;
         } else {
             if (failedTasks.length) {

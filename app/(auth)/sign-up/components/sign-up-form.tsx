@@ -9,13 +9,14 @@ import z from "zod";
 import {Label} from "@/ui/label";
 import {trpc} from "@/lib/trpc";
 import {useToast} from "@/ui/use-toast";
+import {useSearchParams} from "next/navigation";
 
 
 type FormData = z.infer<typeof SignUpSchema>
 const SignUpForm: FC = props => {
-
+    const searchParams = useSearchParams();
+    const code = searchParams.get('inviteCode') || undefined;
     const {toast} = useToast();
-
 
     const signUpMutation = trpc.auth.signUp.useMutation({
         onError: error => {
@@ -63,6 +64,15 @@ const SignUpForm: FC = props => {
                 autoComplete="email"
                 {...register("email")}
                 error={errors.email?.message}
+            />
+        </div>
+        <div className="space-y-1.5">
+            <Label htmlFor={"inviteCode"}>邀请码</Label>
+            <Input
+                placeholder="选填"
+                defaultValue={code}
+                {...register("inviteCode")}
+                error={errors.inviteCode?.message}
             />
         </div>
         <div className="space-y-1.5">

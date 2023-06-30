@@ -7,6 +7,7 @@ declare module "next-auth/jwt" {
         id: string;
         language: string;
         credits: Prisma.Decimal;
+        inviteCode: string;
     }
 }
 
@@ -16,6 +17,7 @@ declare module "next-auth" {
             id: string;
             language: string;
             credits: Prisma.Decimal;
+            inviteCode: string;
         }
     }
 }

@@ -19,71 +19,87 @@ import {BiUserCircle} from "@react-icons/all-files/bi/BiUserCircle";
 import Link from "next/link";
 import {MdDataUsage} from "@react-icons/all-files/md/MdDataUsage";
 import {signOut} from "next-auth/react";
+import {BiShareAlt} from "@react-icons/all-files/bi/BiShareAlt";
+import InviteDialog from "@/components/invite-dialog";
 
 const UserAvatar: FC<{
-    user: Session['user']
+    user: Session['user']|null
 }> = ({user}) => {
 
     const logout = async () => {
         await signOut();
     }
+
+
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Avatar className={'w-8 h-8 cursor-pointer'}>
-                    <AvatarImage src={user.image!}/>
-                    <AvatarFallback><BiUserCircle/></AvatarFallback>
-                </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-60 font-medium text-gray-700">
-                <DropdownMenuLabel className={'flex gap-3 text-sm'}>
-                    <Avatar>
-                        <AvatarImage src={user.image!}/>
-                        <AvatarFallback><BiUser/></AvatarFallback>
+        <>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Avatar className={'w-8 h-8 cursor-pointer'}>
+                        <AvatarImage src={user?.image || undefined}/>
+                        <AvatarFallback><BiUserCircle/></AvatarFallback>
                     </Avatar>
-                    <div>
-                        <div>{user.name}</div>
-                        <div className={'font-normal text-gray-700'}>{user.email}</div>
-                    </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator/>
-                <DropdownMenuLabel>
-                    <div>
-                        剩余点数:{Number(user.credits).toFixed(1)}
-                    </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator/>
-                <DropdownMenuGroup>
-                    <DropdownMenuItem asChild>
-                        <Link href={'/settings/profile'} prefetch={false}>
-                            <BiUser className="mr-2 h-4 w-4"/>
-                            <span>个人信息</span>
-                        </Link>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-60 font-medium text-gray-700">
+                    <DropdownMenuLabel className={'flex gap-3 text-sm'}>
+                        <Avatar>
+                            <AvatarImage src={user?.image || undefined}/>
+                            <AvatarFallback><BiUser/></AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <div>{user?.name || '未登录'}</div>
+                            <div className={'font-normal text-gray-700'}>{user?.email || ''}</div>
+                        </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator/>
+                    <DropdownMenuLabel>
+                        <div>
+                            剩余点数:{Number(user?.credits || 0).toFixed(1)}
+                        </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator/>
+                    <DropdownMenuGroup>
+                        <DropdownMenuItem asChild>
+                            <Link href={'/settings/profile'} prefetch={false}>
+                                <BiUser className="mr-2 h-4 w-4"/>
+                                <span>个人信息</span>
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link href={'/settings/billing'} prefetch={false}>
+                                <BiCreditCard className="mr-2 h-4 w-4"/>
+                                <span>账户余额</span>
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link href={'/settings/usage'} prefetch={false}>
+                                <MdDataUsage className="mr-2 h-4 w-4"/>
+                                <span>用量明细</span>
+                            </Link>
+                        </DropdownMenuItem>
+                        {
+                            user ? <DropdownMenuItem asChild>
+                                <InviteDialog code={user.inviteCode}>
+                                    <a>
+                                        <BiShareAlt className="mr-2 h-4 w-4"/>
+                                        <span>邀请好友</span>
+                                    </a>
+                                </InviteDialog>
+                            </DropdownMenuItem> : null
+                        }
+                        <DropdownMenuItem>
+                            <FaDiscord className="mr-2 h-4 w-4"/>
+                            <span>加入群组</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator/>
+                    <DropdownMenuItem onClick={logout}>
+                        <BiLogOut className="mr-2 h-4 w-4"/>
+                        <span>退出登录</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        <Link href={'/settings/billing'} prefetch={false}>
-                            <BiCreditCard className="mr-2 h-4 w-4"/>
-                            <span>账户余额</span>
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        <Link href={'/settings/usage'} prefetch={false}>
-                            <MdDataUsage className="mr-2 h-4 w-4"/>
-                            <span>用量明细</span>
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <FaDiscord className="mr-2 h-4 w-4"/>
-                        <span>加入群组</span>
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator/>
-                <DropdownMenuItem onClick={logout}>
-                    <BiLogOut className="mr-2 h-4 w-4"/>
-                    <span>退出登录</span>
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </>
     );
 };
 

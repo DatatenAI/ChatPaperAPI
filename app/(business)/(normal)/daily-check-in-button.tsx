@@ -10,14 +10,14 @@ const DailyCheckInButton: FC<{
 }> = props => {
 
     const {toast} = useToast();
-    const [checked,setChecked] = useState(props.checked)
+    const [checked, setChecked] = useState(props.checked)
     const [dialogVisible, setDialogVisible] = useState(false);
 
     const checkInMutation = trpc.account.checkIn.useMutation({
-        onSuccess: () => {
+        onSuccess: (data) => {
             toast({
                 title: '签到成功',
-
+                description: `恭喜获得${Number(data).toFixed(0)}点数`,
             })
             setChecked(true);
             // setDialogVisible(true);
@@ -40,7 +40,7 @@ const DailyCheckInButton: FC<{
             <Button size={"xs"} leftIcon={<BsCalendar className={'w-3 h-3'}/>} onClick={checkIn}
                     loading={checkInMutation.isLoading}
                     className={'w-24'}
-                    variant={checked ? 'secondary' : 'default'}>{checked?'已签到':'每日签到'}</Button>
+                    variant={checked ? 'secondary' : 'default'}>{checked ? '已签到' : '每日签到'}</Button>
         </>
     );
 };

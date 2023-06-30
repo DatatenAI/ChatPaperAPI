@@ -15,15 +15,15 @@ import {
 import {Button} from "@/ui/button";
 import {FiMoreHorizontal} from "@react-icons/all-files/fi/FiMoreHorizontal";
 import {AiOutlineEye} from "@react-icons/all-files/ai/AiOutlineEye";
-import {AiOutlineShareAlt} from "@react-icons/all-files/ai/AiOutlineShareAlt";
 import {HiTranslate} from "@react-icons/all-files/hi/HiTranslate";
 import {CgFileDocument} from "@react-icons/all-files/cg/CgFileDocument";
 import Link from "next/link";
 import TaskStateBadge from "@/components/task-state-badge";
+import {AiOutlineRedo} from "@react-icons/all-files/ai/AiOutlineRedo";
 
 export type TaskColumn = Pick<
     Task,
-    "id" | "state" | "createdAt" | "finishedAt" | "type" | "pages" | "costCredits"
+    "id" | "fileName" | "state" | "createdAt" | "finishedAt" | "type" | "pages" | "costCredits"
 >;
 
 
@@ -40,8 +40,8 @@ export const TaskTypeBadges: Record<TaskType, ReactElement> = {
 
 export const taskColumnDefs: ColumnDef<TaskColumn>[] = [
     {
-        accessorKey: "title",
-        header: "PDF标题"
+        accessorKey: "fileName",
+        header: "文件名称"
     },
     {
         accessorKey: "type",
@@ -109,16 +109,25 @@ export const taskColumnDefs: ColumnDef<TaskColumn>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <Link href={`/task/${row.original.id}`} prefetch={false}>
-                            <DropdownMenuItem className={'space-x-1'}>
-                                <AiOutlineEye/>
+                        <DropdownMenuItem asChild>
+                            <Link href={`/task/${row.original.id}`} prefetch={false}>
+                                <AiOutlineEye className={'mr-2'}/>
                                 <span>查看详情</span>
-                            </DropdownMenuItem>
-                        </Link>
+                            </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator/>
-                        <DropdownMenuItem className={'space-x-1'}>
-                            <AiOutlineShareAlt/>
-                            <span>分享</span>
+                        <DropdownMenuItem asChild>
+                            <Link href={`/task/${row.original.id}`} prefetch={false}>
+                                <HiTranslate className={'mr-2'}/>
+                                <span>翻译</span>
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator/>
+                        <DropdownMenuItem asChild>
+                            <Link href={`/task/${row.original.id}`} prefetch={false}>
+                                <AiOutlineRedo className={'mr-2'}/>
+                                <span>重试</span>
+                            </Link>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

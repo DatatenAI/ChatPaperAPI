@@ -1,8 +1,9 @@
 import {Client} from "minio";
 import {fileTypeFromBuffer} from "file-type";
-import {md5, streamToBuffer, streamToUint8Array, toBuffer} from "@/lib/common";
+import {pdfMd5, streamToUint8Array, toBuffer} from "@/lib/common";
 import fs from "fs/promises";
 import path from "path";
+import contentDisposition from "content-disposition";
 
 const ossClient = new Client({
     endPoint: process.env.OSS_ENDPOINT,
@@ -30,20 +31,30 @@ export const checkFileExist = async (folder: string, object: string) => {
     }
 }
 export const uploadRemoteFile = async (url: string, folder: string = "") => {
-    const arrayBuffer = await fetch(url).then(res => res.arrayBuffer());
+    const fetchRes = await fetch(url);
+    const dispositionHeader = fetchRes.headers.get("Content-Disposition");
+    let fileName: string | null=null;
+    if (dispositionHeader) {
+        const parseInfo = contentDisposition.parse(dispositionHeader);
+        fileName = parseInfo.parameters.filename;
+    }
+    const arrayBuffer = await fetchRes.arrayBuffer();
     const fileType = await fileTypeFromBuffer(arrayBuffer);
     const buffer = toBuffer(arrayBuffer);
-    const hash = md5(buffer);
+    const hash = await pdfMd5(buffer);
     const objectName = `${hash}.${fileType?.ext}`;
+    if (!fileName) {
+        fileName = objectName;
+    }
     if (!await checkFileExist(folder, "")) {
         await fs.mkdir(folder, {recursive: true})
     }
     let existed = await checkFileExist(folder, objectName);
     if (!existed) {
         if (process.env.OSS_VOLUME_PATH) {
-            await fs.writeFile(path.resolve(process.env.OSS_VOLUME_PATH,folder, objectName), buffer);
+            await fs.writeFile(path.resolve(process.env.OSS_VOLUME_PATH, folder, objectName), buffer);
         } else {
-            await ossClient.putObject(process.env.OSS_BUCKET,`${folder}/${objectName}`, buffer, {
+            await ossClient.putObject(process.env.OSS_BUCKET, `${folder}/${objectName}`, buffer, {
                 'Content-Type': fileType?.mime
             });
         }
@@ -52,6 +63,7 @@ export const uploadRemoteFile = async (url: string, folder: string = "") => {
         originUrl: url,
         url: getFileUrl(folder, objectName),
         hash,
+        fileName,
         mime: fileType?.mime
     };
 }

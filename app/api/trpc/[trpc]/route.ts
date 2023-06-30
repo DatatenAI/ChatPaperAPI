@@ -7,6 +7,7 @@ import * as crypto from "crypto";
 import ApiError from "@/lib/ApiError";
 
 const handler: Api = (req) => {
+    console.log(123)
     const requestLogger = logger.child({
         requestId: process.env['REQUEST_ID'] || crypto.randomUUID(),
     });

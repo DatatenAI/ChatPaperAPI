@@ -5,7 +5,10 @@ import dayjs from "dayjs";
 import ApiError from "@/lib/ApiError";
 
 const checkIn = protectedProcedure
-    .mutation(async ({input, ctx}) => {
+    .mutation(async ({
+                         input,
+                         ctx
+                     }) => {
         const checked = (await prisma.creditHistory.count({
                 where: {
                     userId: ctx.session.user.id,
@@ -19,7 +22,7 @@ const checkIn = protectedProcedure
         if (checked) {
             throw new ApiError("今天已签到");
         }
-        const checkInCredits = new Prisma.Decimal(10)
+        const checkInCredits = new Prisma.Decimal(32)
         await prisma.$transaction([prisma.creditHistory.create({
             data: {
                 userId: ctx.session.user.id,
@@ -36,7 +39,8 @@ const checkIn = protectedProcedure
                         increment: checkInCredits
                     }
                 }
-            })])
+            })]);
+        return checkInCredits;
     });
 
 export default checkIn;

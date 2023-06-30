@@ -20,8 +20,14 @@ const wechatProvider = WechatProvider({
 
 export const credentialProvider = CredentialProvider({
     credentials: {
-        email: {label: "email", type: "text"},
-        password: {label: "password", type: "password"}
+        email: {
+            label: "email",
+            type: "text"
+        },
+        password: {
+            label: "password",
+            type: "password"
+        }
     },
     authorize: async (credentials, req) => {
         if (!credentials) {
@@ -59,8 +65,12 @@ export const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt"
     },
+
     callbacks: {
-        async session({token, session}) {
+        async session({
+                          token,
+                          session
+                      }) {
             if (token) {
                 session.user.id = token.id;
                 session.user.name = token.name;
@@ -68,10 +78,14 @@ export const authOptions: NextAuthOptions = {
                 session.user.image = token.picture;
                 session.user.language = token.language;
                 session.user.credits = token.credits;
+                session.user.inviteCode = token.inviteCode;
             }
             return session;
         },
-        async jwt({token, user}) {
+        async jwt({
+                      token,
+                      user
+                  }) {
             const dbUser = token.id ? await prisma.user.findFirst({
                 where: {
                     id: token.id
@@ -90,10 +104,15 @@ export const authOptions: NextAuthOptions = {
                 email: dbUser.email,
                 picture: dbUser.image,
                 language: dbUser.language,
-                credits: dbUser.credits
+                credits: dbUser.credits,
+                inviteCode: dbUser.inviteCode
             };
+        },
+        async redirect(params) {
+            console.log(params)
+            return params.url;
         }
-    }
+    },
 };
 
 export const hashToken = (token: string, secret?: string) => {
@@ -109,13 +128,16 @@ export const getSession = async () => {
 };
 export const getCurrentUser = async () => {
     const serverSession = await getSession();
-    const user = {...serverSession!.user};
-    if (user.email?.endsWith("@wechat.com")) {
-        user.email = "未设置邮箱";
+    if (serverSession) {
+        const user = {...serverSession.user};
+        if (user.email?.endsWith("@wechat.com")) {
+            user.email = "未设置邮箱";
+        }
+        return user;
     }
-    return user;
+    return null;
 };
-export const getCurrentUserId: () => Promise<string> = async () => {
+export const getCurrentUserId: () => Promise<string | undefined> = async () => {
     const user = await getCurrentUser();
-    return user.id;
+    return user?.id;
 };

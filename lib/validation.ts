@@ -27,6 +27,7 @@ export const SignUpSchema = z.object({
     email,
     name,
     password,
+    inviteCode: z.string().optional(),
 });
 
 
@@ -65,16 +66,19 @@ export const UpdateLanguageSchema = z.object({
 
 
 export const CreateTaskSchema = z.object({
-    pdfHashes: z.optional(z.array(z.string())),
+    pdfFiles: z.optional(z.array(z.object({
+        hash: z.string(),
+        fileName:z.string()
+    }))),
     pdfUrls: z.optional(z.array(z.string().url("请输入正确的链接"))),
     language: z.string(),
 }).refine(arg => {
     const isPdfUrlsEmpty = !arg.pdfUrls?.length;
-    const isPdfHashesEmpty = !arg.pdfHashes?.length;
-    return (isPdfUrlsEmpty !== isPdfHashesEmpty);
+    const isPdfFilesEmpty = !arg.pdfFiles?.length;
+    return (isPdfUrlsEmpty !== isPdfFilesEmpty);
 }, {
     message: '参数错误',
-    path: ['pdfUrls', 'pdfHashes']
+    path: ['pdfUrls', 'pdfFiles']
 })
 
 export const ListTaskSchema = PaginationSchema.extend({
@@ -88,7 +92,7 @@ export const ChatSchema = z.object({
     question: z.string(),
     language: z.string(),
 })
-
+export const ShareSummarySchema = z.string();
 export const RechargeSchema = z.object({
     goodId: z.bigint(),
     method: z.nativeEnum(PayMethodEnum),

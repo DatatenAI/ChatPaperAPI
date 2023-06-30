@@ -11,16 +11,17 @@ const SummaryContent: FC<{
     chats: Pick<Chat, 'question' | 'reply' | 'status'>[];
     pdfUrl: string;
     avatar?: string | null;
-    taskState: TaskState;
+    taskState?: TaskState;
     language: string;
+    logined: boolean;
 }> = props => {
 
     return <Split
         className={'w-full h-screen pt-16 flex'}
         minSize={400}>
         <PdfViewer pdfUrl={props.pdfUrl}/>
-        <ChatContainer summary={props.summary} chats={props.chats} taskState={props.taskState} avatar={props.avatar}
-                       language={props.language}/>
+        <ChatContainer summary={props.summary} chats={props.chats} taskState={props.taskState} logined={props.logined}
+                       avatar={props.avatar} language={props.language}/>
 
     </Split>;
 };

@@ -5,12 +5,14 @@ import SignUpForm from "./components/sign-up-form";
 import AuthHeader from "../components/AuthHeader";
 import {Separator} from "@/ui/separator";
 import OAuthGroup from "../components/OAuthGroup";
+import {cookies} from "next/headers";
 
 export const metadata = {
     title: "创建账号"
 };
 
 const SignUpPage: Page = async (props) => {
+
     return <>
         <AuthHeader title={"创建一个账号"}/>
         <div className={"flex flex-col gap-6"}>

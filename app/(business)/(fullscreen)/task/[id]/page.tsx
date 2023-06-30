@@ -1,12 +1,13 @@
 import {Page} from "@/types";
 import React from "react";
-import TaskHeader from "./header";
+import Header from "../../header";
 import prisma from "@/lib/database";
 import {notFound} from "next/navigation";
-import SummaryContent from "./content";
+import SummaryContent from "../../summary-content";
 import RefreshTask from "./refresh-task";
 import {getFileUrl} from "@/lib/oss";
 import {getCurrentUser} from "@/lib/auth";
+import TaskStateBadge from "@/components/task-state-badge";
 
 
 const TaskDetail: Page<"id"> = async props => {
@@ -14,14 +15,18 @@ const TaskDetail: Page<"id"> = async props => {
     if (!id) {
         return notFound();
     }
-    const user = await getCurrentUser();
+    const user = (await getCurrentUser())!;
     const task = await prisma.task.findUnique({
         select: {
             pdfHash: true,
             language: true,
-            state: true
+            state: true,
+            fileName: true
         },
-        where: {id, userId: user.id}
+        where: {
+            id,
+            userId: user.id
+        }
     });
     if (!task) {
         return notFound();
@@ -52,7 +57,7 @@ const TaskDetail: Page<"id"> = async props => {
 
     const pdfUrl = getFileUrl("uploads", task.pdfHash + ".pdf");
     return <div>
-        <TaskHeader task={task}/>
+        <Header title={summary?.title || task.fileName} extra={<TaskStateBadge state={task.state}/>}/>
         <SummaryContent
             language={task.language}
             taskState={task.state}
@@ -60,7 +65,7 @@ const TaskDetail: Page<"id"> = async props => {
             chats={chats}
             pdfUrl={pdfUrl}
             avatar={user.image}
-        />
+            logined/>
         <RefreshTask task={task}/>
     </div>
 }

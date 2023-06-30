@@ -14,7 +14,7 @@ import dayjs from "dayjs";
 
 const ApplicationHeader: AsyncComponent = async props => {
     const user = await getCurrentUser();
-    const checked = (await prisma.creditHistory.count({
+    const checked = user ? (await prisma.creditHistory.count({
             where: {
                 userId: user.id,
                 type: CreditType.CHECK_IN,
@@ -23,7 +23,7 @@ const ApplicationHeader: AsyncComponent = async props => {
                 }
             }
         })
-    ) > 0;
+    ) > 0 : false;
     return (
         <header className={'sticky top-0 z-40 border-b bg-background'}>
             <nav className={'container h-16 flex  items-center'}>

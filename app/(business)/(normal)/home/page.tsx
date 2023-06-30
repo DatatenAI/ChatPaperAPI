@@ -38,8 +38,14 @@ type FileWithHash = {
 
 
 const uploadTypes = [
-    {value: 'FILE', label: '文件上传'},
-    {value: 'URL', label: 'URL上传'},
+    {
+        value: 'FILE',
+        label: '文件上传'
+    },
+    {
+        value: 'URL',
+        label: 'URL上传'
+    },
 ];
 const calcFileHash = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -54,7 +60,7 @@ const calcFileHash = (file: File): Promise<string> => {
                 for (let i = 1; i <= pdf.numPages; i++) {
                     const page = await pdf.getPage(i);
                     const tokenizedText = await page.getTextContent();
-                    textContent+=  tokenizedText.items.map(item => (item as TextItem).str).join("");
+                    textContent += tokenizedText.items.map(item => (item as TextItem).str).join("");
                 }
                 spark.append(textContent);
                 resolve(spark.end())
@@ -83,7 +89,10 @@ const HomePage: Page = props => {
 
     const router = useRouter();
 
-    const {getRootProps, getInputProps, isDragActive} = useDropzone({
+    const {
+        getRootProps,
+        getInputProps,
+    } = useDropzone({
         accept: {
             'application/pdf': ['.pdf']
         },
@@ -137,7 +146,7 @@ const HomePage: Page = props => {
         onSuccess: data => {
             if (data) {
                 router.push(`/task/${data}`);
-            }else{
+            } else {
                 router.push('/tasks');
             }
         },
@@ -256,7 +265,12 @@ const HomePage: Page = props => {
                         })
                     }))
                 }
-                summaryParam.pdfHashes = files.map(file => file.hash);
+                summaryParam.pdfFiles = files.map(file => {
+                    return {
+                        fileName: file.file.name,
+                        hash: file.hash
+                    }
+                });
             } else {
                 if (!pdfUrls?.trim().length) {
                     toast({
@@ -299,8 +313,13 @@ const HomePage: Page = props => {
                                 <p className={'text-sm text-gray-600 font-medium'}>点击或拖拽文件到此处上传</p>
                                 <p className={'text-xs text-gray-500 font-normal'}>请选择20M以内的PDF文件进行上传</p>
                             </div>
-                            {files.length ? <div className={'space-y-2'}>{
-                                files.map(({file, hash, progress, state}) => {
+                            {files.length ? <div className={'space-y-2 max-h-[20rem] overflow-auto'}>{
+                                files.map(({
+                                               file,
+                                               hash,
+                                               progress,
+                                               state
+                                           }) => {
                                     return <div className={'border rounded-xl p-4 flex space-x-3'} key={hash}>
                                         <Image src={pdfIcon} alt={'pdf'} className={'w-10 h-10 '}/>
                                         <div className={'flex-grow space-y-2.5 text-left overflow-hidden'}>
@@ -328,14 +347,11 @@ const HomePage: Page = props => {
                                                     filesize(file.size, {standard: "jedec"}) as string
                                                 }</div>
                                             </div>
-                                            {
-                                                state === 'uploading' ?
-                                                    <div className={'flex items-center space-x-3'}>
-                                                        <Progress className={'h-2'} value={progress}/>
-                                                        <span
-                                                            className={'text-sm font-medium text-gray-700'}>{progress}%</span>
-                                                    </div> : null
-                                            }
+                                            <div className={'flex items-center space-x-3'}>
+                                                <Progress className={'h-2'} value={progress}/>
+                                                <span
+                                                    className={'text-sm font-medium text-gray-700'}>{progress}%</span>
+                                            </div>
                                         </div>
                                     </div>;
                                 })

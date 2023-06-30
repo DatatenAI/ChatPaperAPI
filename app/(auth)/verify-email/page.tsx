@@ -40,6 +40,23 @@ const getToken = async (token: string) => {
                         email: verificationToken.identifier
                     }
                 });
+                const inviteHistory = await trx.inviteHistory.findUnique({
+                    where: {
+                        inviteUserId: user.id,
+                    }
+                });
+                if (inviteHistory) {
+                    await prisma.user.update({
+                        where:{
+                            id: inviteHistory.userId,
+                        },
+                        data:{
+                            credits:{
+                                increment: 120,
+                            }
+                        }
+                    })
+                }
             });
         }
     }

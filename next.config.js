@@ -9,7 +9,7 @@ const nextConfig = {
     },
     output: 'standalone',
     experimental: {
-        serverComponentsExternalPackages: ["pdfjs-dist"],
+        serverComponentsExternalPackages: ["pdfjs-dist","@zilliz/milvus2-sdk-node"],
         swcPlugins: [
             [
                 'next-superjson-plugin',
