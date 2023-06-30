@@ -11,7 +11,7 @@ on:
 env:
   REGISTRY: registry.cn-hongkong.aliyuncs.com
   NAMESPACE: chatwithpaper
-  IMAGE: api-new
+  IMAGE: website
   TAG: ${{ github.event.inputs.release_tag || github.event.client_payload.release_tag }}
 
 jobs:
