@@ -40,19 +40,28 @@ const Chat = protectedProcedure
         }
 
         let chat = await prisma.$transaction(async (trx) => {
-            await trx.user.update({
-                where: {
-                    id: ctx.session.user.id,
-                    credits: {
-                        gte: 0.5
+            try {
+                await trx.user.update({
+                    where: {
+                        id: ctx.session.user.id,
+                        credits: {
+                            gte: 0.5
+                        }
+                    },
+                    data: {
+                        credits: {
+                            increment: -0.5
+                        }
                     }
-                },
-                data: {
-                    credits: {
-                        increment: -0.5
+                });
+            }catch (e) {
+                if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                    if (e.code === "P2025") {
+                        throw new ApiError('点数不足，请获取更多点数完成对话');
                     }
                 }
-            });
+                throw e
+            }
             await trx.creditHistory.create({
                 data: {
                     userId: ctx.session.user.id,
@@ -106,8 +115,7 @@ const Chat = protectedProcedure
                     });
                     try {
                         chat.status = ChatStatus.SUCCESS;
-                        const reply = await queryForSummaryChat(input.language, summary.basicInfo, input.question, chunks.map(chunk => chunk.text).join("\n"));
-                        chat.reply = reply;
+                        chat.reply = await queryForSummaryChat(input.language, summary.basicInfo, input.question, chunks.map(chunk => chunk.text).join("\n"));
                     } catch (e) {
                         ctx.logger.error(e, "对话查询openai异常");
                         chat.status = ChatStatus.FAILED;
@@ -136,7 +144,7 @@ const Chat = protectedProcedure
                     const summaries = await prisma.summary.findMany({
                         where: {
                             id: {
-                                in: searchRes.results.map(it => it.sql_id),
+                                in: searchRes.results.map(it => Number(it.sql_id)),
                             }
                         }
                     });

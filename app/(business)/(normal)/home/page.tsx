@@ -2,7 +2,8 @@ import React from 'react';
 import {Page} from "@/types";
 import PageLayout from "@/app/(business)/(normal)/page-layout";
 import {getCurrentUser} from "@/lib/auth";
-import UploadContainer from "./upload-container";
+import UploadPdf from "./upload-pdf";
+import Chat from "./chat";
 
 
 const HomePage: Page = async props => {
@@ -11,8 +12,9 @@ const HomePage: Page = async props => {
 
     return (
         <PageLayout>
-            <div>
-                <UploadContainer defaultLanguage={user?.language || '中文'}/>
+            <div className={'space-y-6'}>
+                <UploadPdf defaultLanguage={user?.language || '中文'}/>
+                <Chat/>
             </div>
         </PageLayout>
     )

@@ -69,7 +69,7 @@ const calcFileHash = (file: File): Promise<string> => {
     })
 }
 
-const UploadContainer: FC<{
+const UploadPdf: FC<{
     defaultLanguage: string;
 }> = props => {
     const [uploadType, setUploadType] = useState('FILE');
@@ -151,10 +151,17 @@ const UploadContainer: FC<{
             }
         },
         onError: error => {
+            let message = error.message;
+            if (error.data?.zod?.fieldErrors) {
+                const zodErrors = Object.values(error.data.zod.fieldErrors).flatMap(it => it);
+                if (zodErrors[0]) {
+                    message = zodErrors[0];
+                }
+            }
             toast({
                 variant: 'destructive',
                 title: '总结失败',
-                description: error.message
+                description: message,
             })
         }
     });
@@ -286,8 +293,8 @@ const UploadContainer: FC<{
         }
     }
 
-    return <div className={'space-y-6 flex flex-col items-center w-full'}>
-        <Tabs value={uploadType} onValueChange={setUploadType} className={'w-1/2 text-center'}>
+    return <div className={'space-y-6 text-center w-full max-w-xl mx-auto'}>
+        <Tabs value={uploadType} onValueChange={setUploadType}>
             <TabsList>
                 {uploadTypes.map(it => {
                     return <TabsTrigger key={it.value} value={it.value}>{it.label}</TabsTrigger>
@@ -365,7 +372,7 @@ const UploadContainer: FC<{
             </TabsContent>
         </Tabs>
         <Select value={language} onValueChange={setLanguage}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] mx-auto">
                 <SelectValue placeholder="选择输出语言"/>
             </SelectTrigger>
             <SelectContent>
@@ -375,12 +382,10 @@ const UploadContainer: FC<{
                 })}
             </SelectContent>
         </Select>
-        <div className={'text-center'}>
-            <Button onClick={startSummary}
-                    loading={uploadLoading || summaryMutation.isLoading}>开始总结</Button>
-        </div>
+        <Button onClick={startSummary}
+                loading={uploadLoading || summaryMutation.isLoading}>开始总结</Button>
     </div>;
 };
 
 
-export default UploadContainer;
+export default UploadPdf;

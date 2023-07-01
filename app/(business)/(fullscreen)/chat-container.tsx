@@ -17,14 +17,9 @@ import ShareDialog from "./share-dialog";
 import {Button} from "@/ui/button";
 import Link from "next/link";
 import {AiOutlineLogin} from "@react-icons/all-files/ai/AiOutlineLogin";
+import {ChatMessage} from "@/types";
 
-type Message = {
-    from: 'system' | 'user';
-    type: 'markdown' | 'text';
-    content: string;
-    loading: boolean;
-    error?: boolean;
-}
+
 const ChatContainer: FC<{
     avatar?: string | null;
     summary: Summary | null;
@@ -48,7 +43,7 @@ const ChatContainer: FC<{
             ele.style.height = ele.scrollHeight + 'px';
         }
     };
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
 
     const loading = useMemo(() => {
         return messages.some(message => message.loading);
@@ -69,7 +64,7 @@ const ChatContainer: FC<{
 
 
     useEffect(() => {
-        const stateMessage: Message = {
+        const stateMessage: ChatMessage = {
             from: 'system',
             type: 'text',
             content: '正在总结',
@@ -126,7 +121,7 @@ const ChatContainer: FC<{
             return;
         }
         if (props.summary && inputValue.trim().length) {
-            const newMessages: Message[] = [...messages, {
+            const newMessages: ChatMessage[] = [...messages, {
                 type: 'text',
                 from: 'user',
                 content: inputValue,

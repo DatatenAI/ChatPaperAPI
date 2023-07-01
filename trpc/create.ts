@@ -22,7 +22,7 @@ const t = initTRPC.context<TRPCContext>().create({
                 ...shape.data,
                 zod: error.cause instanceof ZodError ? error.cause.flatten() : null
             },
-            message: error.code === "INTERNAL_SERVER_ERROR" ? (error.cause instanceof ApiError ? shape.message : "请求异常") : shape.message
+            message: error.code === "INTERNAL_SERVER_ERROR" ? (error.cause instanceof ApiError ? shape.message : "服务器异常") : shape.message
         };
     }
 });

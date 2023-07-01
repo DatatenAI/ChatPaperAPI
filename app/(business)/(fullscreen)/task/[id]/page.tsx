@@ -57,7 +57,7 @@ const TaskDetail: Page<"id"> = async props => {
 
     const pdfUrl = getFileUrl("uploads", task.pdfHash + ".pdf");
     return <div>
-        <Header title={summary?.title || task.fileName} extra={<TaskStateBadge state={task.state}/>}/>
+        <Header logined title={summary?.title || task.fileName} extra={<TaskStateBadge state={task.state}/>}/>
         <SummaryContent
             language={task.language}
             taskState={task.state}

@@ -3,7 +3,7 @@ import {CreateTaskSchema} from "@/lib/validation";
 import prisma from "@/lib/database";
 import {CreditType, Prisma, TaskState, TaskType} from "@prisma/client";
 import ApiError from "@/lib/ApiError";
-import {readFile, uploadRemoteFile} from "@/lib/oss";
+import {readFile, uploadRemotePDF} from "@/lib/oss";
 import * as PDF from "pdfjs-dist";
 import {summary} from "@/lib/fc";
 import {nanoid} from "nanoid";
@@ -30,10 +30,14 @@ const create = protectedProcedure
             if (input.pdfUrls?.length) {
                 const uploadFiles = await Promise.all(
                     input.pdfUrls.map((url) => {
-                        return uploadRemoteFile(url, "uploads");
+                        return uploadRemotePDF(url, "uploads");
                     })
-                );
+                ).catch(error => {
+                    ctx.logger.error(error, "下载文件失败");
+                    throw new ApiError("下载文件失败，请检查链接是否正确");
+                });
                 for (let uploadFile of uploadFiles) {
+                    console.log(uploadFile)
                     if (uploadFile.mime !== 'application/pdf') {
                         const idx = input.pdfUrls.findIndex(it => it === uploadFile.originUrl);
                         throw new ApiError(`第${idx + 1}行链接不是PDF文件`);
@@ -53,7 +57,7 @@ const create = protectedProcedure
         const allSameTasks = await prisma.task.findMany({
             where: {
                 pdfHash: {
-                    in: pdfs.map(pdf=>pdf.hash),
+                    in: pdfs.map(pdf => pdf.hash),
                 },
                 state: TaskState.SUCCESS,
             },

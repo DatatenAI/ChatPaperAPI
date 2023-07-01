@@ -1,5 +1,5 @@
 import {Client} from "minio";
-import {fileTypeFromBuffer} from "file-type";
+import {fileTypeFromBuffer, FileTypeResult} from "file-type";
 import {pdfMd5, streamToUint8Array, toBuffer} from "@/lib/common";
 import fs from "fs/promises";
 import path from "path";
@@ -39,7 +39,7 @@ export const checkFileExist = async (folder: string, object: string) => {
         }
     }
 }
-export const uploadRemoteFile = async (url: string, folder: string = "") => {
+export const uploadRemotePDF = async (url: string, folder: string = "") => {
     const fetchRes = await fetch(url);
     const dispositionHeader = fetchRes.headers.get("Content-Disposition");
     let fileName: string | null = null;
@@ -48,8 +48,8 @@ export const uploadRemoteFile = async (url: string, folder: string = "") => {
         fileName = parseInfo.parameters.filename;
     }
     const arrayBuffer = await fetchRes.arrayBuffer();
-    const fileType = await fileTypeFromBuffer(arrayBuffer);
     const buffer = toBuffer(arrayBuffer);
+    const fileType = await fileTypeFromBuffer(buffer);
     const hash = await pdfMd5(buffer);
     const objectName = `${hash}.${fileType?.ext}`;
     if (!fileName) {
@@ -60,6 +60,7 @@ export const uploadRemoteFile = async (url: string, folder: string = "") => {
     }
     let existed = await checkFileExist(folder, objectName);
     if (!existed) {
+
         if (process.env.OSS_VOLUME_PATH) {
             await fs.writeFile(path.resolve(process.env.OSS_VOLUME_PATH, folder, objectName), buffer);
         } else {

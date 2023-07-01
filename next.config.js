@@ -7,6 +7,7 @@ const nextConfig = {
     typescript: {
         ignoreBuildErrors: true,
     },
+    serverRuntimeConfig: {},
     output: 'standalone',
     experimental: {
         serverComponentsExternalPackages: ["pdfjs-dist","@zilliz/milvus2-sdk-node"],

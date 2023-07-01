@@ -8,7 +8,7 @@ const getApi = async () => {
             alive: true,
         },
         orderBy: {
-            amount: 'asc',
+            used: 'asc',
         }
     });
     if (!apiKey) {
@@ -67,7 +67,6 @@ export const queryForSummaryChat = async (language: string, basicInfo: string, q
 }
 
 export const queryForSearchChat = async (language: string, question: string, searchResult: string) => {
-    console.log(language, question, searchResult);
     const prompt = `You are a research scientist proficient in answering queries using succinct and academic language. Your task is to respond to user queries based on results from a vector database search. The content primarily includes a summary of the search results and metadata about the paper. In your reply, retain proper nouns in English while maintaining appropriate academic language. Give a output language as ${language}, but keep the paper title in its original English format.`;
     const content = `
         Here is the search result according to the query: 

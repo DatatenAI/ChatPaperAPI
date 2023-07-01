@@ -109,7 +109,6 @@ export const authOptions: NextAuthOptions = {
             };
         },
         async redirect(params) {
-            console.log(params)
             return params.url;
         }
     },

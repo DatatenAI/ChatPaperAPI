@@ -34,3 +34,11 @@ declare module '@tanstack/react-table' {
 
 declare module 'pdfjs-dist/build/pdf.worker.entry'{
 }
+
+export type ChatMessage={
+    from: 'system' | 'user';
+    type: 'markdown' | 'text';
+    content: string;
+    loading: boolean;
+    error?: boolean;
+}
