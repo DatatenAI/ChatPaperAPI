@@ -2,7 +2,7 @@ import z from "zod";
 
 
 const code = z.string().trim().optional();
-const userId = z.number().optional();
+const userId =  z.union([z.number(), z.null()]).optional();
 const keywords = z.string().optional();
 const keywordId = z.number();
 const openId = z.string().trim().optional();

@@ -9,7 +9,7 @@ const searchMyKeyWords = publicProcedure
         const {userId,openId} = input;
         const mykeywords = await prisma.subscribeKeywords.findMany({
             where: {
-                weChatUserId: userId,
+                weChatUserId: userId !== null ? userId : undefined,
                 openId: openId
             },
             include: {keywords: true}

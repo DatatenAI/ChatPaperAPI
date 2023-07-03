@@ -12,7 +12,7 @@ const searchMyRead = publicProcedure
             skip: (pageNum - 1) * pageSize, // 根据当前页码计算要跳过的结果数量
             where: {
                 openId: openId,
-                weChatUserId: userId
+                weChatUserId: userId !== null ? userId : undefined
             },
             include: {
                 paperInfo: true,
