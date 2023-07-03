@@ -548,7 +548,7 @@ model WxUser {
 
 /// 订阅总结任务表
 model SubscribeTask {
-  id         BigInt             @id @default(autoincrement())
+  id         String             @id
   pdfHash    String             @map("pdf_hash")
   /// PDF hash
   language   String?
