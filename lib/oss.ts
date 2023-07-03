@@ -1,5 +1,5 @@
 import {Client} from "minio";
-import {fileTypeFromBuffer, FileTypeResult} from "file-type";
+import {fileTypeFromBuffer} from "file-type";
 import {pdfMd5, streamToUint8Array, toBuffer} from "@/lib/common";
 import fs from "fs/promises";
 import path from "path";

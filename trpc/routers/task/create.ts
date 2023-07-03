@@ -7,6 +7,10 @@ import {readFile, uploadRemotePDF} from "@/lib/oss";
 import * as PDF from "pdfjs-dist";
 import {summary} from "@/lib/fc";
 import {nanoid} from "nanoid";
+// @ts-ignore
+import PdfWorker from "pdfjs-dist/build/pdf.worker.entry";
+
+PDF.GlobalWorkerOptions.workerPort = PdfWorker;
 
 /**
  * 计算任务消耗credits
