@@ -2,7 +2,6 @@ import crypto, {BinaryLike} from "crypto";
 import * as PDF from "pdfjs-dist";
 import {TextItem} from "pdfjs-dist/types/src/display/api";
 import ReadableStream = NodeJS.ReadableStream;
-
 export const toBuffer = (arrayBuffer: ArrayBuffer) => {
     const buffer = Buffer.alloc(arrayBuffer.byteLength);
     const view = new Uint8Array(arrayBuffer);
