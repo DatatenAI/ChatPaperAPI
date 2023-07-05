@@ -5,6 +5,9 @@ import superJson from "superjson";
 import {ZodError} from "zod";
 import type {Logger} from "pino";
 import ApiError from "@/lib/ApiError";
+import {headers} from "next/headers";
+import jwt from 'jsonwebtoken';
+import {randomBytes} from "crypto";
 
 type TRPCContext = {
     session: Session | null,
@@ -50,3 +53,51 @@ const authMiddleware = t.middleware(({ctx, next}) => {
 
 
 export const protectedProcedure = publicProcedure.use(authMiddleware);
+
+
+const appAuthMiddleware = t.middleware(({ctx, next}) => {
+    const header = headers();
+    // 从请求头中获取鉴权信息
+    const authToken = header.get('Authorization');
+    // 验证Token是否存在
+    if (!authToken) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+    try {
+        validateToken(authToken);
+        return next({
+            ctx: {
+                session: {...ctx.session, wxuser: extractUserInfo(authToken)}
+            }
+        });
+    } catch (err) {
+        throw new TRPCError({ code: "INVALID_TOKEN" });
+    }
+});
+
+// 自定义的Token验证函数
+const validateToken = (token) => {
+    const secretKey = process.env.WX_AUTH_SECRETKEY;
+    try {
+        jwt.verify(token, secretKey);
+    } catch (err) {
+        throw new TRPCError({ code: "INVALID_TOKEN" });
+    }
+};
+
+// 从Token中提取用户信息
+const extractUserInfo = (token) => {
+    const secretKey = process.env.WX_AUTH_SECRETKEY;
+
+    try {
+        const decoded = jwt.verify(token, secretKey);
+        return {
+            openid: decoded.openid,
+            // 其他字段...
+        };
+    } catch (err) {
+        throw new TRPCError({ code: "INVALID_TOKEN" });
+    }
+};
+
+export const appProtectedProcedure = publicProcedure.use(appAuthMiddleware);

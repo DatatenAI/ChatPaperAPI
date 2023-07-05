@@ -1,11 +1,10 @@
-import {publicProcedure} from "@/trpc";
 import prisma from "@/lib/database";
 import {insertFavoriteSchema} from "@/lib/wx-validation";
-import {date} from "zod";
+import {appProtectedProcedure} from "@/trpc/create";
 
 
 /// 添加收藏
-const addFavoritePaper = publicProcedure
+const addFavoritePaper = appProtectedProcedure
     .input(insertFavoriteSchema)
     .mutation(async ({input, ctx}) => {
         const {userId,openId,favoriteId,paperId,source} = input;

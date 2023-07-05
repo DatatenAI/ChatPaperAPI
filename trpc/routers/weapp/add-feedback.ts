@@ -1,9 +1,9 @@
-import {publicProcedure} from "@/trpc";
 import prisma from "@/lib/database";
 import {addFeedBackSchema} from "@/lib/wx-validation";
+import {appProtectedProcedure} from "@/trpc/create";
 
 
-const addFeedback = publicProcedure
+const addFeedback = appProtectedProcedure
     .input(addFeedBackSchema)
     .mutation(async ({input, ctx}) => {
         const {userId,openId,type,content} = input

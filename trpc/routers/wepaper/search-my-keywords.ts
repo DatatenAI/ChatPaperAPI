@@ -1,9 +1,9 @@
-import {publicProcedure} from "@/trpc";
 import prisma from "@/lib/database";
 import {scarchMyKeywordsSchema} from "@/lib/wx-validation";
+import {appProtectedProcedure} from "@/trpc/create";
 
 
-const searchMyKeyWords = publicProcedure
+const searchMyKeyWords = appProtectedProcedure
     .input(scarchMyKeywordsSchema)
     .query(async ({input, ctx}) => {
         const {userId,openId} = input;

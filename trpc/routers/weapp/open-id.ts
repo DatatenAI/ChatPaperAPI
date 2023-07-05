@@ -1,6 +1,18 @@
 import {publicProcedure} from "@/trpc";
 import {openIdSchema} from "@/lib/wx-validation";
-import prisma from "@/lib/database";
+import jwt from 'jsonwebtoken';
+import {randomBytes} from "crypto";
+
+
+// 生成Token函数
+const generateToken = (openid) => {
+    const secretKey = process.env.WX_AUTH_SECRETKEY
+    const payload = {
+        openid: openid,
+    };
+    return jwt.sign(payload, secretKey);
+};
+
 
 const getOpenId = publicProcedure
     .input(openIdSchema)
@@ -15,7 +27,10 @@ const getOpenId = publicProcedure
             secret,
             js_code: code
         });
-        return  await fetch(`https://api.weixin.qq.com/sns/jscode2session?${params}`).then(res => res.json());
+        const data = await fetch(`https://api.weixin.qq.com/sns/jscode2session?${params}`).then(res => res.json());
+        data.token = generateToken(data.openid);
+        // 将Token返回给前端
+        return data
     });
 
 export default getOpenId;

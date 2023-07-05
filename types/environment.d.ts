@@ -29,5 +29,7 @@ declare namespace NodeJS {
     readonly FUNCTION_ACCESS_KEY_ID: string;
     readonly FUNCTION_ACCESS_KEY_SECRET: string;
     readonly FUNCTION_ENDPOINT: string;
+
+    readonly WX_AUTH_SECRETKEY: string;
   }
 }

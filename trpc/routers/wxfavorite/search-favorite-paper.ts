@@ -1,11 +1,10 @@
-import {publicProcedure} from "@/trpc";
 import prisma from "@/lib/database";
 import {searchSchema} from "@/lib/wx-validation";
-import {date} from "zod";
+import {appProtectedProcedure} from "@/trpc/create";
 
 
 /// 获取用户所有收藏文章
-const scarchFavoritePaper = publicProcedure
+const scarchFavoritePaper = appProtectedProcedure
     .input(searchSchema)
     .query(async ({input, ctx}) => {
         let { userId,openId,favoriteId,pageNum,pageSize } = input;

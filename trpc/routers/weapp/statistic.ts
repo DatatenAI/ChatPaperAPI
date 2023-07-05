@@ -1,10 +1,10 @@
-import {publicProcedure} from "@/trpc";
 import prisma from "@/lib/database";
 import {searchSchema} from "@/lib/wx-validation";
+import {appProtectedProcedure} from "@/trpc/create";
 
 
 /// 统计信息接口
-const statistic = publicProcedure
+const statistic = appProtectedProcedure
     .input(searchSchema)
     .query(async ({input, ctx}) => {
         const {userId,openId} = input

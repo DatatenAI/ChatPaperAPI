@@ -1,11 +1,10 @@
-import {publicProcedure} from "@/trpc";
 import prisma from "@/lib/database";
 import {addReadSchema} from "@/lib/wx-validation";
-import {date} from "zod";
+import {appProtectedProcedure} from "@/trpc/create";
 
 
 /// 加入待阅
-const addRead = publicProcedure
+const addRead = appProtectedProcedure
     .input(addReadSchema)
     .query(async ({input, ctx}) => {
         const {userId,openId,paperId} = input;

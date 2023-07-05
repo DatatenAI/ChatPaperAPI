@@ -1,10 +1,11 @@
-import {publicProcedure} from "@/trpc";
+
 import prisma from "@/lib/database";
 import {addLikeSchema} from "@/lib/wx-validation";
+import {appProtectedProcedure} from "@/trpc/create";
 
 
 /// 取消点赞
-const cancelLike = publicProcedure
+const cancelLike = appProtectedProcedure
     .input(addLikeSchema)
     .query(async ({input, ctx}) => {
         const {userId,openId,paperId} = input;

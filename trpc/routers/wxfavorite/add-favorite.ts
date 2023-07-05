@@ -1,11 +1,10 @@
-import {publicProcedure} from "@/trpc";
 import prisma from "@/lib/database";
 import {insertFavoriteSchema} from "@/lib/wx-validation";
-import {date} from "zod";
+import {appProtectedProcedure} from "@/trpc/create";
 
 
 /// 添加收藏夹
-const addFavorite = publicProcedure
+const addFavorite = appProtectedProcedure
     .input(insertFavoriteSchema)
     .query(async ({input, ctx}) => {
         const {userId,openId,favoriteName} = input;

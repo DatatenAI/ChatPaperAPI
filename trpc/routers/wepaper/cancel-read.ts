@@ -1,11 +1,10 @@
-import {publicProcedure} from "@/trpc";
 import prisma from "@/lib/database";
 import {addReadSchema} from "@/lib/wx-validation";
-import {date} from "zod";
+import {appProtectedProcedure} from "@/trpc/create";
 
 
 /// 取消待阅
-const cancelRead = publicProcedure
+const cancelRead = appProtectedProcedure
     .input(addReadSchema)
     .query(async ({input, ctx}) => {
         const {userId,openId,paperId} = input;

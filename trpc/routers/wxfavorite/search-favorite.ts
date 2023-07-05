@@ -11,7 +11,7 @@ const scarchFavorite = publicProcedure
         const { userId,openId } = input;
         const favorites = await prisma.favorite.findMany({
             where: {
-                weChatUserId: userId,
+                weChatUserId: userId !== null ? userId : undefined,
                 openId: openId
             },
             orderBy: {
@@ -28,7 +28,7 @@ const scarchFavorite = publicProcedure
                 }
             }
         });
-        if (favorites.length === 0) {
+        if (favorites.length === 0 && userId !== null) {
             const newfav = await prisma.favorite.create({
                 data: {
                     weChatUserId: userId,

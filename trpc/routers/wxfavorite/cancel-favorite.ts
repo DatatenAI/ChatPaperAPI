@@ -1,10 +1,10 @@
-import {publicProcedure} from "@/trpc";
 import prisma from "@/lib/database";
 import {insertFavoriteSchema} from "@/lib/wx-validation";
+import {appProtectedProcedure} from "@/trpc/create";
 
 
 /// 取消收藏
-const cancelFavorite = publicProcedure
+const cancelFavorite = appProtectedProcedure
     .input(insertFavoriteSchema)
     .query(async ({input, ctx}) => {
         const {userId,openId,paperId} = input;

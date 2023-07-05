@@ -1,9 +1,9 @@
-import {publicProcedure} from "@/trpc";
 import prisma from "@/lib/database";
 import {subscribeSchema} from "@/lib/wx-validation";
+import {appProtectedProcedure} from "@/trpc/create";
 
 
-const addSubscribe = publicProcedure
+const addSubscribe = appProtectedProcedure
     .input(subscribeSchema)
     .query(async ({input, ctx}) => {
         const {keywordId,openId,userId} = input;

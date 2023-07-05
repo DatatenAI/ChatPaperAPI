@@ -1,10 +1,9 @@
-import {publicProcedure} from "@/trpc";
 import {insertUserSchema} from "@/lib/wx-validation";
 import prisma from "@/lib/database";
+import {appProtectedProcedure} from "@/trpc/create";
 
 
-
-const insertWxUser = publicProcedure
+const insertWxUser = appProtectedProcedure
     .input(insertUserSchema)
     .mutation(async ({input, ctx}) => {
         const {openId,unionId,nickName,avatar,phone,gender,birthday,country,province,city,educational,interest,intro,email} = input;

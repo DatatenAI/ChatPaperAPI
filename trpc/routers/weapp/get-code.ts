@@ -1,11 +1,11 @@
-import {publicProcedure} from "@/trpc";
 import {bindEmailSchema} from "@/lib/wx-validation";
 import {sendMail} from "@/lib/mail";
 import {TRPCError} from "@trpc/server";
 import prisma from "@/lib/database";
 import {VerificationTokenType} from "@prisma/client";
+import {appProtectedProcedure} from "@/trpc/create";
 
-const getCode = publicProcedure
+const getCode = appProtectedProcedure
     .input(bindEmailSchema)
     .query(async ({input, ctx}) => {
         try {

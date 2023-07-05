@@ -1,9 +1,10 @@
-import {publicProcedure} from "@/trpc";
+
 import prisma from "@/lib/database";
 import {searchSummarySchema} from "@/lib/wx-validation";
+import {appProtectedProcedure} from "@/trpc/create";
 
 
-const searchSummaryHistory = publicProcedure
+const searchSummaryHistory = appProtectedProcedure
     .input(searchSummarySchema)
     .query(async ({input, ctx}) => {
         const { pageNum,pageSize,email } = input;
