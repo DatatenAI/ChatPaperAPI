@@ -7,7 +7,6 @@ import type {Logger} from "pino";
 import ApiError from "@/lib/ApiError";
 import {headers} from "next/headers";
 import jwt from 'jsonwebtoken';
-import {randomBytes} from "crypto";
 
 type TRPCContext = {
     session: Session | null,

@@ -80,7 +80,8 @@ const PayHistoryTable: FC = props => {
     const {data, isLoading} = trpc.account.listPayHistory.useQuery({
         current: pagination.current,
         size: pagination.size,
-    });
+     });
+
     return (
         <DataTable
             pagination={{

@@ -106,6 +106,7 @@ enum CreditType {
   TASK
   CHAT
   INVITE
+  EXCHANGE
 }
 
 model CreditHistory {
@@ -128,6 +129,15 @@ model CreditGood {
   CreditPayHistory CreditPayHistory[]
 
   @@map("credit_goods")
+}
+
+model CreditKey {
+  key    String    @id
+  used   Boolean   @default(false)
+  usedAt DateTime? @map("used_at")
+  amount Decimal
+
+  @@map("credit_keys")
 }
 
 enum CreditPayStatus {

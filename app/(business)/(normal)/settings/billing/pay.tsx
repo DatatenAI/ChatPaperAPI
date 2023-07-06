@@ -8,12 +8,11 @@ import {useToast} from "@/ui/use-toast";
 import {trpc} from "@/lib/trpc";
 import type {CreditGood} from '@prisma/client'
 import {FaAlipay} from "@react-icons/all-files/fa/FaAlipay";
-import {RiCheckboxBlankCircleLine} from "@react-icons/all-files/ri/RiCheckboxBlankCircleLine";
-import {RiCheckboxCircleFill,} from "@react-icons/all-files/ri/RiCheckboxCircleFill";
 import {RiWechatPayFill} from "@react-icons/all-files/ri/RiWechatPayFill";
 import {cn} from "@/lib/cn";
 import PayHistoryTable from "./pay-history-table";
-import {ImStack} from "@react-icons/all-files/im/ImStack";
+import CreditGoodItem from "./credit-good-item";
+import ExchangeButton from "./exchange-button";
 
 const PayMethods: Record<PayMethodEnum, {
     label: string;
@@ -32,47 +31,6 @@ const PayMethods: Record<PayMethodEnum, {
     }
 }
 
-const CreditGoodItem: FC<{
-    good: CreditGood;
-    checked: boolean;
-    onClick: (good: CreditGood) => void
-}> = ({good, checked, onClick}) => {
-    return (
-        <div key={good.id.toString()} onClick={() => onClick(good)}
-             className={cn('group rounded-xl ring-1 ring-gray-200 cursor-pointer p-4 flex  gap-1 items-start', {
-                 'ring-2 ring-primary bg-primary-50 is-checked': checked,
-             })}>
-            <div className="flex flex-row gap-4 items-start justify-start flex-1 ">
-                <div
-                    className="bg-primary-100 rounded-full border-solid border-primary-50 border-4 shrink-0 w-8 h-8 p-1">
-                    <ImStack className={'w-4 h-4 text-primary'}/>
-                </div>
-                <div className="flex flex-col text-sm flex-1 ">
-                    <div className="flex flex-row gap-1 items-start justify-start shrink-0 ">
-                        <div
-                            className="text-gray-700 group-[.is-checked]:text-primary-800 text-sm font-medium "
-                        >{good.name}</div>
-                        <div
-                            className="text-gray-600 group-[.is-checked]:text-primary-700 font-normal leading-5">
-                            ¥{(Number(good.price) / 100).toFixed(2)}
-                        </div>
-                    </div>
-
-                    <div
-                        className="text-gray-600 group-[.is-checked]:text-primary-700 font-normal"
-                    >包含{good.credits.toString()}点数
-                    </div>
-                </div>
-            </div>
-            {
-                checked ?
-                    <RiCheckboxCircleFill className={'fill-primary w-4 h-4 shrink-0'}/> :
-                    <RiCheckboxBlankCircleLine className={'fill-gray-300 w-4 h-4 shrink-0'}/>
-            }
-
-        </div>
-    );
-};
 
 const Pay: FC<{
     goods: CreditGood[]
@@ -100,6 +58,7 @@ const Pay: FC<{
     });
 
     const [showDialog, setShowDialog] = useState(false);
+
 
     const recharge = () => {
         if (!checkedGood) {
@@ -148,6 +107,7 @@ const Pay: FC<{
         }
     }
 
+
     return (
         <div className={'space-y-6'}>
             <div className={'space-y-4'}>
@@ -176,7 +136,10 @@ const Pay: FC<{
                         })
                     }
                 </ul>
-                <Button onClick={recharge} loading={rechargeMutation.isLoading}>发起支付</Button>
+                <div className={'space-x-4'}>
+                    <Button onClick={recharge} loading={rechargeMutation.isLoading}>发起支付</Button>
+                    <ExchangeButton/>
+                </div>
             </div>
             <div className={'space-y-4'}>
                 <h2 className={'font-semibold'}>充值记录</h2>
@@ -196,6 +159,7 @@ const Pay: FC<{
                     <Button onClick={checkPay} loading={checkPayQuery.isFetching}>已完成支付</Button>
                 </DialogContent>
             </Dialog>
+
 
         </div>
     );
