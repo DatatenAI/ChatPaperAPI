@@ -527,7 +527,7 @@ model WxCommunication {
 model WxUser {
   id          BigInt    @id @default(autoincrement())
   openId      String    @unique @map("open_id")
-  unionId     String    @unique @map("union_id")
+  unionId     String    @map("union_id")
   nickName    String?   @map("nick_name")
   phone       String    @unique
   email       String?

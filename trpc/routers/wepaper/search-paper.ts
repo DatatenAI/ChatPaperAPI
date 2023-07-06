@@ -43,6 +43,13 @@ const searchPaper = publicProcedure
                 pdfUrl: {
                     in: urls,
                 },
+                summary: {
+                    some: {
+                        pdfHash: {
+                            not: undefined
+                        }
+                    }
+                }
             },
             include: {
                 summary: true,
