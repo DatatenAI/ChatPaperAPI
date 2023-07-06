@@ -6,24 +6,30 @@ import {searchPaperSchema} from "@/lib/wx-validation";
 const searchPaper = publicProcedure
     .input(searchPaperSchema)
     .query(async ({input, ctx}) => {
-        const { userId,openId,keywords,pageNum,pageSize } = input
+        const {userId, openId, keywords, pageNum, pageSize} = input
         const keywordList = await prisma.keywords.findMany(
             {
                 where: {
-                    searchKeywords: {
-                        contains: keywords,
-                    },
+                    OR: [
+                        {
+                            searchKeywords:
+                                {
+                                    contains: keywords
+                                }
+                        },
+                        {
+                            keywordShort:
+                                {
+                                    contains: keywords
+                                }
+                        }
+                    ]
                 },
                 include: {
                     keywordsPdf: true,
                 },
             }
         );
-        if (keywordList == null || keywordList.length === 0) {
-            return {
-                message: "No data was queried",
-            };
-        }
         const urls = [];
         // 遍历关键词对象数组
         keywordList.forEach((keyword) => {
