@@ -14,9 +14,7 @@ const searchSummaryHistory = appProtectedProcedure
             }
         })
         if (user == null) {
-            return {
-                message: "No associated user!",
-            };
+            return [];
         }
         return await prisma.task.findMany({
             take: pageSize, // 指定每页要获取的结果数量
