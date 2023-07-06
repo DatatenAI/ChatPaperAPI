@@ -338,13 +338,16 @@ const UploadPdf: FC<{
                                             }
                                             {
                                                 state === 'uploading' ? <BiLoaderAlt
-                                                    className={'w-4 h-4 animate-spin flex-shrink-0'}
-                                                    onClick={() => removeFile(hash)}/> : null
+                                                    className={'w-4 h-4 animate-spin flex-shrink-0'}/> : null
                                             }
                                             {
-                                                state === 'success' ? <AiFillCheckCircle
-                                                    className={'w-4 h-4 fill-primary   flex-shrink-0'}
-                                                    onClick={() => removeFile(hash)}/> : null
+                                                state === 'success' ? <div className={'space-y-0.5'}>
+                                                    <AiFillCheckCircle
+                                                        className={'w-4 h-4 fill-primary   flex-shrink-0'}/>
+                                                    <FiTrash2
+                                                        className={'w-4 h-4 cursor-pointer hover:opacity-70 flex-shrink-0'}
+                                                        onClick={() => removeFile(hash)}/>
+                                                </div> : null
                                             }
                                         </div>
                                         <div className={'text-sm text-gray-600 font-normal leading-5'}>{

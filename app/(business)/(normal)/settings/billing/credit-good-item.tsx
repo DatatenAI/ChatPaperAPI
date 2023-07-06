@@ -1,10 +1,9 @@
-'use client';
 import React, {FC} from 'react';
 import {CreditGood} from "@prisma/client";
 import {cn} from "@/lib/cn";
 import {ImStack} from "@react-icons/all-files/im/ImStack";
-import {RiCheckboxBlankCircleLine} from "@react-icons/all-files/ri/RiCheckboxBlankCircleLine";
 import {RiCheckboxCircleFill} from "@react-icons/all-files/ri/RiCheckboxCircleFill";
+import {RiCheckboxBlankCircleLine} from "@react-icons/all-files/ri/RiCheckboxBlankCircleLine";
 
 const CreditGoodItem: FC<{
     good: CreditGood;

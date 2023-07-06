@@ -12,6 +12,7 @@ import {BsCalendar} from "@react-icons/all-files/bs/BsCalendar";
 import {AiOutlineCreditCard} from "@react-icons/all-files/ai/AiOutlineCreditCard";
 import {BsChatSquareDots} from "@react-icons/all-files/bs/BsChatSquareDots";
 import { AiOutlineShareAlt } from '@react-icons/all-files/ai/AiOutlineShareAlt';
+import {FaExchangeAlt} from "@react-icons/all-files/fa/FaExchangeAlt";
 
 type UsageColumn = Pick<
     CreditHistory,
@@ -49,6 +50,11 @@ export const creditColumnDef: ColumnDef<UsageColumn>[] = [
                     return <Badge variant={"success"} plain>
                         <AiOutlineCreditCard className={'mr-1'}/>
                         充值
+                    </Badge>
+                case 'EXCHANGE':
+                    return <Badge variant={"success"} plain>
+                        <FaExchangeAlt className={'mr-1'}/>
+                        兑换
                     </Badge>
                 case 'CHECK_IN':
                     return <Badge variant={"destructive"} plain>

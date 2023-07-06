@@ -84,6 +84,8 @@ export const CreateTaskSchema = z.object({
 export const ListTaskSchema = PaginationSchema.extend({
     state: z.enum(['ALL', 'RUNNING', 'SUCCESS', 'FAIL']),
 })
+export const ListPaperSchema = PaginationSchema.extend({
+})
 export const ListPayHistorySchema = PaginationSchema.extend({})
 export const ListUsageHistorySchema = PaginationSchema.extend({});
 
@@ -96,4 +98,9 @@ export const ShareSummarySchema = z.string();
 export const RechargeSchema = z.object({
     goodId: z.bigint(),
     method: z.nativeEnum(PayMethodEnum),
+})
+export const ExchangeSchema = z.object({
+    key: z.string({
+        required_error:'请输入兑换码'
+    }),
 })

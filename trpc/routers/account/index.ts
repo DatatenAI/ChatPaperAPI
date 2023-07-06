@@ -3,6 +3,7 @@ import deleteAccount from "./delete-account";
 import setPassword from "./set-password";
 import updatePassword from "./update-password";
 import recharge from "./recharge";
+import exchange from "./exchange";
 import checkPayResult from "./check-pay-result";
 import checkIn from "./check-in";
 import listPayHistory from "./list-pay-history";
@@ -22,6 +23,7 @@ const accountRouter = createTRPCRouter({
     updatePassword,
     updateLanguage,
     recharge,
+    exchange,
     checkPayResult,
     checkIn,
     listPayHistory,
