@@ -54,6 +54,25 @@ const authMiddleware = t.middleware(({ctx, next}) => {
 export const protectedProcedure = publicProcedure.use(authMiddleware);
 
 
+
+const appMiddleware = t.middleware(({ctx, path, rawInput, next}) => {
+    const header = headers();
+    // 从请求头中获取鉴权信息
+    const authToken = header.get('Authorization');
+    // 验证Token是否存在
+    if (authToken) {
+        return next({
+            ctx: {
+                session: {...ctx.session, wxuser: extractUserInfo(authToken)}
+            }
+        });
+    }
+    return next()
+});
+export const appPublicProcedure = t.procedure.use(appMiddleware);
+
+
+
 const appAuthMiddleware = t.middleware(({ctx, next}) => {
     const header = headers();
     // 从请求头中获取鉴权信息
@@ -70,22 +89,22 @@ const appAuthMiddleware = t.middleware(({ctx, next}) => {
             }
         });
     } catch (err) {
-        throw new TRPCError({ code: "INVALID_TOKEN" });
+        throw new TRPCError({ code: "BAD_REQUEST" });
     }
 });
 
 // 自定义的Token验证函数
-const validateToken = (token) => {
+const validateToken = (token:string) => {
     const secretKey = process.env.WX_AUTH_SECRETKEY;
     try {
         jwt.verify(token, secretKey);
     } catch (err) {
-        throw new TRPCError({ code: "INVALID_TOKEN" });
+        throw new TRPCError({ code: "BAD_REQUEST" });
     }
 };
 
 // 从Token中提取用户信息
-const extractUserInfo = (token) => {
+const extractUserInfo = (token:string) => {
     const secretKey = process.env.WX_AUTH_SECRETKEY;
 
     try {
@@ -95,7 +114,7 @@ const extractUserInfo = (token) => {
             // 其他字段...
         };
     } catch (err) {
-        throw new TRPCError({ code: "INVALID_TOKEN" });
+        throw new TRPCError({ code: "BAD_REQUEST" });
     }
 };
 

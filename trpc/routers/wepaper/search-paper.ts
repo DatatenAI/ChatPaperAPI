@@ -1,12 +1,13 @@
-import {publicProcedure} from "@/trpc";
 import prisma from "@/lib/database";
 import {searchPaperSchema} from "@/lib/wx-validation";
+import {appPublicProcedure} from "@/trpc/create";
+import {flag} from "arg";
 
 
-const searchPaper = publicProcedure
+const searchPaper = appPublicProcedure
     .input(searchPaperSchema)
     .query(async ({input, ctx}) => {
-        const {userId, openId, keywords, pageNum, pageSize} = input
+        const {keywords, pageNum, pageSize} = input
         const keywordList = await prisma.keywords.findMany(
             {
                 where: {
@@ -30,7 +31,7 @@ const searchPaper = publicProcedure
                 },
             }
         );
-        const urls = [];
+        const urls:string[] = [];
         // 遍历关键词对象数组
         keywordList.forEach((keyword) => {
             // 提取每个对象中的keywordpdf集合
@@ -64,29 +65,31 @@ const searchPaper = publicProcedure
                 createTime: 'desc',
             },
         });
-        paperList.forEach(item => {
-            item.waitFlag = false
-        })
+        const resultList: (prisma.paperInfo & { waitFlag: boolean })[] = paperList.map(
+            (paper) => ({
+                ...paper,
+                waitFlag: false,
+            })
+        );
         //查询是否被加入待阅
-        if (userId != null && openId != null) {
-            const ids = paperList.map(obj => obj.id);
+        if (ctx.session != null && ctx.session.wxuser != null) {
+            const ids = resultList.map(obj => obj.id);
             const waitList = await prisma.wxWaitRead.findMany({
                 where: {
-                    weChatUserId: userId,
-                    openId: openId,
+                    openId: ctx.session.wxuser.openid,
                     paperId: {
                         in: ids
                     }
                 }
             })
-            paperList.forEach(item => {
+            resultList.forEach(item => {
                 const waitItem = waitList.find(waitItem => waitItem.paperId === item.id);
                 if (waitItem) {
                     item.waitFlag = true
                 }
             })
         }
-        return paperList;
+        return resultList;
     });
 
 export default searchPaper;

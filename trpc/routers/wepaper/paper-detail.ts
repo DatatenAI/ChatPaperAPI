@@ -1,13 +1,13 @@
-import {publicProcedure} from "@/trpc";
 import prisma from "@/lib/database";
 import {searchPaperDetail} from "@/lib/wx-validation";
-import { addWxHistory } from '@/trpc/routers/wxhistory/add-history';
+import {addWxHistory} from '@/trpc/routers/wxhistory/add-history';
+import {appPublicProcedure} from "@/trpc/create";
 
 
-const paperDetail = publicProcedure
+const paperDetail = appPublicProcedure
     .input(searchPaperDetail)
     .query(async ({input, ctx}) => {
-        const { paperId,userId,openId } = input
+        const { paperId,userId } = input
         const detail = await prisma.paperInfo.findUnique({
             where: {
                 id:paperId
@@ -16,31 +16,32 @@ const paperDetail = publicProcedure
                 summary: true,
             }
         });
-        detail.likeFlag = false
-        detail.favoriteFlag = false
+        const extendedPaper: prisma.paperInfo & {
+            likeFlag: boolean;
+            favoriteFlag: boolean;
+        } | null = detail ? { ...detail, likeFlag: false, favoriteFlag: false } : null;
         //查询是否被收藏或者点赞
-        if (userId != null && openId != null) {
+        if (ctx.session != null && ctx.session.wxuser != null) {
             // 添加浏览历史
-            await addWxHistory(userId, openId, paperId)
+            await addWxHistory(userId, ctx.session.wxuser.openid, paperId)
             const wxLike = await prisma.wxLike.findMany({
                 where: {
-                    weChatUserId: userId,
-                    openId: openId,
+                    weChatUserId: userId || undefined,
+                    openId: ctx.session.wxuser.openid,
                     paperId: paperId
                 }
             })
             const favorite = await prisma.favoriteDetails.findMany({
                 where: {
-                    weChatUserId: userId,
-                    openId: openId,
+                    weChatUserId: userId || undefined,
+                    openId: ctx.session.wxuser.openid,
                     paperId: paperId
                 }
             })
-            if (wxLike.length > 0) detail.likeFlag = true
-            if (favorite.length > 0) detail.favoriteFlag = true
+            if (wxLike.length > 0) extendedPaper.likeFlag = true
+            if (favorite.length > 0) extendedPaper.favoriteFlag = true
         }
-
-        return detail;
+        return extendedPaper;
     });
 
 export default paperDetail;

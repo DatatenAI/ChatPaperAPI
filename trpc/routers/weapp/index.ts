@@ -9,6 +9,7 @@ import informDetail from "@/trpc/routers/weapp/inform-detail";
 import addFeedback from "@/trpc/routers/weapp/add-feedback";
 import searchCommunication from "@/trpc/routers/weapp/search-communication";
 import statistic from "@/trpc/routers/weapp/statistic";
+import getQrcode from "@/trpc/routers/weapp/qrcode";
 
 
 const weappRouter = createTRPCRouter({
@@ -20,6 +21,7 @@ const weappRouter = createTRPCRouter({
     addFeedback,
     searchCommunication,
     statistic,
+    getQrcode,
     informDetail
 });
 
