@@ -125,5 +125,5 @@ module.exports = {
             },
         },
     },
-    plugins: [require("tailwindcss-animate"), require('@gradin/tailwindcss-scrollbar')],
+    plugins: [require("tailwindcss-animate"), require('@gradin/tailwindcss-scrollbar'), require('@tailwindcss/typography')],
 }

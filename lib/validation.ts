@@ -14,7 +14,7 @@ const password = z.string({
     required_error: "请输入",
 }).trim().nonempty({message: "请输入"}).min(8, "密码最少包含8位字符");
 
-const PaginationSchema = z.object({
+export const PaginationSchema = z.object({
     current: z.number().min(1),
     size: z.number().min(0).max(50),
 })
@@ -61,14 +61,16 @@ export const UpdatePasswordSchema = z.object({
 
 
 export const UpdateLanguageSchema = z.object({
-    language: z.string().nonempty("请选择语言"),
+    language: z.string({
+        required_error: "请选择语言",
+    }),
 });
 
 
 export const CreateTaskSchema = z.object({
     pdfFiles: z.optional(z.array(z.object({
         hash: z.string(),
-        fileName:z.string()
+        fileName: z.string()
     }))),
     pdfUrls: z.optional(z.array(z.string().url("请输入正确的链接"))),
     language: z.string(),
@@ -79,13 +81,16 @@ export const CreateTaskSchema = z.object({
 }, {
     message: '参数错误',
     path: ['pdfUrls', 'pdfFiles']
+});
+export const TranslateTaskSchema = z.object({
+    id: z.string(),
+    language: z.string(),
 })
 
 export const ListTaskSchema = PaginationSchema.extend({
     state: z.enum(['ALL', 'RUNNING', 'SUCCESS', 'FAIL']),
 })
-export const ListPaperSchema = PaginationSchema.extend({
-})
+export const ListPaperSchema = PaginationSchema.extend({})
 export const ListPayHistorySchema = PaginationSchema.extend({})
 export const ListUsageHistorySchema = PaginationSchema.extend({});
 
@@ -101,6 +106,20 @@ export const RechargeSchema = z.object({
 })
 export const ExchangeSchema = z.object({
     key: z.string({
-        required_error:'请输入兑换码'
+        required_error: '请输入兑换码'
     }),
+})
+
+export enum PaperSearchSort {
+    TIME_ASC = "time-asc",
+    TIME_DESC = "time-desc",
+    CITE_ASC = "cite-asc",
+    CITE_DESC = "cite-desc",
+}
+
+export const PaperSearchSchema = PaginationSchema.extend({
+    keywords: z.array(z.string()),
+    years: z.array(z.number()),
+    conferences: z.array(z.string()),
+    sort: z.nativeEnum(PaperSearchSort),
 })

@@ -176,7 +176,7 @@ model Task {
 
   pages       Int
   /// 页数
-  costCredits Decimal @default(0) @map("cost_credits") @db.Decimal(9, 1)
+  costCredits Decimal @map("cost_credits") @db.Decimal(9, 1)
   /// 消耗credits
 
   state      TaskState
@@ -347,8 +347,6 @@ model PaperInfo {
   pdfUrl             String            @unique @map("pdf_url")
   /// pdf hash值
   pdfHash            String            @unique @map("pdf_hash")
-  /// 查询来源
-  searchFrom         String            @map("search_From")
   /// 年份可以更具体一点，具体到天
   year               Int?
   /// 标题
@@ -378,7 +376,7 @@ model PaperInfo {
   /// 摘要
   abstract           String            @db.Text
   /// 预览图
-  imgUrl             String?           @map("img_url") @db.Text
+  imgUrl             String?           @map("img_url")
   /// 发表时间
   pubTime            DateTime?         @map("pub_time")
   /// paper内的keywords
@@ -541,7 +539,7 @@ model WxUser {
   openId      String    @unique @map("open_id")
   unionId     String    @map("union_id")
   nickName    String?   @map("nick_name")
-  phone       String?
+  phone       String    @unique
   email       String?
   avatar      String?
   country     String?

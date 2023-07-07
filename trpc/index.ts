@@ -1,6 +1,7 @@
 import {createTRPCRouter} from "./create";
 import accountRouter from "@/trpc/routers/account";
 import authRouter from "@/trpc/routers/auth";
+import paperRouter from "@/trpc/routers/paper";
 import weappRouter from "@/trpc/routers/weapp";
 import wepaperRouter from "@/trpc/routers/wepaper";
 import wxfavoriteRouter from "@/trpc/routers/wxfavorite";
@@ -13,6 +14,7 @@ export const appRouter = createTRPCRouter({
     account: accountRouter,
     auth: authRouter,
     task: taskRouter,
+    paper: paperRouter,
     summary: summaryRouter,
     weapp: weappRouter,
     wepaper: wepaperRouter,

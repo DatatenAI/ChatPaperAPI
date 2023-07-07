@@ -20,11 +20,6 @@ export type ErrorPage = (props: {
 
 export type Api<T = {}> = (req: NextRequest, context: { params: T }) => Promise<Response>
 
-export type PaginationType = {
-    current: number;
-    size: number;
-    total: number;
-};
 
 declare module '@tanstack/react-table' {
     interface ColumnMeta<TData extends RowData, TValue> {

@@ -17,7 +17,6 @@ type FormData = z.infer<typeof SetEmailSchema>
 const SetEmailForm: FC<{}> = props => {
 
     const {toast} = useToast();
-    const router = useRouter();
 
     const form = useForm<FormData>({
         resolver: zodResolver(SetEmailSchema),
