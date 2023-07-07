@@ -347,6 +347,8 @@ model PaperInfo {
   pdfUrl             String            @unique @map("pdf_url")
   /// pdf hash值
   pdfHash            String            @unique @map("pdf_hash")
+  /// 查询来源
+  searchFrom         String            @map("search_From")
   /// 年份可以更具体一点，具体到天
   year               Int?
   /// 标题
@@ -376,7 +378,7 @@ model PaperInfo {
   /// 摘要
   abstract           String            @db.Text
   /// 预览图
-  imgUrl             String?           @map("img_url")
+  imgUrl             String?           @map("img_url") @db.Text
   /// 发表时间
   pubTime            DateTime?         @map("pub_time")
   /// paper内的keywords
@@ -539,7 +541,7 @@ model WxUser {
   openId      String    @unique @map("open_id")
   unionId     String    @map("union_id")
   nickName    String?   @map("nick_name")
-  phone       String    @unique
+  phone       String?
   email       String?
   avatar      String?
   country     String?
