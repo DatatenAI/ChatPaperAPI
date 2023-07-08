@@ -3,7 +3,6 @@ import {AiOutlineLoading} from "@react-icons/all-files/ai/AiOutlineLoading";
 import {MdSend} from "@react-icons/all-files/md/MdSend";
 import Image from "next/image";
 import Logo from '@/public/logo.jpeg'
-import {trpc} from "@/lib/trpc";
 import {Avatar, AvatarFallback, AvatarImage} from "@/ui/avatar";
 import {BiUserCircle} from "@react-icons/all-files/bi/BiUserCircle";
 import type {Summary, TaskState} from "@prisma/client";
@@ -11,13 +10,12 @@ import {Chat} from "@prisma/client";
 import ReactMarkdown from "react-markdown";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/ui/select";
 import {languages} from "@/lib/constants";
-import {useToast} from "@/ui/use-toast";
-import {TRPCClientError} from "@trpc/client";
 import ShareDialog from "./share-dialog";
 import {Button} from "@/ui/button";
 import Link from "next/link";
 import {AiOutlineLogin} from "@react-icons/all-files/ai/AiOutlineLogin";
 import {ChatMessage} from "@/types";
+import useChat from "@/hooks/use-chat";
 
 
 const ChatContainer: FC<{
@@ -32,8 +30,6 @@ const ChatContainer: FC<{
     const chatContainer = useRef<HTMLDivElement>(null);
     const [inputValue, setInputValue] = useState('');
     const [language, setLanguage] = useState(props.language);
-    const {toast} = useToast();
-
 
     const onTextareaInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
         setInputValue(e.currentTarget.value);
@@ -43,11 +39,8 @@ const ChatContainer: FC<{
             ele.style.height = ele.scrollHeight + 'px';
         }
     };
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
 
-    const loading = useMemo(() => {
-        return messages.some(message => message.loading);
-    }, [messages]);
+    const {messages, sendMessage, setMessages, loading} = useChat();
 
 
     const disabled = useMemo(() => {
@@ -107,58 +100,24 @@ const ChatContainer: FC<{
         setMessages(newMessages);
     }, [props.taskState]);
 
-    const chatMutation = trpc.summary.chat.useMutation();
 
     const onTextareaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             e.stopPropagation();
-            sendMessage();
+            handleSend();
         }
     }
-    const sendMessage = async () => {
-        if (disabled) {
+    const handleSend = async () => {
+        if (disabled || !props.summary || !inputValue.trim().length) {
             return;
         }
-        if (props.summary && inputValue.trim().length) {
-            const newMessages: ChatMessage[] = [...messages, {
-                type: 'text',
-                from: 'user',
-                content: inputValue,
-                loading: true,
-            }];
-            setMessages(newMessages);
-            setInputValue('');
-            try {
-                const res = await chatMutation.mutateAsync({
-                    summaryId: props.summary.id,
-                    question: inputValue,
-                    language
-                });
-                newMessages[newMessages.length - 1].loading = false;
-                const error = res.status === 'SUCCESS'
-                newMessages[newMessages.length - 1].error = error;
-                newMessages.push({
-                    type: error ? 'text' : 'markdown',
-                    from: 'system',
-                    content: res.reply!,
-                    loading: false,
-                });
-            } catch (e) {
-                newMessages[messages.length - 1].loading = false;
-                newMessages[messages.length - 1].error = false;
-                if (e instanceof TRPCClientError && e.data.code === "TOO_MANY_REQUESTS") {
-                    newMessages.push({
-                        type: 'text',
-                        from: 'system',
-                        content: e.message,
-                        loading: false,
-                    });
-                }
-            } finally {
-                setMessages([...newMessages]);
-            }
-        }
+        setInputValue('');
+        await sendMessage({
+            language: language,
+            question: inputValue,
+            summaryId: props.summary.id,
+        });
     }
 
     return (
@@ -201,7 +160,7 @@ const ChatContainer: FC<{
                             <div
                                 className={`py-2.5 px-3.5 rounded ${message.from === 'system' ? 'bg-gray-100 text-gray-900' : 'bg-primary-600 text-primary-foreground'}`}>
                                 {message.type === 'markdown' ?
-                                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                                    <ReactMarkdown className={'prose prose-sm'}>{message.content}</ReactMarkdown>
                                     : message.content
                                 }
                             </div>
@@ -227,7 +186,7 @@ const ChatContainer: FC<{
                               className='w-full pr-10 resize-none flex-grow max-h-48 break-all  focus-visible:outline-none'
                               onInput={onTextareaInput} rows={1}/>
                             <button
-                                onClick={sendMessage}
+                                onClick={handleSend}
                                 className={'absolute bottom-3 right-4 w-8 h-8 p-2 rounded-md disabled:bg-white  disabled:text-gray-400 bg-primary text-white transition-colors disabled:opacity-40'}
                                 disabled={disabled}>
                                 {

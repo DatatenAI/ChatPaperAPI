@@ -22,6 +22,7 @@ const getSearchConditions = cache(async () => {
 
     }
 )
+
 const SearchPage: Page = async props => {
     const conditions = await getSearchConditions();
 
@@ -34,3 +35,6 @@ const SearchPage: Page = async props => {
 
 export default SearchPage;
 export const revalidate = 3600;
+export const metadata = {
+    title: "论文搜索"
+};

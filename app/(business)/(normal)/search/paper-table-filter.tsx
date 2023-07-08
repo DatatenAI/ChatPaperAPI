@@ -1,10 +1,12 @@
 'use client';
 import React, {FC, ReactNode, useState} from 'react';
-import {PaginationSchema, PaperSearchSchema, PaperSearchSort} from "@/lib/validation";
+import {PaginationSchema, SearchPaperSchema, PaperSearchSort} from "@/lib/validation";
 import z from "zod";
+import {Button} from "@/ui/button";
+import {AiOutlineSearch} from "@react-icons/all-files/ai/AiOutlineSearch";
 
 
-type SearchParams = Omit<z.infer<typeof PaperSearchSchema>, keyof z.infer<typeof PaginationSchema>>;
+export type SearchPaperParams = Omit<z.infer<typeof SearchPaperSchema>, keyof z.infer<typeof PaginationSchema>>;
 
 
 const Tag: FC<{
@@ -41,29 +43,31 @@ const PaperTableFilter: FC<{
         keywords: string[];
         years: number[];
         conferences: string[];
-    }
-}> = ({conditions}) => {
+    };
+    initParams: SearchPaperParams;
+    onSearch: (params: SearchPaperParams) => void;
+    loading:boolean
+}> = ({conditions, initParams, onSearch,loading}) => {
 
-    const [searchParams, setSearchParams] = useState<SearchParams>({
-        keywords: [],
-        years: [],
-        conferences: [],
-        sort: PaperSearchSort.TIME_DESC
-    });
+    const [searchParams, setSearchParams] = useState<SearchPaperParams>(initParams);
 
-    const clickTag = <K extends keyof SearchParams>(key: K, value: SearchParams[K] extends (infer I)[] ? I | null : SearchParams[K]) => {
+    const clickTag = <K extends keyof SearchPaperParams>(key: K, value: SearchPaperParams[K] extends (infer I)[] ? I | null : SearchPaperParams[K]) => {
         setSearchParams(prevState => {
             let searchParam = prevState[key];
             if (Array.isArray(searchParam)) {
-                const idx = searchParam.findIndex(it => it === value);
-                if (idx >= 0) {
-                    searchParam.splice(idx);
+                if (value == null) {
+                    searchParam.splice(0, searchParam.length)
                 } else {
-                    // @ts-ignore
-                    searchParam.push(value);
+                    const idx = searchParam.findIndex(it => it === value);
+                    if (idx >= 0) {
+                        searchParam.splice(idx);
+                    } else {
+                        // @ts-ignore
+                        searchParam.push(value);
+                    }
                 }
             } else {
-                searchParam = value as SearchParams[K];
+                searchParam = value as SearchPaperParams[K];
             }
             return {
                 ...prevState,
@@ -78,7 +82,7 @@ const PaperTableFilter: FC<{
                 <div className={'text-sm min-w-[64px]'}>年份：</div>
                 <div className={'flex gap-2 '}>
                     <Tag onClick={() => clickTag('years', null)} active={!searchParams.years.length}>全部</Tag>
-                    {conditions.years.map(year => <Tag onClick={() => clickTag('years', year)}
+                    {conditions.years.map(year => <Tag key={year} onClick={() => clickTag('years', year)}
                                                        active={searchParams.years.includes(year)}>{year}</Tag>)}
                 </div>
             </div>
@@ -87,7 +91,8 @@ const PaperTableFilter: FC<{
                 <div className={'flex gap-2 '}>
                     <Tag onClick={() => clickTag('conferences', null)}
                          active={!searchParams.conferences.length}>全部</Tag>
-                    {conditions.conferences.map(conference => <Tag onClick={() => clickTag('conferences', conference)}
+                    {conditions.conferences.map(conference => <Tag key={conference}
+                                                                   onClick={() => clickTag('conferences', conference)}
                                                                    active={searchParams.keywords.includes(conference)}>{conference}</Tag>)}
                 </div>
             </div>
@@ -95,7 +100,7 @@ const PaperTableFilter: FC<{
                 <div className={'text-sm min-w-[64px]'}>关键词：</div>
                 <div className={'flex gap-2 '}>
                     <Tag onClick={() => clickTag('keywords', null)} active={!searchParams.keywords.length}>全部</Tag>
-                    {conditions.keywords.map(keyword => <Tag onClick={() => clickTag('keywords', keyword)}
+                    {conditions.keywords.map(keyword => <Tag key={keyword} onClick={() => clickTag('keywords', keyword)}
                                                              active={searchParams.keywords.includes(keyword)}>{keyword}</Tag>)}
                 </div>
             </div>
@@ -104,12 +109,15 @@ const PaperTableFilter: FC<{
                 <div className={'flex gap-2 '}>
                     {
                         SortWithLabels.map((it) => {
-                            return <Tag onClick={() => clickTag('sort', it.value)}
+                            return <Tag key={it.value} onClick={() => clickTag('sort', it.value)}
                                         active={searchParams.sort === it.value}>{it.label}</Tag>
                         })
                     }
 
                 </div>
+            </div>
+            <div className={'text-center'}>
+                <Button leftIcon={<AiOutlineSearch/>} size={"sm"} onClick={() => onSearch(searchParams)} loading={loading}>搜索</Button>
             </div>
         </div>
     );

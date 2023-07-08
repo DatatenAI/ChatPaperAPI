@@ -12,8 +12,8 @@ type ChatMessage = {
     error?: boolean;
 }
 
-const useChat = (defaultMessages: ChatMessage[]) => {
-    const [messages, setMessages] = useState(defaultMessages);
+const useChat = (defaultMessages?: ChatMessage[]) => {
+    const [messages, setMessages] = useState(defaultMessages || []);
     const chatMutation = trpc.summary.chat.useMutation();
 
     const loading = useMemo(() => {
@@ -61,6 +61,7 @@ const useChat = (defaultMessages: ChatMessage[]) => {
 
     return {
         messages,
+        setMessages,
         loading,
         sendMessage
     }

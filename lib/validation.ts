@@ -90,7 +90,7 @@ export const TranslateTaskSchema = z.object({
 export const ListTaskSchema = PaginationSchema.extend({
     state: z.enum(['ALL', 'RUNNING', 'SUCCESS', 'FAIL']),
 })
-export const ListPaperSchema = PaginationSchema.extend({})
+
 export const ListPayHistorySchema = PaginationSchema.extend({})
 export const ListUsageHistorySchema = PaginationSchema.extend({});
 
@@ -117,7 +117,8 @@ export enum PaperSearchSort {
     CITE_DESC = "cite-desc",
 }
 
-export const PaperSearchSchema = PaginationSchema.extend({
+
+export const SearchPaperSchema = PaginationSchema.extend({
     keywords: z.array(z.string()),
     years: z.array(z.number()),
     conferences: z.array(z.string()),

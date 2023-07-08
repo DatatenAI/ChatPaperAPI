@@ -9,11 +9,11 @@ const prisma = new PrismaClient({
     }],
 });
 prisma.$on('query', (e) => {
-    // logger.info({
-    //     sql: e.query,
-    //     params: e.params,
-    //     duration:e.duration
-    // })
+    logger.info({
+        sql: e.query,
+        params: e.params,
+        duration:e.duration
+    })
     // console.log('Params: ' + e.params)
     // console.log('Duration: ' + e.duration + 'ms')
 })
