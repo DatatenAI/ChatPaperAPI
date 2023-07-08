@@ -50,7 +50,7 @@ export const uploadRemotePDF = async (url: string, folder: string = "") => {
     const arrayBuffer = await fetchRes.arrayBuffer();
     const buffer = toBuffer(arrayBuffer);
     const fileType = await fileTypeFromBuffer(buffer);
-    const hash = await pdfMd5(buffer);
+    const hash = await pdfMd5(arrayBuffer);
     const objectName = `${hash}.${fileType?.ext}`;
     if (!fileName) {
         fileName = objectName;
@@ -80,7 +80,8 @@ export const uploadRemotePDF = async (url: string, folder: string = "") => {
 
 export const readFile = async (folder: string, object: string) => {
     if (process.env.OSS_VOLUME_PATH) {
-        return fs.readFile(path.resolve(process.env.OSS_VOLUME_PATH, folder, object))
+        const buffer = await fs.readFile(path.resolve(process.env.OSS_VOLUME_PATH, folder, object));
+        return new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.length);
     } else {
         return (await streamToUint8Array(await ossClient.getObject(process.env.OSS_BUCKET, folder + "/" + object))).buffer;
     }

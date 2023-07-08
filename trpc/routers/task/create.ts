@@ -12,7 +12,9 @@ import {nanoid} from "nanoid";
  * @param pdfHash 获取pdf页数
  */
 const getPdfPages = async (pdfHash: string) => {
-    const doc = await PDF.getDocument(await readFile("uploads", `${pdfHash}.pdf`)).promise;
+    let src = await readFile("uploads", `${pdfHash}.pdf`);
+    const doc = await PDF.getDocument(src).promise;
+    console.log(11111,doc.numPages)
     return doc.numPages
 };
 

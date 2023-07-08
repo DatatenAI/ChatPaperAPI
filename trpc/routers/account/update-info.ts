@@ -12,6 +12,7 @@ const updateInfo = protectedProcedure
             },
             data: {
                 name: input.name,
+                image: input.avatar
             },
         });
     });

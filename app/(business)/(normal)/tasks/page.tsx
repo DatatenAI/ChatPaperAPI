@@ -218,7 +218,7 @@ const TaskPage: Page = props => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                            <Link href={`/task/${row.id}`} prefetch={false}>
+                            <Link href={`/task/${row.original.id}`} prefetch={false}>
                                 <AiOutlineEye className={'mr-2'}/>
                                 <span>查看详情</span>
                             </Link>

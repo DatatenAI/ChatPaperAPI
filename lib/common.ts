@@ -15,7 +15,7 @@ export const md5: (data: BinaryLike) => string = (data) => {
     return crypto.createHash('md5').update(data).digest('hex')
 }
 
-export const pdfMd5: (data: Buffer) => Promise<string> = async (data) => {
+export const pdfMd5: (data: ArrayBuffer) => Promise<string> = async (data) => {
     const doc = await PDF.getDocument(data).promise;
     const hash = crypto.createHash('md5');
     for (let i = 1; i <= doc.numPages; i++) {
