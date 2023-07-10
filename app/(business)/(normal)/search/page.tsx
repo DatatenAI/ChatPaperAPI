@@ -33,8 +33,8 @@ const SearchPage: Page = async props => {
 };
 
 
+export const dynamic = 'force-dynamic';
 export default SearchPage;
-export const revalidate = 3600;
 export const metadata = {
     title: "论文搜索"
 };
