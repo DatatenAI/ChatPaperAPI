@@ -18,6 +18,9 @@ declare module "next-auth" {
             language: string;
             credits: Prisma.Decimal;
             inviteCode: string;
+        },
+        wxuser: wxUser & {
+            openid: string
         }
     }
 }

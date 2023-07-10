@@ -314,28 +314,15 @@ model KeywordsPdf {
 
 /// 用户订阅关键词表
 model SubscribeKeywords {
-  id           BigInt    @id @default(autoincrement())
-  /// 关键词
-  weChatUserId BigInt    @map("we_chat_user_id")
+  id        BigInt    @id @default(autoincrement())
   /// 对应文献pdfurl
-  keywordId    BigInt    @map("keyword_id")
-  openId       String    @map("open_id")
-  keywords     Keywords? @relation(fields: [keywordId], references: [id])
+  keywordId BigInt    @map("keyword_id")
+  openId    String    @map("open_id")
+  keywords  Keywords? @relation(fields: [keywordId], references: [id])
 
-  @@unique([weChatUserId, openId, keywordId])
-  @@index([weChatUserId, keywordId])
+  @@unique([openId, keywordId])
+  @@index([openId, keywordId])
   @@map("subscribe_keywords")
-}
-
-/// paper预览图库
-model PaperImage {
-  id             BigInt @id @default(autoincrement())
-  /// 关键词
-  searchKeywords String @map("search_keywords")
-  /// 预览图路径
-  imgUrl         String @map("img_url")
-
-  @@map("keywords_img_table")
 }
 
 /// 文献基础信息表
@@ -393,31 +380,28 @@ model PaperInfo {
   wxWaitRead         WxWaitRead[]
   wxHistory          WxHistory[]
 
+  @@index([pdfUrl])
   @@map("paper_info")
 }
 
 /// 待阅
 model WxWaitRead {
-  id           BigInt     @id @default(autoincrement())
-  /// 微信用户编号
-  weChatUserId BigInt     @map("we_chat_user_id")
+  id         BigInt     @id @default(autoincrement())
   /// 微信用户 openid
-  openId       String     @map("open_id")
+  openId     String     @map("open_id")
   /// 创建时间
-  createTime   DateTime?  @map("create_time")
+  createTime DateTime?  @map("create_time")
   /// 待阅文章主键
-  paperId      BigInt?    @map("paper_id")
-  paperInfo    PaperInfo? @relation(fields: [paperId], references: [id])
+  paperId    BigInt?    @map("paper_id")
+  paperInfo  PaperInfo? @relation(fields: [paperId], references: [id])
 
-  @@unique([weChatUserId, openId, paperId])
+  @@unique([openId, paperId])
   @@map("wx_wait_read")
 }
 
 /// 收藏夹
 model Favorite {
   id              BigInt            @id @default(autoincrement())
-  /// 微信用户编号
-  weChatUserId    BigInt            @map("we_chat_user_id")
   /// 微信用户 openid
   openId          String            @map("open_id")
   /// 收藏夹名称
@@ -427,64 +411,58 @@ model Favorite {
   updateTime      DateTime?         @map("update_time") @db.Timestamp(0)
   favoriteDetails FavoriteDetails[]
 
-  @@unique([weChatUserId, openId, name])
   @@map("favorite")
 }
 
 /// 收藏夹内容
 model FavoriteDetails {
-  id           BigInt     @id @default(autoincrement())
-  /// 微信用户编号
-  weChatUserId BigInt     @map("we_chat_user_id")
+  id         BigInt     @id @default(autoincrement())
   /// 微信用户 openid
-  openId       String     @map("open_id")
+  openId     String     @map("open_id")
   /// 收藏夹主键
-  favoriteId   BigInt?    @map("favorite_id")
+  favoriteId BigInt?    @map("favorite_id")
   /// 文章主键
-  paperId      BigInt?    @map("paper_id")
+  paperId    BigInt?    @map("paper_id")
   /// 收藏来源
-  source       String?
+  source     String?
   /// 创建时间
-  createTime   DateTime?  @map("create_time")
-  updateTime   DateTime?  @map("update_time") @db.Timestamp(0)
-  favorite     Favorite?  @relation(fields: [favoriteId], references: [id])
-  paperInfo    PaperInfo? @relation(fields: [paperId], references: [id])
+  createTime DateTime?  @map("create_time")
+  updateTime DateTime?  @map("update_time") @db.Timestamp(0)
+  favorite   Favorite?  @relation(fields: [favoriteId], references: [id])
+  paperInfo  PaperInfo? @relation(fields: [paperId], references: [id])
 
-  @@unique([weChatUserId, openId, paperId])
+  @@unique([openId, paperId])
   @@map("favorite_detail")
 }
 
 /// 点赞
 model WxLike {
-  id           BigInt     @id @default(autoincrement())
-  /// 微信用户编号
-  weChatUserId BigInt     @map("we_chat_user_id")
-  /// 微信用户 openid
-  openId       String     @map("open_id")
-  /// 创建时间
-  createTime   DateTime?  @map("create_time")
-  /// 点赞文章主键
-  paperId      BigInt?    @map("paper_id")
-  paperInfo    PaperInfo? @relation(fields: [paperId], references: [id])
+  id BigInt @id @default(autoincrement())
 
-  @@unique([weChatUserId, openId, paperId])
+  /// 微信用户 openid
+  openId     String     @map("open_id")
+  /// 创建时间
+  createTime DateTime?  @map("create_time")
+  /// 点赞文章主键
+  paperId    BigInt?    @map("paper_id")
+  paperInfo  PaperInfo? @relation(fields: [paperId], references: [id])
+
+  @@unique([openId, paperId])
   @@map("wx_like")
 }
 
 /// 浏览历史
 model WxHistory {
-  id           BigInt     @id @default(autoincrement())
-  /// 微信用户编号
-  weChatUserId BigInt     @map("we_chat_user_id")
+  id         BigInt     @id @default(autoincrement())
   /// 微信用户 openid
-  openId       String     @map("open_id")
+  openId     String     @map("open_id")
   /// 创建时间
-  createTime   DateTime?  @map("create_time")
+  createTime DateTime?  @map("create_time")
   /// 点赞文章主键
-  paperId      BigInt     @map("paper_id")
-  paperInfo    PaperInfo? @relation(fields: [paperId], references: [id])
+  paperId    BigInt     @map("paper_id")
+  paperInfo  PaperInfo? @relation(fields: [paperId], references: [id])
 
-  @@unique([weChatUserId, openId, paperId])
+  @@unique([openId, paperId])
   @@map("wx_history")
 }
 
@@ -505,17 +483,15 @@ model WxInform {
 
 /// 小程序用户反馈
 model WxFeedback {
-  id           BigInt        @id @default(autoincrement())
+  id         BigInt        @id @default(autoincrement())
   /// 反馈类型
-  type         FeedbackType?
-  /// 微信用户编号
-  weChatUserId BigInt        @map("we_chat_user_id")
+  type       FeedbackType?
   /// 微信用户 openid
-  openId       String        @map("open_id")
+  openId     String        @map("open_id")
   /// 反馈内容
-  content      String        @db.Text
+  content    String        @db.Text
   /// 创建时间
-  createTime   DateTime?     @map("create_time")
+  createTime DateTime?     @map("create_time")
 
   @@map("wx_feedback")
 }

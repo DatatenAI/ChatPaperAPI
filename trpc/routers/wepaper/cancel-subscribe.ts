@@ -6,12 +6,11 @@ import {appProtectedProcedure} from "@/trpc/create";
 const cancelSubscribe = appProtectedProcedure
     .input(subscribeSchema)
     .query(async ({input, ctx}) => {
-        const {keywordId,openId,userId} = input;
+        const {keywordId,openId} = input;
         await prisma.subscribeKeywords.deleteMany({
             where: {
                 keywordId: keywordId,
-                openId: openId,
-                weChatUserId: userId
+                openId: openId
             },
         });
         await prisma.keywords.update({

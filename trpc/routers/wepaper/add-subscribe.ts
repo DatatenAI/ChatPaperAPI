@@ -6,12 +6,11 @@ import {appProtectedProcedure} from "@/trpc/create";
 const addSubscribe = appProtectedProcedure
     .input(subscribeSchema)
     .query(async ({input, ctx}) => {
-        const {keywordId,openId,userId} = input;
+        const {keywordId,openId} = input;
         const existingRecord = await prisma.subscribeKeywords.findFirst({
             where: {
                 keywordId: keywordId,
-                openId: openId,
-                weChatUserId: userId
+                openId: openId
             },
         });
 
@@ -23,8 +22,7 @@ const addSubscribe = appProtectedProcedure
         await prisma.subscribeKeywords.create({
             data: {
                 keywordId: keywordId,
-                openId: openId,
-                weChatUserId: userId
+                openId: openId
             },
         });
         await prisma.keywords.update({

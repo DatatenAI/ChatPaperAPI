@@ -7,11 +7,10 @@ import {appProtectedProcedure} from "@/trpc/create";
 const cancelFavorite = appProtectedProcedure
     .input(insertFavoriteSchema)
     .query(async ({input, ctx}) => {
-        const {userId,openId,paperId} = input;
+        const {openId,paperId} = input;
         await prisma.favoriteDetails.delete({
             where: {
-                weChatUserId_openId_paperId: {
-                    weChatUserId: userId,
+                openId_paperId: {
                     openId: openId,
                     paperId: paperId
                 }

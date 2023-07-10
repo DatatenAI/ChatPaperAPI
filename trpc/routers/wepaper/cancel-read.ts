@@ -11,12 +11,11 @@ const cancelRead = appProtectedProcedure
         await prisma.wxWaitRead.deleteMany({
             where: {
                 paperId: paperId,
-                openId: openId,
-                weChatUserId: userId
+                openId: openId
             },
         });
         return {
-            message: "read added successfully",
+            message: "read cancel successfully",
         };
     });
 

@@ -9,10 +9,9 @@ import {appProtectedProcedure} from "@/trpc/create";
 const addLike = appProtectedProcedure
     .input(addLikeSchema)
     .query(async ({input, ctx}) => {
-        const {userId,openId,paperId} = input;
+        const {openId,paperId} = input;
         await prisma.wxLike.create({
             data: {
-                weChatUserId: userId,
                 openId: openId,
                 paperId: paperId,
                 createTime: new Date()

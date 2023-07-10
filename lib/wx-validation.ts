@@ -1,18 +1,18 @@
 import z from "zod";
 
 
-const code = z.union([z.string(), z.null()]).optional();
+const code = z.string();
 const userId =  z.union([z.number(), z.null()]).optional();
-const keywords = z.union([z.string(), z.null()]).optional();
+const keywords = z.union([z.string(), z.undefined()]).optional();
 const keywordId = z.number();
-const openId = z.string().optional();
-const unionId = z.union([z.string(), z.null()]).optional();
-const paperId = z.number().optional();
+const openId = z.string();
+const unionId = z.string();
+const paperId = z.number();
 const id = z.number().optional();
 const nickName = z.union([z.string(), z.null()]).optional();
 const avatar = z.union([z.string(), z.null()]).optional();
 const phone = z.union([z.string(), z.null()]).optional();
-const email = z.union([z.string(), z.null()]).optional();
+const email = z.string();
 const gender = z.union([z.string(), z.null()]).optional();
 const birthday = z.union([z.string(), z.null()]).optional();
 const country = z.union([z.string(), z.null()]).optional();
@@ -24,10 +24,10 @@ const intro = z.union([z.string(), z.null()]).optional();
 const favoriteName = z.union([z.string(), z.null()]).optional();
 const favoriteId = z.union([z.number(), z.null()]).optional();
 const source = z.union([z.string(), z.null()]).optional();
-const type = z.union([z.string(), z.null()]).optional();
-const content = z.union([z.string(), z.null()]).optional();
-const pageNum = z.number().optional();
-const pageSize = z.number().optional();
+const type = z.enum(["SUGGEST", "BUG"]);
+const content = z.string();
+const pageNum = z.number();
+const pageSize = z.number();
 
 export const openIdSchema = z.object({code});
 export const bindEmailSchema = z.object({userId,openId,email,code});

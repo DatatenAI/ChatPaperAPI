@@ -7,7 +7,7 @@ import {publicProcedure} from "@/trpc/create";
 const bindEmail = publicProcedure
     .input(bindEmailSchema)
     .query(async ({input, ctx}) => {
-        const {userId,openId,email,code} = input;
+        const {openId,email,code} = input;
         const verificationToken = await prisma.verificationToken.findUnique({
             where: {
                 token: code
@@ -32,7 +32,6 @@ const bindEmail = publicProcedure
         }
         await prisma.wxUser.update({
             where: {
-                id: userId,
                 openId: openId
             },
             data: {

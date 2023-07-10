@@ -7,13 +7,12 @@ import {appProtectedProcedure} from "@/trpc/create";
 const searchMyLike = appProtectedProcedure
     .input(searchSchema)
     .query(async ({input, ctx}) => {
-        const {userId,openId,pageNum,pageSize } = input;
+        const {openId,pageNum,pageSize } = input;
         return await prisma.wxLike.findMany({
             take: pageSize, // 指定每页要获取的结果数量
             skip: (pageNum - 1) * pageSize, // 根据当前页码计算要跳过的结果数量
             where: {
-                openId: openId,
-                weChatUserId: userId !== null ? userId : undefined,
+                openId: openId
             },
             include: {
                 paperInfo: true,

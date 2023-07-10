@@ -7,10 +7,9 @@ import {appProtectedProcedure} from "@/trpc/create";
 const addFavoritePaper = appProtectedProcedure
     .input(insertFavoriteSchema)
     .mutation(async ({input, ctx}) => {
-        const {userId,openId,favoriteId,paperId,source} = input;
+        const {openId,favoriteId,paperId,source} = input;
         await prisma.favoriteDetails.create({
             data: {
-                weChatUserId: userId,
                 openId: openId,
                 favoriteId: favoriteId,
                 paperId: paperId,

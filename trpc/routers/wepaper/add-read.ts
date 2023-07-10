@@ -7,10 +7,9 @@ import {appProtectedProcedure} from "@/trpc/create";
 const addRead = appProtectedProcedure
     .input(addReadSchema)
     .query(async ({input, ctx}) => {
-        const {userId,openId,paperId} = input;
+        const {openId,paperId} = input;
         await prisma.wxWaitRead.create({
             data: {
-                weChatUserId: userId,
                 openId: openId,
                 paperId: paperId,
                 createTime: new Date()

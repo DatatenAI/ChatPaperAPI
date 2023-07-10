@@ -7,10 +7,9 @@ import {appProtectedProcedure} from "@/trpc/create";
 const addFavorite = appProtectedProcedure
     .input(insertFavoriteSchema)
     .query(async ({input, ctx}) => {
-        const {userId,openId,favoriteName} = input;
+        const {openId,favoriteName} = input;
         await prisma.favorite.create({
             data: {
-                weChatUserId: userId,
                 openId: openId,
                 name: favoriteName,
                 createTime: new Date()

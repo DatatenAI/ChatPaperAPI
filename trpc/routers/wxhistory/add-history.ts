@@ -1,10 +1,9 @@
 import prisma from "@/lib/database";
 
-export async function addWxHistory(userId: String, openId: String, paperId: String): Promise<void> {
+export async function addWxHistory(openId: string, paperId: number): Promise<void> {
     await prisma.wxHistory.upsert({
         where: {
-            weChatUserId_openId_paperId: {
-                weChatUserId: userId,
+            openId_paperId: {
                 openId: openId,
                 paperId: paperId
             }
@@ -13,7 +12,6 @@ export async function addWxHistory(userId: String, openId: String, paperId: Stri
             createTime: new Date()
         },
         create: {
-            weChatUserId: userId,
             openId: openId,
             paperId: paperId,
             createTime: new Date()

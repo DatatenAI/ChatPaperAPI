@@ -6,10 +6,9 @@ import {appProtectedProcedure} from "@/trpc/create";
 const addFeedback = appProtectedProcedure
     .input(addFeedBackSchema)
     .mutation(async ({input, ctx}) => {
-        const {userId,openId,type,content} = input
+        const {openId,type,content} = input
         await prisma.wxFeedback.create({
             data: {
-                weChatUserId: userId,
                 openId: openId,
                 type: type,
                 content: content,

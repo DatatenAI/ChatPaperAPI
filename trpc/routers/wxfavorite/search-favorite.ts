@@ -8,10 +8,9 @@ import {date} from "zod";
 const scarchFavorite = publicProcedure
     .input(scarchFavoriteSchema)
     .query(async ({input, ctx}) => {
-        const { userId,openId } = input;
+        const { openId } = input;
         const favorites = await prisma.favorite.findMany({
             where: {
-                weChatUserId: userId !== null ? userId : undefined,
                 openId: openId
             },
             orderBy: {
@@ -28,23 +27,21 @@ const scarchFavorite = publicProcedure
                 }
             }
         });
-        if (favorites.length === 0 && userId !== null) {
+        if (favorites.length === 0 && openId !== null) {
             const newfav = await prisma.favorite.create({
                 data: {
-                    weChatUserId: userId,
                     openId: openId,
                     name: "默认收藏夹",
                     createTime: new Date()
                 },
                 select: {
                     id: true,
-                    weChatUserId:true,
                     openId:true,
                     name:true,
                     createTime:true
                 },
             })
-            favorites.push(newfav)
+            return [newfav]
         }
         return favorites;
     });
