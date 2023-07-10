@@ -1,5 +1,5 @@
 import {publicProcedure} from "@/trpc";
-import {openIdSchema} from "@/lib/wx-validation";
+import {codeSchema} from "@/lib/wx-validation";
 import jwt from 'jsonwebtoken';
 import prisma from "@/lib/database";
 
@@ -15,7 +15,7 @@ const generateToken = (openid:string) => {
 
 
 const getOpenId = publicProcedure
-    .input(openIdSchema)
+    .input(codeSchema)
     .query(async ({input, ctx}) => {
         const {code} = input;
         const params = new URLSearchParams();

@@ -8,10 +8,12 @@ const cancelRead = appProtectedProcedure
     .input(addReadSchema)
     .query(async ({input, ctx}) => {
         const {userId,openId,paperId} = input;
-        await prisma.wxWaitRead.deleteMany({
+        await prisma.wxWaitRead.delete({
             where: {
-                paperId: paperId,
-                openId: openId
+                openId_paperId: {
+                    openId: openId,
+                    paperId: paperId
+                }
             },
         });
         return {

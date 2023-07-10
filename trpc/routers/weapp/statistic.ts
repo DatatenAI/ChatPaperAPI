@@ -1,11 +1,11 @@
 import prisma from "@/lib/database";
-import {searchSchema} from "@/lib/wx-validation";
+import {openIdSchema} from "@/lib/wx-validation";
 import {appProtectedProcedure} from "@/trpc/create";
 
 
 /// 统计信息接口
 const statistic = appProtectedProcedure
-    .input(searchSchema)
+    .input(openIdSchema)
     .query(async ({input, ctx}) => {
         const {openId} = input
         const keywordsSize = await prisma.subscribeKeywords.findMany({

@@ -7,10 +7,12 @@ const cancelSubscribe = appProtectedProcedure
     .input(subscribeSchema)
     .query(async ({input, ctx}) => {
         const {keywordId,openId} = input;
-        await prisma.subscribeKeywords.deleteMany({
+        await prisma.subscribeKeywords.delete({
             where: {
-                keywordId: keywordId,
-                openId: openId
+                openId_keywordId: {
+                    openId: openId,
+                    keywordId: keywordId
+                }
             },
         });
         await prisma.keywords.update({

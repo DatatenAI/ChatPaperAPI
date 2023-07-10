@@ -29,7 +29,8 @@ const content = z.string();
 const pageNum = z.number();
 const pageSize = z.number();
 
-export const openIdSchema = z.object({code});
+export const codeSchema = z.object({code});
+export const openIdSchema = z.object({openId});
 export const bindEmailSchema = z.object({userId,openId,email,code});
 export const searchPaperSchema = z.object({userId,openId,keywords,pageNum,pageSize});
 export const searchPaperDetail = z.object({paperId,userId,openId});
