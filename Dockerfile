@@ -8,7 +8,7 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json pnpm-lock.yaml ./
-RUN yarn global add pnpm && pnpm i --frozen-lockfile
+RUN yarn global add pnpm && pnpm i
 
 # Rebuild the source code only when needed
 FROM base AS builder
