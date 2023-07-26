@@ -1,11 +1,11 @@
 import prisma from "@/lib/database";
-import {insertFavoriteSchema} from "@/lib/wx-validation";
+import {addFavoriteSchema} from "@/lib/wx-validation";
 import {appProtectedProcedure} from "@/trpc/create";
 
 
 /// 添加收藏夹
 const addFavorite = appProtectedProcedure
-    .input(insertFavoriteSchema)
+    .input(addFavoriteSchema)
     .query(async ({input, ctx}) => {
         const {openId,favoriteName} = input;
         await prisma.favorite.create({
