@@ -6,7 +6,7 @@ import {appProtectedProcedure} from "@/trpc/create";
 /// 添加收藏夹
 const editFavorite = appProtectedProcedure
     .input(editFavoriteSchema)
-    .query(async ({input, ctx}) => {
+    .mutation(async ({input, ctx}) => {
         const {openId,favoriteName,favoriteId} = input;
         console.log("#######@@@@@@@@@@ ",input)
         const existingFavorite = await prisma.favorite.findUnique({
