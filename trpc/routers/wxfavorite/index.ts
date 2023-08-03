@@ -6,6 +6,7 @@ import addFavorite from "@/trpc/routers/wxfavorite/add-favorite";
 import addFavoritePaper from "@/trpc/routers/wxfavorite/add-favorite-paper";
 import scarchFavoritePaper from "@/trpc/routers/wxfavorite/search-favorite-paper";
 import editFavorite from "@/trpc/routers/wxfavorite/edit-favorite";
+import deleteFavorite from "./delete-favorite";
 
 
 const wxfavoriteRouter = createTRPCRouter({
@@ -14,7 +15,8 @@ const wxfavoriteRouter = createTRPCRouter({
     editFavorite,
     addFavoritePaper,
     scarchFavoritePaper,
-    scarchFavorite
+    scarchFavorite,
+    deleteFavorite
 });
 
 export default wxfavoriteRouter;

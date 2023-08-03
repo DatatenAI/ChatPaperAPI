@@ -40,6 +40,7 @@ export const scarchFavoriteSchema = z.object({userId,openId});
 export const insertFavoriteSchema = z.object({userId,openId,favoriteName,favoriteId,paperId,source});
 export const addFavoriteSchema = z.object({userId,openId,favoriteName});
 export const editFavoriteSchema = z.object({userId,openId,favoriteName,favoriteId});
+export const deleteFavoriteSchema = z.object({userId,openId,favoriteId});
 export const addLikeSchema = z.object({userId,openId,paperId});
 export const addReadSchema = z.object({userId,openId,paperId});
 export const searchSchema = z.object({id,userId,openId,favoriteId,pageNum,pageSize});
