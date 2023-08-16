@@ -2,6 +2,7 @@ import "server-only";
 import {createTRPCRouter} from "@/trpc";
 import searchKeyWords from "@/trpc/routers/wepaper/search-keywords";
 import searchPaper from "@/trpc/routers/wepaper/search-paper";
+import searchConferencePaper from "@/trpc/routers/wepaper/search-conference-paper"
 import paperDetail from "@/trpc/routers/wepaper/paper-detail";
 import searchMyKeyWords from "@/trpc/routers/wepaper/search-my-keywords";
 import cancelSubscribe from "@/trpc/routers/wepaper/cancel-subscribe";
@@ -20,6 +21,7 @@ const wepaperRouter = createTRPCRouter({
     searchKeyWords,
     searchMyKeyWords,
     searchPaper,
+    searchConferencePaper,
     paperDetail
 });
 
