@@ -374,6 +374,8 @@ model PaperInfo {
   createTime         DateTime?         @map("create_time")
   /// 文献引用doi
   doi                String?
+  /// 总结的中间结果
+  completeSummary    String?           @map("complete_summary")
   summary            Summary[]
   favoriteDetails    FavoriteDetails[]
   wxLike             WxLike[]
