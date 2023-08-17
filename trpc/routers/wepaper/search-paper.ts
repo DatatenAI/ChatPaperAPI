@@ -59,7 +59,11 @@ const searchPaper = appPublicProcedure
                 }
             },
             include: {
-                summary: true,
+                summary: {
+                    select: {
+                        titleZh: true
+                    }
+                },
             },
             orderBy: {
                 createTime: 'desc',
@@ -71,6 +75,10 @@ const searchPaper = appPublicProcedure
                 waitFlag: false,
             })
         );
+        resultList.forEach(item => {
+            // no need for pages
+            item.abstract = ""
+        })
         //查询是否被加入待阅
         if (ctx.session != null && ctx.session.wxuser != null) {
             const ids = resultList.map(obj => obj.id);
