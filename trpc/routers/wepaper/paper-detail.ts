@@ -18,9 +18,9 @@ const paperDetail = appPublicProcedure
             }
         });
         const extendedPaper: prisma.paperInfo & {
-            likeFlag: boolean;
+            likeFlag: number;
             favoriteFlag: boolean;
-        } | null = detail ? { ...detail, likeFlag: false, favoriteFlag: false } : null;
+        } | null = detail ? { ...detail, likeFlag: 0, favoriteFlag: false } : null;
         //查询是否被收藏或者点赞
         if (ctx.session != null && ctx.session.wxuser != null) {
             // 添加浏览历史
@@ -37,7 +37,8 @@ const paperDetail = appPublicProcedure
                     paperId: paperId
                 }
             })
-            if (wxLike.length > 0) extendedPaper.likeFlag = true
+            // TODO: do we have len(wxLike) > 1 situation?
+            if (wxLike.length > 0) extendedPaper.likeFlag = (wxLike[0].ifLike ? 2 : 1)
             if (favorite.length > 0) extendedPaper.favoriteFlag = true
         }
         return extendedPaper;

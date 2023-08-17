@@ -12,7 +12,8 @@ const searchMyLike = appProtectedProcedure
             take: pageSize, // 指定每页要获取的结果数量
             skip: (pageNum - 1) * pageSize, // 根据当前页码计算要跳过的结果数量
             where: {
-                openId: openId
+                openId: openId,
+                ifLike: true
             },
             include: {
                 paperInfo: true,

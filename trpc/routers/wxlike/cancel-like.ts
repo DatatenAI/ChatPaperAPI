@@ -9,6 +9,7 @@ const cancelLike = appProtectedProcedure
     .input(addLikeSchema)
     .query(async ({input, ctx}) => {
         const {openId,paperId} = input;
+        // cancel like or dislike at the same time
         await prisma.wxLike.delete({
             where: {
                 openId_paperId: {

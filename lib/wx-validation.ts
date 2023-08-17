@@ -30,6 +30,7 @@ const content = z.string();
 const pageNum = z.number();
 const pageSize = z.number();
 const year = z.number();
+const like = z.boolean();
 
 export const codeSchema = z.object({code});
 export const openIdSchema = z.object({openId});
@@ -43,6 +44,7 @@ export const scarchFavoriteSchema = z.object({userId,openId});
 export const insertFavoriteSchema = z.object({userId,openId,favoriteName,favoriteId,paperId,source});
 export const addFavoriteSchema = z.object({userId,openId,favoriteName});
 export const addLikeSchema = z.object({userId,openId,paperId});
+export const updateLikeSchema = z.object({userId,openId,paperId, like});
 export const addReadSchema = z.object({userId,openId,paperId});
 export const searchSchema = z.object({id,userId,openId,favoriteId,pageNum,pageSize});
 export const searchSummarySchema = z.object({pageNum,pageSize,email});

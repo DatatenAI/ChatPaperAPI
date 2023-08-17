@@ -443,6 +443,8 @@ model WxLike {
   openId     String     @map("open_id")
   /// 创建时间
   createTime DateTime?  @map("create_time")
+  /// 点赞or点踩
+  ifLike     Boolean    @map("iflike")
   /// 点赞文章主键
   paperId    BigInt?    @map("paper_id")
   paperInfo  PaperInfo? @relation(fields: [paperId], references: [id])
