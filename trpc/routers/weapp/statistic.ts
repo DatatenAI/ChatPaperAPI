@@ -20,7 +20,8 @@ const statistic = appProtectedProcedure
         });
         const likeSize = await prisma.wxLike.findMany({
             where: {
-                openId: openId
+                openId: openId,
+                ifLike: true
             }
         });
         const historySize = await prisma.wxHistory.findMany({

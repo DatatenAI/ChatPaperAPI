@@ -7,7 +7,7 @@ import {flag} from "arg";
 const searchConferencePaper = appPublicProcedure
     .input(searchConferencePaperSchema)
     .query(async ({input, ctx}) => {
-        const {conference, pageNum, pageSize} = input
+        const {conference, year, pageNum, pageSize} = input
         const paperList = await prisma.paperInfo.findMany({
             take: pageSize, // 指定每页要获取的结果数量
             skip: (pageNum - 1) * pageSize, // 根据当前页码计算要跳过的结果数量
@@ -19,6 +19,10 @@ const searchConferencePaper = appPublicProcedure
                             not: undefined
                         }
                     }
+                },
+                pubTime: {
+                    gte: new Date(year, 0), // the first day of the first month
+                    lte: new Date(year, 12) // the first day of the next year
                 }
             },
             include: {

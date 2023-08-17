@@ -6,7 +6,7 @@ import {appProtectedProcedure} from "@/trpc/create";
 
 
 /// 点赞
-const addLike = appProtectedProcedure
+const addDislike = appProtectedProcedure
     .input(addLikeSchema)
     .query(async ({input, ctx}) => {
         const {openId,paperId} = input;
@@ -15,12 +15,12 @@ const addLike = appProtectedProcedure
                 openId: openId,
                 paperId: paperId,
                 createTime: new Date(),
-                ifLike: true
+                ifLike: false
             }
         })
         return {
-            message: "like added successfully",
+            message: "dislike added successfully",
         };
     });
 
-export default addLike;
+export default addDislike;
