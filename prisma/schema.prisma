@@ -187,7 +187,7 @@ model Task {
   summary    Summary?  @relation(fields: [pdfHash, language], references: [pdfHash, language])
 
   @@index([pdfHash, language, type])
-  @@map("tasks")
+  @@map("users_tasks")
 }
 
 model Summary {
@@ -217,7 +217,7 @@ model Summary {
   paperInfo           PaperInfo? @relation(fields: [pdfHash], references: [pdfHash])
 
   @@unique([pdfHash, language])
-  @@map("summaries")
+  @@map("paper_summaries")
 }
 
 model PaperChunk {
@@ -309,7 +309,7 @@ model KeywordsPdf {
   keywords       Keywords? @relation(fields: [searchKeywords], references: [searchKeywords])
 
   @@unique([searchKeywords, pdfUrl])
-  @@map("search_keywords_pdf")
+  @@map("subscribe_keywords_search_pdf")
 }
 
 /// 用户订阅关键词表
@@ -322,7 +322,7 @@ model SubscribeKeywords {
 
   @@unique([openId, keywordId])
   @@index([openId, keywordId])
-  @@map("subscribe_keywords")
+  @@map("users_subscribe_keywords")
 }
 
 /// 文献基础信息表
