@@ -16,26 +16,26 @@ const TaskDetail: Page<"id"> = async props => {
         return notFound();
     }
     const user = (await getCurrentUser())!;
-    const task = await prisma.task.findUnique({
-        select: {
-            pdfHash: true,
-            language: true,
-            state: true,
-            fileName: true
-        },
-        where: {
-            id,
-            userId: user.id
-        }
-    });
-    if (!task) {
-        return notFound();
-    }
+    // const task = await prisma.task.findUnique({
+    //     select: {
+    //         pdfHash: true,
+    //         language: true,
+    //         state: true,
+    //         fileName: true
+    //     },
+    //     where: {
+    //         id,
+    //         userId: user.id
+    //     }
+    // });
+    // if (!task) {
+    //     return notFound();
+    // }
     const summary = await prisma.summary.findUnique({
         where: {
             pdfHash_language: {
-                pdfHash: task.pdfHash,
-                language: task.language
+                pdfHash: "6377f7862dd377c0662cf91e8dcd83e7",
+                language: "中文"
             }
         }
     });
@@ -55,18 +55,18 @@ const TaskDetail: Page<"id"> = async props => {
         )
     }
 
-    const pdfUrl = getFileUrl("uploads", task.pdfHash + ".pdf");
+    const pdfUrl = 'https://proceedings.mlr.press/v162/chae22a/chae22a.pdf';
     return <div>
-        <Header logined title={summary?.title || task.fileName} extra={<TaskStateBadge state={task.state}/>}/>
+        <Header logined title={"Robust Imitation Learning against Variations in Environment Dynamics"} extra={<TaskStateBadge state={'SUCCESS'}/>}/>
         <SummaryContent
-            language={task.language}
-            taskState={task.state}
+            language={'中文'}
+            taskState={'SUCCESS'}
             summary={summary}
             chats={chats}
             pdfUrl={pdfUrl}
             avatar={user.image}
             logined/>
-        <RefreshTask task={task}/>
+        {/* <RefreshTask task={task}/> */}
     </div>
 }
 export default TaskDetail;

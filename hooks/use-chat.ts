@@ -13,9 +13,12 @@ export type ChatMessage = {
 }
 
 const reply_messages = [
-    "这是第一条回复，aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    ["这是第一条回复，aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     "这是第二条回复，bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-    "这是第三条回复，ccccccccccccccccccccccccccccccccccccccccccccc",
+    "这是第三条回复，ccccccccccccccccccccccccccccccccccccccccccccc",],
+    ["这是第一条回复，ddddddddddddddddddddddddddddd",
+    "这是第二条回复，eeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "这是第三条回复，ffffffffffffffffffffffffffffff",]
 ]
 
 const sleep = (ms: number) => {
@@ -24,9 +27,9 @@ const sleep = (ms: number) => {
 
 const getRandomInt = (min: number, max: number) => {
     return Math.floor(Math.random() * (max - min) + min);
-}
+} 
 
-const useChat = (defaultMessages?: ChatMessage[]) => {
+const useChat = (chatbotId: number, defaultMessages?: ChatMessage[]) => {
     const [messages, setMessages] = useState(defaultMessages || []);
     const [replyCount, setReplyCount] = useState(0);
     // const chatMutation = trpc.summary.chat.useMutation();
@@ -58,7 +61,7 @@ const useChat = (defaultMessages?: ChatMessage[]) => {
             newMessages.push({
                 type: error ? 'text' : 'markdown',
                 from: 'system',
-                content: reply_messages[replyCount]!,
+                content: reply_messages[chatbotId][replyCount]!,
                 loading: false,
             });
             setReplyCount(replyCount + 1);

@@ -173,124 +173,125 @@ const UploadPdf: FC<{
     };
 
     const startSummary = async () => {
-        try {
-            setUploadLoading(true);
-            let summaryParam: z.infer<typeof CreateTaskSchema> = {
-                language,
-            }
-            if (uploadType === 'FILE') {
-                if (!files.length) {
-                    toast({
-                        title: '请选择要上传的文件',
-                    });
-                    return
-                }
-                const allUploaded = files.every(file => file.state === 'success');
-                if (!allUploaded) {
-                    const hashUrls = await genUploadUrlMutation.mutateAsync(new Set(files.map(it => it.hash)));
-                    setFiles(files.map(file => {
-                        const hashUrl = hashUrls.find(it => it.hash === file.hash);
-                        if (hashUrl) {
-                            file.url = hashUrl.url;
-                        }
-                        return file;
-                    }));
-                    await Promise.all(files.map(file => {
-                        return new Promise((resolve, reject) => {
-                            if (file.url) {
-                                const xhr = new XMLHttpRequest()
-                                xhr.upload.addEventListener("progress", (event) => {
-                                    if (event.lengthComputable) {
-                                        setFiles((files) => {
-                                            const newFiles = [...files];
-                                            const currentFile = newFiles.find(it => it.hash === file.hash);
-                                            if (currentFile) {
-                                                currentFile.progress = Math.round((event.loaded * 100) / event.total);
-                                            }
-                                            return newFiles
-                                        });
-                                    }
-                                });
-                                xhr.upload.onloadstart = e => {
-                                    setFiles((files) => {
-                                        const newFiles = [...files];
-                                        const currentFile = newFiles.find(it => it.hash === file.hash);
-                                        if (currentFile) {
-                                            currentFile.state = 'uploading';
-                                        }
-                                        return newFiles;
-                                    });
-                                };
-                                xhr.upload.onerror = e => {
-                                    setFiles((files) => {
-                                        const newFiles = [...files];
-                                        const currentFile = newFiles.find(it => it.hash === file.hash);
-                                        if (currentFile) {
-                                            currentFile.state = 'error';
-                                        }
-                                        return newFiles;
-                                    });
-                                    reject("upload error");
-                                };
-                                xhr.upload.onload = e => {
-                                    setFiles((files) => {
-                                        const newFiles = [...files];
-                                        const currentFile = newFiles.find(it => it.hash === file.hash);
-                                        if (currentFile) {
-                                            currentFile.state = 'success';
-                                        }
-                                        return newFiles;
-                                    });
-                                    resolve(null);
-                                }
-                                xhr.open("PUT", file.url, true);
-                                xhr.setRequestHeader("Content-Type", file.file.type);
-                                xhr.send(file.file);
-                            } else {
-                                setFiles((files) => {
-                                    const newFiles = [...files];
-                                    const currentFile = newFiles.find(it => it.hash === file.hash);
-                                    if (currentFile) {
-                                        currentFile.state = 'uploading';
-                                    }
-                                    return newFiles;
-                                });
-                                const timeout = setTimeout(() => {
-                                    setFiles((files) => {
-                                        const newFiles = [...files];
-                                        const currentFile = newFiles.find(it => it.hash === file.hash);
-                                        if (currentFile) {
-                                            currentFile.progress = 100;
-                                            currentFile.state = 'success';
-                                        }
-                                        return newFiles;
-                                    });
-                                    clearTimeout(timeout);
-                                    resolve(null);
-                                }, 500)
-                            }
-                        })
-                    }))
-                }
-                summaryParam.pdfFiles = files.map(file => {
-                    return {
-                        fileName: file.file.name,
-                        hash: file.hash
-                    }
-                });
-            } else {
-                if (!pdfUrls?.trim().length) {
-                    toast({
-                        title: '请输入PDF下载链接',
-                    });
-                    return;
-                }
-                summaryParam.pdfUrls = pdfUrls?.split("\n");
-            }
-            summaryMutation.mutate(summaryParam);
-        } finally {
-            setUploadLoading(false);
-        }
+        router.push('/task/1')
+        // try {
+        //     setUploadLoading(true);
+        //     let summaryParam: z.infer<typeof CreateTaskSchema> = {
+        //         language,
+        //     }
+        //     if (uploadType === 'FILE') {
+        //         if (!files.length) {
+        //             toast({
+        //                 title: '请选择要上传的文件',
+        //             });
+        //             return
+        //         }
+        //         const allUploaded = files.every(file => file.state === 'success');
+        //         if (!allUploaded) {
+        //             const hashUrls = await genUploadUrlMutation.mutateAsync(new Set(files.map(it => it.hash)));
+        //             setFiles(files.map(file => {
+        //                 const hashUrl = hashUrls.find(it => it.hash === file.hash);
+        //                 if (hashUrl) {
+        //                     file.url = hashUrl.url;
+        //                 }
+        //                 return file;
+        //             }));
+        //             await Promise.all(files.map(file => {
+        //                 return new Promise((resolve, reject) => {
+        //                     if (file.url) {
+        //                         const xhr = new XMLHttpRequest()
+        //                         xhr.upload.addEventListener("progress", (event) => {
+        //                             if (event.lengthComputable) {
+        //                                 setFiles((files) => {
+        //                                     const newFiles = [...files];
+        //                                     const currentFile = newFiles.find(it => it.hash === file.hash);
+        //                                     if (currentFile) {
+        //                                         currentFile.progress = Math.round((event.loaded * 100) / event.total);
+        //                                     }
+        //                                     return newFiles
+        //                                 });
+        //                             }
+        //                         });
+        //                         xhr.upload.onloadstart = e => {
+        //                             setFiles((files) => {
+        //                                 const newFiles = [...files];
+        //                                 const currentFile = newFiles.find(it => it.hash === file.hash);
+        //                                 if (currentFile) {
+        //                                     currentFile.state = 'uploading';
+        //                                 }
+        //                                 return newFiles;
+        //                             });
+        //                         };
+        //                         xhr.upload.onerror = e => {
+        //                             setFiles((files) => {
+        //                                 const newFiles = [...files];
+        //                                 const currentFile = newFiles.find(it => it.hash === file.hash);
+        //                                 if (currentFile) {
+        //                                     currentFile.state = 'error';
+        //                                 }
+        //                                 return newFiles;
+        //                             });
+        //                             reject("upload error");
+        //                         };
+        //                         xhr.upload.onload = e => {
+        //                             setFiles((files) => {
+        //                                 const newFiles = [...files];
+        //                                 const currentFile = newFiles.find(it => it.hash === file.hash);
+        //                                 if (currentFile) {
+        //                                     currentFile.state = 'success';
+        //                                 }
+        //                                 return newFiles;
+        //                             });
+        //                             resolve(null);
+        //                         }
+        //                         xhr.open("PUT", file.url, true);
+        //                         xhr.setRequestHeader("Content-Type", file.file.type);
+        //                         xhr.send(file.file);
+        //                     } else {
+        //                         setFiles((files) => {
+        //                             const newFiles = [...files];
+        //                             const currentFile = newFiles.find(it => it.hash === file.hash);
+        //                             if (currentFile) {
+        //                                 currentFile.state = 'uploading';
+        //                             }
+        //                             return newFiles;
+        //                         });
+        //                         const timeout = setTimeout(() => {
+        //                             setFiles((files) => {
+        //                                 const newFiles = [...files];
+        //                                 const currentFile = newFiles.find(it => it.hash === file.hash);
+        //                                 if (currentFile) {
+        //                                     currentFile.progress = 100;
+        //                                     currentFile.state = 'success';
+        //                                 }
+        //                                 return newFiles;
+        //                             });
+        //                             clearTimeout(timeout);
+        //                             resolve(null);
+        //                         }, 500)
+        //                     }
+        //                 })
+        //             }))
+        //         }
+        //         summaryParam.pdfFiles = files.map(file => {
+        //             return {
+        //                 fileName: file.file.name,
+        //                 hash: file.hash
+        //             }
+        //         });
+        //     } else {
+        //         if (!pdfUrls?.trim().length) {
+        //             toast({
+        //                 title: '请输入PDF下载链接',
+        //             });
+        //             return;
+        //         }
+        //         summaryParam.pdfUrls = pdfUrls?.split("\n");
+        //     }
+        //     summaryMutation.mutate(summaryParam);
+        // } finally {
+        //     setUploadLoading(false);
+        // }
     }
 
     return <div className={'space-y-6 text-center w-full max-w-xl mx-auto'}>

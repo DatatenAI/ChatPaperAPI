@@ -16,6 +16,7 @@ import Link from "next/link";
 import {AiOutlineLogin} from "@react-icons/all-files/ai/AiOutlineLogin";
 import {ChatMessage} from "@/types";
 import useChat from "@/hooks/use-chat";
+import {StreamOutput} from "@/hooks/stream-output"
 
 
 const ChatContainer: FC<{
@@ -40,7 +41,7 @@ const ChatContainer: FC<{
         }
     };
 
-    const {messages, sendMessage, setMessages, loading} = useChat();
+    const {messages, sendMessage, setMessages, loading} = useChat(1);
 
 
     const disabled = useMemo(() => {
@@ -157,13 +158,8 @@ const ChatContainer: FC<{
                                     </Avatar>
                             }
 
-                            <div
-                                className={`py-2.5 px-3.5 rounded ${message.from === 'system' ? 'bg-gray-100 text-gray-900' : 'bg-primary-600 text-primary-foreground'}`}>
-                                {message.type === 'markdown' ?
-                                    <ReactMarkdown className={'prose prose-sm'}>{message.content}</ReactMarkdown>
-                                    : message.content
-                                }
-                            </div>
+                            
+                            <StreamOutput message={message} chatbotId={1} speed={50}/>
                         </div>
                     })
                 }

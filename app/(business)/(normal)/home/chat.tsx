@@ -9,14 +9,14 @@ import useChat from "@/hooks/use-chat";
 import {useSession} from "next-auth/react";
 import {Avatar, AvatarFallback, AvatarImage} from "@/ui/avatar";
 import {BiUserCircle} from "@react-icons/all-files/bi/BiUserCircle";
-import {StreamOutput} from "./stream-output"
+import {StreamOutput} from "@/hooks/stream-output"
 
 const Chat: FC = props => {
     const {
         messages,
         loading,
         sendMessage
-    } = useChat([{
+    } = useChat(0, [{
         content: '你好, 我是chatpaper, 我能从已收录的5w篇论文中为您提供有用信息, 并展示相关论文, 请问有什么可以帮您的吗?',
         from: 'system',
         type: 'text',
@@ -68,7 +68,7 @@ const Chat: FC = props => {
                                     <AvatarFallback><BiUserCircle/></AvatarFallback>
                                 </Avatar>}
                             
-                                <StreamOutput message={message} speed={50}/>
+                                <StreamOutput message={message} chatbotId={0} speed={50}/>
                                 
                         </div>
                     })
