@@ -9,6 +9,7 @@ import useChat from "@/hooks/use-chat";
 import {useSession} from "next-auth/react";
 import {Avatar, AvatarFallback, AvatarImage} from "@/ui/avatar";
 import {BiUserCircle} from "@react-icons/all-files/bi/BiUserCircle";
+import {StreamOutput} from "./stream-output"
 
 const Chat: FC = props => {
     const {
@@ -66,13 +67,9 @@ const Chat: FC = props => {
                                     <AvatarImage src={session.data?.user?.image || undefined}/>
                                     <AvatarFallback><BiUserCircle/></AvatarFallback>
                                 </Avatar>}
-                            <div
-                                className={`py-1.5 px-3 rounded ${message.from === 'system' ? 'bg-gray-100 text-gray-900' : 'bg-primary-600 text-primary-foreground'} text-sm`}>
-                                {message.type === 'markdown' ?
-                                    <ReactMarkdown>{message.content}</ReactMarkdown>
-                                    : message.content
-                                }
-                            </div>
+                            
+                                <StreamOutput message={message} speed={50}/>
+                                
                         </div>
                     })
                 }

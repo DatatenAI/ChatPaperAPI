@@ -1,10 +1,10 @@
 import {useMemo, useState} from "react";
-import {trpc} from "@/lib/trpc";
+// import {trpc} from "@/lib/trpc";
 import {ChatSchema} from "@/lib/validation";
 import z from "zod";
 import {TRPCClientError} from "@trpc/client";
 
-type ChatMessage = {
+export type ChatMessage = {
     from: 'system' | 'user';
     type: 'markdown' | 'text';
     content: string;
@@ -12,9 +12,24 @@ type ChatMessage = {
     error?: boolean;
 }
 
+const reply_messages = [
+    "这是第一条回复，aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "这是第二条回复，bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "这是第三条回复，ccccccccccccccccccccccccccccccccccccccccccccc",
+]
+
+const sleep = (ms: number) => {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const getRandomInt = (min: number, max: number) => {
+    return Math.floor(Math.random() * (max - min) + min);
+}
+
 const useChat = (defaultMessages?: ChatMessage[]) => {
     const [messages, setMessages] = useState(defaultMessages || []);
-    const chatMutation = trpc.summary.chat.useMutation();
+    const [replyCount, setReplyCount] = useState(0);
+    // const chatMutation = trpc.summary.chat.useMutation();
 
     const loading = useMemo(() => {
         return messages.some(message => message.loading);
@@ -35,16 +50,18 @@ const useChat = (defaultMessages?: ChatMessage[]) => {
         }];
         setMessages(newMessages);
         try {
-            const res = await chatMutation.mutateAsync(params);
+            // const res = await chatMutation.mutateAsync(params);
             newMessages[newMessages.length - 1].loading = false;
-            const error = res.status !== 'SUCCESS'
+            const error = false; // res.status !== 'SUCCESS'
             newMessages[newMessages.length - 1].error = error;
+            await sleep(getRandomInt(1000, 3000));
             newMessages.push({
                 type: error ? 'text' : 'markdown',
                 from: 'system',
-                content: res.reply!,
+                content: reply_messages[replyCount]!,
                 loading: false,
             });
+            setReplyCount(replyCount + 1);
         } catch (e) {
             newMessages[newMessages.length - 1].loading = false;
             newMessages[newMessages.length - 1].error = false;
