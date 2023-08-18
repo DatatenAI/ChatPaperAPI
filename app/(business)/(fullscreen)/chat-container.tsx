@@ -2,7 +2,7 @@ import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
 import {AiOutlineLoading} from "@react-icons/all-files/ai/AiOutlineLoading";
 import {MdSend} from "@react-icons/all-files/md/MdSend";
 import Image from "next/image";
-import Logo from '@/public/logo.jpeg'
+import Logo from '@/public/logo.png'
 import {Avatar, AvatarFallback, AvatarImage} from "@/ui/avatar";
 import {BiUserCircle} from "@react-icons/all-files/bi/BiUserCircle";
 import type {Summary, TaskState} from "@prisma/client";
@@ -159,7 +159,7 @@ const ChatContainer: FC<{
                             }
 
                             
-                            <StreamOutput message={message} chatbotId={1} speed={50}/>
+                            <StreamOutput message={message} chatbotId={1} speed={100}/>
                         </div>
                     })
                 }

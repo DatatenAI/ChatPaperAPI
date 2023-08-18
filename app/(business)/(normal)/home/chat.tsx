@@ -3,7 +3,7 @@ import React, {FC, useEffect, useRef, useState} from 'react';
 import {Button} from "@/ui/button";
 import {AiOutlineSend} from "@react-icons/all-files/ai/AiOutlineSend";
 import Image from "next/image";
-import Logo from "@/public/logo.jpeg";
+import Logo from "@/public/logo.png";
 import ReactMarkdown from "react-markdown";
 import useChat from "@/hooks/use-chat";
 import {useSession} from "next-auth/react";
@@ -17,7 +17,7 @@ const Chat: FC = props => {
         loading,
         sendMessage
     } = useChat(0, [{
-        content: '你好, 我是chatpaper, 我能从已收录的5w篇论文中为您提供有用信息, 并展示相关论文, 请问有什么可以帮您的吗?',
+        content: '你好, 我是量拾, 我能从已收录的5w篇论文中为您提供有用信息, 并展示相关论文, 请问有什么可以帮您的吗?',
         from: 'system',
         type: 'text',
         loading: false,
@@ -68,7 +68,7 @@ const Chat: FC = props => {
                                     <AvatarFallback><BiUserCircle/></AvatarFallback>
                                 </Avatar>}
                             
-                                <StreamOutput message={message} chatbotId={0} speed={50}/>
+                                <StreamOutput message={message} chatbotId={0} speed={100}/>
                                 
                         </div>
                     })

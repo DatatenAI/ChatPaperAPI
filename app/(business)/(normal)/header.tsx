@@ -1,5 +1,5 @@
 import React from 'react';
-import Logo from "@/public/logo.jpeg";
+import Logo from "@/public/logo.png";
 import Image from "next/image";
 import Link from "next/link";
 import NavLinks from "./nav-links";
@@ -30,7 +30,7 @@ const ApplicationHeader: AsyncComponent = async props => {
             <nav className={'container h-16 flex  items-center'}>
                 <Link href={'/home'} className={'inline-flex items-center gap-2'} prefetch={false}>
                     <Image src={Logo} className={'w-10 h-10 rounded-xl'} alt={"logo"}/>
-                    <span className={'font-bold text-xl'}>ChatPaper</span>
+                    <span className={'font-bold text-xl'}>量拾</span>
                 </Link>
                 <div className={'ml-8'}>
                     <NavLinks/>

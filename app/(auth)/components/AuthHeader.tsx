@@ -1,5 +1,5 @@
 import React, { FC, PropsWithChildren, ReactNode } from "react";
-import Logo from "@/public/logo.jpeg";
+import Logo from "@/public/logo.png";
 import Image from "next/image";
 
 const AuthHeader: FC<PropsWithChildren & {

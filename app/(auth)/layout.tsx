@@ -1,6 +1,6 @@
 import {Layout} from "@/types";
 import Image from "next/image";
-import Logo from "@/public/logo.jpeg";
+import Logo from "@/public/logo.png";
 import React from "react";
 
 const AuthLayout: Layout = async (props) => {
