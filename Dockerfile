@@ -17,10 +17,10 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npx prisma generate
 
-RUN yarn build
+# RUN yarn build
 
 # If using npm comment out above and use below instead
-# RUN npm run build
+RUN npm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
@@ -33,7 +33,7 @@ ENV NODE_ENV production
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/node_modules/pdfjs-dist/build/pdf.worker.js ./node_modules/pdfjs-dist/build/pdf.worker.js
+# COPY --from=builder /app/node_modules/pdfjs-dist/build/pdf.worker.js ./node_modules/pdfjs-dist/build/pdf.worker.js
 
 
 EXPOSE 3000
@@ -41,4 +41,4 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME 0.0.0.0
 
-CMD ["node", "server.js"]
+CMD ls -alth && npm run start
