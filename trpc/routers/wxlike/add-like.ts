@@ -15,7 +15,8 @@ const addLike = appProtectedProcedure
                 openId: openId,
                 paperId: paperId,
                 createTime: new Date(),
-                ifLike: true
+                ifLike: true,
+                dislikeComment: ""
             }
         })
         return {

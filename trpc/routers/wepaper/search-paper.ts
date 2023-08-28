@@ -4,6 +4,7 @@ import {appPublicProcedure} from "@/trpc/create";
 import {flag} from "arg";
 
 
+// todo: remove another select
 const searchPaper = appPublicProcedure
     .input(searchPaperSchema)
     .query(async ({input, ctx}) => {

@@ -447,6 +447,7 @@ model WxLike {
   createTime DateTime?  @map("create_time")
   /// 点赞or点踩
   ifLike     Boolean    @map("iflike")
+  dislikeComment     String     @map("dislike_comment")
   /// 点赞文章主键
   paperId    BigInt?    @map("paper_id")
   paperInfo  PaperInfo? @relation(fields: [paperId], references: [id])

@@ -2,6 +2,7 @@ import z from "zod";
 
 
 const code = z.string();
+const comment = z.string();
 const userId =  z.union([z.number(), z.null()]).optional();
 const keywords = z.union([z.string(), z.undefined()]).optional();
 const conference = z.union([z.string(), z.undefined()]).optional();
@@ -44,7 +45,8 @@ export const scarchFavoriteSchema = z.object({userId,openId});
 export const insertFavoriteSchema = z.object({userId,openId,favoriteName,favoriteId,paperId,source});
 export const addFavoriteSchema = z.object({userId,openId,favoriteName});
 export const addLikeSchema = z.object({userId,openId,paperId});
-export const updateLikeSchema = z.object({userId,openId,paperId, like});
+export const addDislikeSchema = z.object({userId,openId,paperId,comment});
+export const updateLikeSchema = z.object({userId,openId,paperId,like, comment});
 export const addReadSchema = z.object({userId,openId,paperId});
 export const searchSchema = z.object({id,userId,openId,favoriteId,pageNum,pageSize});
 export const searchSummarySchema = z.object({pageNum,pageSize,email});
